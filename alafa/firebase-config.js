@@ -1,30 +1,13 @@
-/* إعدادات مشروع Firebase
- * اتركها null ليعمل المتجر محلياً (البيانات في متصفح الجهاز فقط).
- * لربط المتجر بقاعدة البيانات: الصق إعدادات تطبيق الويب من
- * Firebase Console ← Project settings ← Your apps ← SDK setup and configuration ← Config
- * (هذه الإعدادات ليست سرية، والحماية تتم عبر قواعد firestore.rules)
+/* إعدادات مشروع Firebase: alafa-store
+ * لإعادة المتجر للوضع المحلي (بدون قاعدة بيانات) ضع: window.ALAFA_FIREBASE = null;
+ * هذه الإعدادات ليست سرية، والحماية تتم عبر قواعد firestore.rules
  */
-window.ALAFA_FIREBASE = null;
-
-/* إعدادات مشروع alafa-store — يكتمل الربط بعد إضافة apiKey و appId ثم حذف علامتي التعليق حول الكائن */
-/*
 window.ALAFA_FIREBASE = {
-  apiKey: "",
+  apiKey: "AIzaSyAP_58xK_sFq8Xft2y2AEHcI5kBo5eAMcA",
   authDomain: "alafa-store.firebaseapp.com",
   projectId: "alafa-store",
   storageBucket: "alafa-store.firebasestorage.app",
   messagingSenderId: "1097990305369",
-  appId: ""
+  appId: "1:1097990305369:web:00230b1f678fca6985e348",
+  measurementId: "G-LN6W5JKVDD"
 };
-*/
-
-/* مثال:
-window.ALAFA_FIREBASE = {
-  apiKey: "AIza...",
-  authDomain: "alafa-store.firebaseapp.com",
-  projectId: "alafa-store",
-  storageBucket: "alafa-store.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abc123"
-};
-*/
