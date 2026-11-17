@@ -75,10 +75,9 @@
   <form class="box" onsubmit="doLogin(event)">
     <img src="logo.jpg" alt="ALAFA">
     <h2 style="margin:0 0 4px">لوحة التحكم</h2>
-    <p style="color:var(--muted);margin:0 0 16px;font-size:14px">أدخل الرمز السري للدخول</p>
-    <input class="input" id="pin" type="password" inputmode="numeric" placeholder="الرمز السري" style="text-align:center;font-size:20px;letter-spacing:6px" required>
-    <button class="btn block" style="margin-top:12px">دخول</button>
-    <p style="font-size:12px;color:var(--muted);margin-top:14px">الرمز الافتراضي: 1234 — غيّره من الإعدادات</p>
+    <div id="loginFields"><p style="color:var(--muted);font-size:14px">جارٍ الاتصال...</p></div>
+    <button class="btn block" style="margin-top:12px" id="loginBtn" disabled>دخول</button>
+    <p id="loginMsg" style="font-size:12px;color:var(--muted);margin-top:14px"></p>
     <a href="index.html" style="font-size:13px;color:var(--red)">← العودة للمتجر</a>
   </form>
 </div>
@@ -113,6 +112,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script>
 var A = ALAFA, db = A.db, esc = A.esc, money = A.money, cur = "dash", draftImg = null;
@@ -126,23 +126,63 @@ function toggleMenu(on) { document.getElementById("side").classList.toggle("open
 function fmtDate(d) { return new Date(d).toLocaleString("ar-LY", { dateStyle: "medium", timeStyle: "short" }); }
 
 /* ---------- الدخول ---------- */
+function renderLogin() {
+  var fb = A.mode === "firebase";
+  document.getElementById("loginFields").innerHTML = fb
+    ? '<p style="color:var(--muted);margin:0 0 16px;font-size:14px">سجّل الدخول بحساب المدير</p>' +
+      '<input class="input" id="email" type="email" placeholder="البريد الإلكتروني" autocomplete="username" required style="margin-bottom:8px;direction:ltr;text-align:center">' +
+      '<input class="input" id="pass" type="password" placeholder="كلمة المرور" autocomplete="current-password" required style="direction:ltr;text-align:center">'
+    : '<p style="color:var(--muted);margin:0 0 16px;font-size:14px">أدخل الرمز السري للدخول</p>' +
+      '<input class="input" id="pin" type="password" inputmode="numeric" placeholder="الرمز السري" style="text-align:center;font-size:20px;letter-spacing:6px" required>';
+  var msg = document.getElementById("loginMsg");
+  if (A.firebaseError && fb && !A.db.products.length) msg.innerHTML = '<span style="color:var(--red)">⚠️ ' + esc(A.firebaseError.message) + "</span>";
+  else msg.textContent = fb ? "🔒 متصل بقاعدة بيانات Firebase" : "الوضع المحلي — الرمز الافتراضي: 1234، غيّره من الإعدادات";
+  document.getElementById("loginBtn").disabled = false;
+}
 function doLogin(e) {
   e.preventDefault();
-  if (document.getElementById("pin").value === String(db.settings.adminPin)) {
-    try { sessionStorage.setItem("alafa-admin", "1"); } catch (x) {}
-    enter();
-  } else { toast("الرمز غير صحيح"); }
+  var btn = document.getElementById("loginBtn"); btn.disabled = true;
+  var p = A.mode === "firebase" ? A.login(document.getElementById("email").value, document.getElementById("pass").value) : A.login(document.getElementById("pin").value);
+  p.then(function () { btn.disabled = false; })
+   .catch(function (err) {
+     btn.disabled = false;
+     if (err.code === "not-admin") document.getElementById("loginMsg").innerHTML = '<span style="color:var(--red)">' + esc(err.message) + "</span>";
+     else toast(err.message);
+   });
 }
-function enter() { document.getElementById("login").style.display = "none"; document.getElementById("app").classList.add("on"); show(cur); }
-function logout() { try { sessionStorage.removeItem("alafa-admin"); } catch (x) {} location.reload(); }
+var entered = false;
+function syncAuth() {
+  if (A.isAdmin && !entered) {
+    entered = true;
+    document.getElementById("login").style.display = "none"; document.getElementById("app").classList.add("on"); show(cur);
+  } else if (!A.isAdmin && entered) { location.reload(); }
+}
+function logout() { A.logout().then(function () { location.reload(); }); }
 
-function show(p) {
-  cur = p; A.reload(); db = A.db; toggleMenu(false);
+/* خطأ موحّد لعمليات الحفظ */
+function fail(err) { toast((err && err.message) || "تعذر الحفظ"); }
+
+/* إعادة رسم الصفحة الحالية عند تغيّر البيانات دون مقاطعة ما يكتبه المدير */
+function refresh() {
+  if (!entered) return;
+  updateBadge();
+  var a = document.activeElement, typing = a && document.getElementById("page").contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName);
+  if (cur === "orders" && document.getElementById("otbl")) return pOrdersTable();
+  if (cur === "products" && document.getElementById("ptbl")) return pProductsTable();
+  if (cur === "settings" || typing) return;
+  show(cur, true);
+}
+function updateBadge() {
+  var n = db.orders.filter(function (o) { return o.status === "new"; }).length, nb = document.getElementById("newBadge");
+  nb.hidden = !n; nb.textContent = n;
+}
+
+function show(p, keepMenu) {
+  cur = p; db = A.db; if (!keepMenu) toggleMenu(false);
   document.querySelectorAll("aside .nav").forEach(function (b) { b.classList.toggle("on", b.dataset.p === p); });
   document.getElementById("title").textContent = TITLES[p];
   document.getElementById("headAct").innerHTML = "";
-  var n = db.orders.filter(function (o) { return o.status === "new"; }).length, nb = document.getElementById("newBadge");
-  nb.hidden = !n; nb.textContent = n;
+  updateBadge();
   ({ dash: pDash, orders: pOrders, products: pProducts, cats: pCats, customers: pCustomers, settings: pSettings })[p]();
 }
 function setPage(h) { document.getElementById("page").innerHTML = h; }
@@ -167,7 +207,9 @@ function pDash() {
   valid.forEach(function (o) { o.items.forEach(function (it) { sold[it.name] = (sold[it.name] || 0) + it.qty; }); });
   var top = Object.keys(sold).sort(function (a, b) { return sold[b] - sold[a]; }).slice(0, 5);
 
+  var empty = !db.products.length && !db.categories.length;
   setPage(
+    (empty ? '<div class="panel" style="border:2px dashed var(--red)"><h3>🚀 قاعدة البيانات فارغة</h3><p style="font-size:14px;color:var(--muted)">ابدأ بإضافة الأقسام والمنتجات، أو حمّل المنتجات التجريبية للتجربة.</p><button class="btn" onclick="seed()">تحميل المنتجات التجريبية</button></div>' : "") +
     '<div class="stats">' +
     '<div class="stat red"><small>إجمالي المبيعات</small><b>' + money(revenue) + "</b></div>" +
     '<div class="stat"><small>عدد الطلبات</small><b>' + db.orders.length + "</b></div>" +
@@ -178,7 +220,7 @@ function pDash() {
       return '<div><span>' + (x.v ? Math.round(x.v) : "") + '</span><i style="height:' + (x.v / mx * 100) + '%"></i>' + x.l + "</div>";
     }).join("") + "</div></div>" +
     '<div class="grid2"><div class="panel"><h3>أحدث الطلبات</h3>' + (db.orders.length ? '<table>' + db.orders.slice(0, 5).map(function (o) {
-      return '<tr style="cursor:pointer" onclick="viewOrder(\'' + o.id + '\')"><td><b>' + o.id + "</b><br><small>" + esc(o.customer.name) + '</small></td><td><span class="badge ' + SCLS[o.status] + '">' + A.STATUSES[o.status] + "</span></td><td>" + money(o.total) + "</td></tr>";
+      return '<tr style="cursor:pointer" onclick="viewOrder(\'' + o.id + '\')"><td><b>' + esc(o.code || o.id) + "</b><br><small>" + esc(o.customer.name) + '</small></td><td><span class="badge ' + SCLS[o.status] + '">' + A.STATUSES[o.status] + "</span></td><td>" + money(o.total) + "</td></tr>";
     }).join("") + "</table>" : '<div class="empty">لا توجد طلبات بعد</div>') + "</div>" +
     '<div class="panel"><h3>تنبيهات المخزون</h3>' + (low.length ? "<table>" + low.map(function (p) {
       return '<tr><td>' + esc(p.name) + '</td><td class="low">' + p.stock + '</td><td><button class="btn sm light" onclick="editProduct(\'' + p.id + '\')">تحديث</button></td></tr>';
@@ -195,7 +237,7 @@ function pOrders() {
   document.getElementById("headAct").innerHTML = '<button class="btn light sm" onclick="exportOrders()">⬇️ تصدير CSV</button>';
   var list = db.orders.filter(function (o) {
     if (oFilter && o.status !== oFilter) return false;
-    if (oQ && (o.id + o.customer.name + o.customer.phone + o.customer.city).toLowerCase().indexOf(oQ.toLowerCase()) < 0) return false;
+    if (oQ && ((o.code || o.id) + o.customer.name + o.customer.phone + o.customer.city).toLowerCase().indexOf(oQ.toLowerCase()) < 0) return false;
     return true;
   });
   setPage('<div class="panel"><div class="tools"><input class="input" placeholder="بحث برقم الطلب، الاسم، الهاتف..." value="' + esc(oQ) + '" oninput="oQ=this.value;pOrdersTable()"><select class="input" style="max-width:180px" onchange="oFilter=this.value;pOrders()">' + opts + "</select></div>" +
@@ -205,18 +247,18 @@ function pOrders() {
 function pOrdersTable() {
   var list = db.orders.filter(function (o) {
     if (oFilter && o.status !== oFilter) return false;
-    if (oQ && (o.id + o.customer.name + o.customer.phone + o.customer.city).toLowerCase().indexOf(oQ.toLowerCase()) < 0) return false;
+    if (oQ && ((o.code || o.id) + o.customer.name + o.customer.phone + o.customer.city).toLowerCase().indexOf(oQ.toLowerCase()) < 0) return false;
     return true;
   });
   document.getElementById("otbl").innerHTML = list.length ? "<table><tr><th>الطلب</th><th>العميل</th><th>المدينة</th><th>التاريخ</th><th>الإجمالي</th><th>الحالة</th><th></th></tr>" + list.map(function (o) {
-    return "<tr><td><b>" + o.id + "</b></td><td>" + esc(o.customer.name) + "<br><small>" + esc(o.customer.phone) + "</small></td><td>" + esc(o.customer.city) + "</td><td><small>" + fmtDate(o.date) + "</small></td><td>" + money(o.total) +
+    return "<tr><td><b>" + esc(o.code || o.id) + "</b></td><td>" + esc(o.customer.name) + "<br><small>" + esc(o.customer.phone) + "</small></td><td>" + esc(o.customer.city) + "</td><td><small>" + fmtDate(o.date) + "</small></td><td>" + money(o.total) +
       '</td><td><span class="badge ' + SCLS[o.status] + '">' + A.STATUSES[o.status] + '</span></td><td><button class="btn sm light" onclick="viewOrder(\'' + o.id + '\')">عرض</button></td></tr>';
   }).join("") + "</table>" : '<div class="empty">لا توجد طلبات</div>';
 }
 function viewOrder(id) {
   var o = db.orders.find(function (x) { return x.id === id; }); if (!o) return;
   var c = o.customer;
-  openModal("<h3>طلب " + o.id + "</h3>" +
+  openModal("<h3>طلب " + esc(o.code || o.id) + "</h3>" +
     '<div style="font-size:14px;color:var(--muted);margin-bottom:10px">' + fmtDate(o.date) + "</div>" +
     '<div class="panel" style="box-shadow:none;background:var(--bg)"><b>' + esc(c.name) + "</b> (" + esc(c.type || "") + ")<br>📞 " + esc(c.phone) + "<br>📍 " + esc(c.city) + " — " + esc(c.address) + "<br>💳 " + esc(c.pay || "") + (c.notes ? "<br>📝 " + esc(c.notes) : "") + "</div>" +
     "<table>" + o.items.map(function (i) { return "<tr><td>" + esc(i.name) + "</td><td>× " + i.qty + "</td><td>" + money(i.price * i.qty) + "</td></tr>"; }).join("") +
@@ -229,21 +271,18 @@ function viewOrder(id) {
     '<button class="btn light" onclick="closeModal()">إغلاق</button></div>');
 }
 function setStatus(id, s) {
-  var o = db.orders.find(function (x) { return x.id === id; });
-  if (s === "cancelled" && o.status !== "cancelled") o.items.forEach(function (i) { var p = db.products.find(function (x) { return x.id === i.id; }); if (p) p.stock += i.qty; });
-  if (o.status === "cancelled" && s !== "cancelled") o.items.forEach(function (i) { var p = db.products.find(function (x) { return x.id === i.id; }); if (p) p.stock = Math.max(0, p.stock - i.qty); });
-  o.status = s; A.save(); toast("تم تحديث الحالة"); show(cur);
+  A.setOrderStatus(id, s).then(function () { toast("تم تحديث الحالة"); }).catch(fail);
 }
 function delOrder(id) {
   if (!confirm("حذف هذا الطلب نهائياً؟")) return;
-  db.orders = db.orders.filter(function (x) { return x.id !== id; }); A.db.orders = db.orders; A.save(); closeModal(); show(cur);
+  A.deleteOrder(id).then(closeModal).catch(fail);
 }
 function printOrder(id) {
   var o = db.orders.find(function (x) { return x.id === id; }), s = db.settings, w = window.open("", "_blank");
   if (!w) { toast("اسمح بالنوافذ المنبثقة للطباعة"); return; }
-  w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>فاتورة ' + o.id + '</title><style>body{font-family:Tahoma;padding:30px;color:#222}table{width:100%;border-collapse:collapse;margin-top:16px}td,th{border:1px solid #ddd;padding:8px;text-align:right}h1{color:#e31e24;margin:0}.h{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #e31e24;padding-bottom:12px}</style></head><body>' +
+  w.document.write('<html dir="rtl"><head><meta charset="utf-8"><title>فاتورة ' + esc(o.code || o.id) + '</title><style>body{font-family:Tahoma;padding:30px;color:#222}table{width:100%;border-collapse:collapse;margin-top:16px}td,th{border:1px solid #ddd;padding:8px;text-align:right}h1{color:#e31e24;margin:0}.h{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #e31e24;padding-bottom:12px}</style></head><body>' +
     '<div class="h"><div><h1>ALAFA HEALTHCARE</h1><div>' + esc(s.nameAr) + "<br>" + esc(s.address) + " · " + esc(s.phone) + '</div></div><img src="' + location.href.replace(/admin\.html.*$/, "logo.jpg") + '" width="110"></div>' +
-    "<h2>فاتورة رقم " + o.id + "</h2><div>التاريخ: " + fmtDate(o.date) + "<br>العميل: " + esc(o.customer.name) + " — " + esc(o.customer.phone) + "<br>العنوان: " + esc(o.customer.city) + "، " + esc(o.customer.address) + "</div>" +
+    "<h2>فاتورة رقم " + esc(o.code || o.id) + "</h2><div>التاريخ: " + fmtDate(o.date) + "<br>العميل: " + esc(o.customer.name) + " — " + esc(o.customer.phone) + "<br>العنوان: " + esc(o.customer.city) + "، " + esc(o.customer.address) + "</div>" +
     "<table><tr><th>المنتج</th><th>السعر</th><th>الكمية</th><th>المجموع</th></tr>" + o.items.map(function (i) { return "<tr><td>" + esc(i.name) + "</td><td>" + money(i.price) + "</td><td>" + i.qty + "</td><td>" + money(i.price * i.qty) + "</td></tr>"; }).join("") +
     "<tr><td colspan=3>التوصيل</td><td>" + money(o.delivery) + "</td></tr><tr><th colspan=3>الإجمالي</th><th>" + money(o.total) + "</th></tr></table>" +
     "<p style='margin-top:30px;text-align:center;color:#888'>شكراً لثقتكم بشركة ألفا الطبية</p><script>onload=function(){print()}<\/script></body></html>");
@@ -252,7 +291,7 @@ function printOrder(id) {
 function exportOrders() {
   var rows = [["رقم الطلب", "التاريخ", "العميل", "الهاتف", "المدينة", "العنوان", "المنتجات", "الإجمالي", "الحالة"]];
   db.orders.forEach(function (o) {
-    rows.push([o.id, fmtDate(o.date), o.customer.name, o.customer.phone, o.customer.city, o.customer.address, o.items.map(function (i) { return i.name + " x" + i.qty; }).join(" | "), o.total, A.STATUSES[o.status]]);
+    rows.push([o.code || o.id, fmtDate(o.date), o.customer.name, o.customer.phone, o.customer.city, o.customer.address, o.items.map(function (i) { return i.name + " x" + i.qty; }).join(" | "), o.total, A.STATUSES[o.status]]);
   });
   download("alafa-orders.csv", "﻿" + rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","); }).join("\n"), "text/csv");
 }
@@ -306,13 +345,13 @@ function saveProduct(e, id) {
     price: Number(f.price.value), oldPrice: Number(f.oldPrice.value || 0), stock: parseInt(f.stock.value, 10) || 0,
     unit: f.unit.value.trim(), desc: f.desc.value.trim(), rx: f.rx.checked, featured: f.featured.checked, active: f.active.checked, img: draftImg
   };
-  if (id) Object.assign(db.products.find(function (x) { return x.id === id; }), data);
-  else { data.id = A.uid("p"); db.products.unshift(data); }
-  A.save(); closeModal(); toast("تم الحفظ ✓"); show(cur);
+  if (id) { var old = db.products.find(function (x) { return x.id === id; }); data.id = id; data.created = old && old.created; }
+  var btn = f.querySelector("button.block"); btn.disabled = true;
+  A.saveProduct(data).then(function () { closeModal(); toast("تم الحفظ ✓"); }).catch(function (err) { btn.disabled = false; fail(err); });
 }
 function delProduct(id) {
   if (!confirm("حذف هذا المنتج؟")) return;
-  db.products = db.products.filter(function (x) { return x.id !== id; }); A.db.products = db.products; A.save(); show(cur);
+  A.deleteProduct(id).catch(fail);
 }
 
 /* ---------- الأقسام ---------- */
@@ -333,14 +372,13 @@ function editCat(id) {
 function saveCat(e, id) {
   e.preventDefault();
   var d = { name: e.target.name.value.trim(), icon: e.target.icon.value.trim() || "💊" };
-  if (id) Object.assign(db.categories.find(function (x) { return x.id === id; }), d);
-  else { d.id = A.uid("c"); db.categories.push(d); }
-  A.save(); closeModal(); show(cur);
+  if (id) { var old = db.categories.find(function (x) { return x.id === id; }); d.id = id; d.sort = old && old.sort; }
+  A.saveCategory(d).then(closeModal).catch(fail);
 }
 function delCat(id) {
   if (db.products.some(function (p) { return p.cat === id; })) { toast("انقل منتجات القسم أولاً"); return; }
   if (!confirm("حذف القسم؟")) return;
-  db.categories = db.categories.filter(function (x) { return x.id !== id; }); A.db.categories = db.categories; A.save(); show(cur);
+  A.deleteCategory(id).catch(fail);
 }
 
 /* ---------- العملاء ---------- */
@@ -358,47 +396,60 @@ function pCustomers() {
 
 /* ---------- الإعدادات ---------- */
 function pSettings() {
-  var s = db.settings;
+  var s = db.settings, fb = A.mode === "firebase";
   function fld(k, l, t) { return '<label class="f">' + l + '<input class="input" name="' + k + '" type="' + (t || "text") + '" value="' + esc(s[k]) + '"></label>'; }
   setPage('<form class="panel" onsubmit="saveSettings(event)"><h3>بيانات الشركة</h3><div class="grid2">' +
     fld("name", "الاسم (إنجليزي)") + fld("nameAr", "الاسم (عربي)") + fld("tagline", "الشعار / الوصف") + fld("address", "العنوان") +
     fld("phone", "الهاتف") + fld("email", "البريد الإلكتروني", "email") + fld("whatsapp", "رقم واتساب لاستقبال الطلبات (بالصيغة الدولية بدون +)") + fld("currency", "العملة") +
     "</div><h3>التوصيل والعروض</h3><div class=grid2>" + fld("deliveryFee", "رسوم التوصيل", "number") + fld("freeDeliveryOver", "توصيل مجاني للطلبات فوق", "number") + "</div>" +
     fld("announcement", "شريط الإعلان أعلى المتجر") +
-    "<h3>الأمان</h3>" + fld("adminPin", "الرمز السري للوحة التحكم", "password") +
+    (fb ? "" : "<h3>الأمان</h3>" + fld("adminPin", "الرمز السري للوحة التحكم", "password")) +
     '<button class="btn">حفظ الإعدادات</button></form>' +
-    '<div class="panel"><h3>النسخ الاحتياطي</h3><p style="font-size:14px;color:var(--muted)">البيانات محفوظة في هذا المتصفح. صدّر نسخة احتياطية بانتظام لنقلها لجهاز آخر.</p>' +
+    '<div class="panel"><h3>قاعدة البيانات</h3>' +
+    (fb ? '<p style="font-size:14px">🟢 متصل بـ Firebase — المشروع: <b dir="ltr">' + esc(ALAFA_FIREBASE.projectId) + '</b><br>المدير الحالي: <span dir="ltr">' + esc(A.adminEmail) + "</span></p>" +
+          '<p style="font-size:13px;color:var(--muted)">لإضافة مدير جديد: أنشئ له حساباً في Authentication، ثم أضف مستنداً بمعرّفه (UID) داخل مجموعة admins في Firestore.</p>'
+        : '<p style="font-size:14px;color:var(--muted)">⚪ الوضع المحلي — البيانات محفوظة في هذا المتصفح فقط. لربط المتجر بـ Firebase املأ ملف firebase-config.js (راجع README).</p>') +
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn light" onclick="backup()">⬇️ تصدير نسخة احتياطية</button>' +
-    '<input type="file" accept="application/json" id="rf" hidden onchange="restore(this)"><button class="btn light" onclick="document.getElementById(\'rf\').click()">⬆️ استعادة نسخة</button>' +
-    '<button class="btn ghost" onclick="resetAll()">إعادة ضبط البيانات</button></div></div>');
+    '<input type="file" accept="application/json" id="rf" hidden onchange="restore(this)"><button class="btn light" onclick="document.getElementById(\'rf\').click()">⬆️ استعادة / نقل البيانات</button>' +
+    (fb ? '<button class="btn ghost" onclick="seed()">تحميل المنتجات التجريبية</button>' : '<button class="btn ghost" onclick="resetAll()">إعادة ضبط البيانات</button>') +
+    "</div>" + (fb ? "" : '<p style="font-size:12px;color:var(--muted);margin-bottom:0">لنقل بياناتك الحالية إلى Firebase: صدّر نسخة احتياطية الآن، ثم بعد الربط استخدم «استعادة / نقل البيانات».</p>') + "</div>");
 }
 function saveSettings(e) {
   e.preventDefault();
-  var f = e.target;
-  Object.keys(db.settings).forEach(function (k) {
-    if (f[k]) db.settings[k] = f[k].type === "number" ? Number(f[k].value) : f[k].value.trim();
+  var f = e.target, d = {};
+  Object.keys(A.DEFAULT.settings).forEach(function (k) {
+    if (f[k]) d[k] = f[k].type === "number" ? Number(f[k].value) : f[k].value.trim();
   });
-  db.settings.whatsapp = String(db.settings.whatsapp).replace(/\D/g, "");
-  if (!db.settings.adminPin) db.settings.adminPin = "1234";
-  A.save(); toast("تم حفظ الإعدادات ✓");
+  if (d.whatsapp != null) d.whatsapp = String(d.whatsapp).replace(/\D/g, "");
+  if (A.mode === "local" && !d.adminPin) d.adminPin = "1234";
+  A.saveSettings(d).then(function () { toast("تم حفظ الإعدادات ✓"); }).catch(fail);
 }
 function backup() { download("alafa-backup-" + new Date().toISOString().slice(0, 10) + ".json", JSON.stringify(db, null, 2), "application/json"); }
 function restore(inp) {
+  var file = inp.files[0]; inp.value = ""; if (!file) return;
   var r = new FileReader();
   r.onload = function () {
-    try {
-      var d = JSON.parse(r.result);
-      if (!d.products || !d.settings) throw 0;
-      localStorage.setItem(A.KEY, JSON.stringify(d)); toast("تمت الاستعادة ✓"); show(cur);
-    } catch (x) { toast("ملف غير صالح"); }
+    var d;
+    try { d = JSON.parse(r.result); if (!d.products || !d.settings) throw 0; } catch (x) { toast("ملف غير صالح"); return; }
+    if (!confirm("سيتم استيراد " + d.products.length + " منتج و" + (d.orders || []).length + " طلب. متابعة؟")) return;
+    A.importAll(d).then(function () { toast("تمت الاستعادة ✓"); show(cur); }).catch(fail);
   };
-  r.readAsText(inp.files[0]);
+  r.readAsText(file);
 }
-function resetAll() { if (confirm("سيتم حذف جميع البيانات وإرجاع المنتجات التجريبية. متأكد؟")) { A.reset(); show(cur); } }
+function seed() {
+  if (!confirm("إضافة الأقسام والمنتجات التجريبية إلى قاعدة البيانات؟")) return;
+  A.seedDemo().then(function () { toast("تمت الإضافة ✓"); show(cur); }).catch(fail);
+}
+function resetAll() { if (confirm("سيتم حذف جميع البيانات وإرجاع المنتجات التجريبية. متأكد؟")) A.resetLocal(); }
 
-window.addEventListener("storage", function (e) { if (e.key === A.KEY && document.getElementById("app").classList.contains("on")) show(cur); });
-
-try { if (sessionStorage.getItem("alafa-admin") === "1") enter(); } catch (x) {}
+/* ---------- التشغيل ---------- */
+A.onChange(function () {
+  db = A.db;
+  if (!A.loaded) return;
+  if (!entered) renderLogin();
+  syncAuth();
+  refresh();
+});
 </script>
 </body>
 </html>

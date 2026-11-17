@@ -175,6 +175,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="firebase-config.js"></script>
 <script src="data.js"></script>
 <script>
 var A = ALAFA, db = A.db, esc = A.esc, money = A.money;
@@ -315,45 +316,50 @@ function checkout() {
 
 function placeOrder(e) {
   e.preventDefault();
-  var f = new FormData(e.target), c = {};
+  var form = e.target, btn = form.querySelector("button");
+  var f = new FormData(form), c = {};
   f.forEach(function (v, k) { c[k] = String(v).trim(); });
   writeLS("alafa-customer", { name: c.name, phone: c.phone, city: c.city, address: c.address });
-  A.reload(); db = A.db;
   var t = cartTotals(), items = cartItems();
-  var order = {
-    id: "ALF-" + Date.now().toString().slice(-6),
-    date: new Date().toISOString(), status: "new", customer: c,
+  if (!items.length) { closeModal(); return; }
+  btn.disabled = true; btn.textContent = "جارٍ إرسال الطلب...";
+  A.placeOrder({
+    customer: c,
     items: items.map(function (i) { return { id: i.p.id, name: i.p.name, price: i.p.price, qty: i.q }; }),
     subtotal: t.sub, delivery: t.del, total: t.total
-  };
-  items.forEach(function (i) { i.p.stock = Math.max(0, i.p.stock - i.q); });
-  db.orders.unshift(order); A.save();
-  var mine = readLS(MY_KEY, []); mine.unshift(order.id); writeLS(MY_KEY, mine);
-  cart = {}; saveCart(); renderProducts();
-
-  var msg = "طلب جديد من متجر ALAFA\nرقم الطلب: " + order.id + "\n\n" +
-    order.items.map(function (i) { return "• " + i.name + " × " + i.qty + " = " + money(i.price * i.qty); }).join("\n") +
-    "\n\nالمجموع: " + money(t.sub) + "\nالتوصيل: " + money(t.del) + "\nالإجمالي: " + money(t.total) +
-    "\n\nالاسم: " + c.name + "\nالهاتف: " + c.phone + "\nالمدينة: " + c.city + "\nالعنوان: " + c.address +
-    "\nنوع العميل: " + c.type + "\nالدفع: " + c.pay + (c.notes ? "\nملاحظات: " + c.notes : "");
-  var wa = "https://wa.me/" + db.settings.whatsapp + "?text=" + encodeURIComponent(msg);
-  openModal('<div style="text-align:center"><div style="font-size:60px">✅</div><h3>تم استلام طلبك</h3>' +
-    "<p>رقم الطلب: <b>" + order.id + "</b><br>سيتواصل معك فريق ألفا الطبية لتأكيد الطلب.</p>" +
-    '<a class="btn block" target="_blank" rel="noopener" href="' + wa + '">💬 أرسل الطلب عبر واتساب</a>' +
-    '<button class="btn light block" style="margin-top:8px" onclick="closeModal()">متابعة التسوق</button></div>');
+  }).then(function (order) {
+    var mine = readLS(MY_KEY, []); mine.unshift(order.id); writeLS(MY_KEY, mine.slice(0, 30));
+    cart = {}; saveCart(); renderProducts();
+    var msg = "طلب جديد من متجر ALAFA\nرقم الطلب: " + order.code + "\n\n" +
+      order.items.map(function (i) { return "• " + i.name + " × " + i.qty + " = " + money(i.price * i.qty); }).join("\n") +
+      "\n\nالمجموع: " + money(t.sub) + "\nالتوصيل: " + money(t.del) + "\nالإجمالي: " + money(t.total) +
+      "\n\nالاسم: " + c.name + "\nالهاتف: " + c.phone + "\nالمدينة: " + c.city + "\nالعنوان: " + c.address +
+      "\nنوع العميل: " + c.type + "\nالدفع: " + c.pay + (c.notes ? "\nملاحظات: " + c.notes : "");
+    var wa = "https://wa.me/" + db.settings.whatsapp + "?text=" + encodeURIComponent(msg);
+    openModal('<div style="text-align:center"><div style="font-size:60px">✅</div><h3>تم استلام طلبك</h3>' +
+      "<p>رقم الطلب: <b>" + esc(order.code) + "</b><br>سيتواصل معك فريق ألفا الطبية لتأكيد الطلب.</p>" +
+      '<a class="btn block" target="_blank" rel="noopener" href="' + wa + '">💬 أرسل الطلب عبر واتساب</a>' +
+      '<button class="btn light block" style="margin-top:8px" onclick="closeModal()">متابعة التسوق</button></div>');
+  }).catch(function (err) {
+    btn.disabled = false; btn.textContent = "تأكيد الطلب";
+    toast(err.message || "تعذر إرسال الطلب، حاول مجدداً");
+  });
 }
 
 function renderMyOrders() {
-  A.reload(); db = A.db;
-  var ids = readLS(MY_KEY, []);
-  var list = db.orders.filter(function (o) { return ids.indexOf(o.id) >= 0; });
+  var box = document.getElementById("myOrders"), ids = readLS(MY_KEY, []);
+  if (!ids.length) { box.innerHTML = '<div class="empty">📦<br>لا توجد طلبات بعد</div>'; return; }
+  box.innerHTML = '<div class="empty">جارٍ التحميل...</div>';
   var cls = { new: "", confirmed: "ok", shipping: "warn", delivered: "ok", cancelled: "gray" };
-  document.getElementById("myOrders").innerHTML = list.length ? list.map(function (o) {
-    return '<div class="ord"><div class="row"><b>' + o.id + '</b><span class="badge ' + cls[o.status] + '">' + A.STATUSES[o.status] + "</span></div>" +
-      '<div style="font-size:13px;color:var(--muted)">' + new Date(o.date).toLocaleString("ar-LY") + "</div>" +
-      '<div style="font-size:14px;margin:6px 0">' + o.items.map(function (i) { return esc(i.name) + " × " + i.qty; }).join("، ") + "</div>" +
-      '<div class="row total"><span>الإجمالي</span><span class="price">' + money(o.total) + "</span></div></div>";
-  }).join("") : '<div class="empty">📦<br>لا توجد طلبات بعد</div>';
+  A.getOrders(ids).then(function (list) {
+    list.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    box.innerHTML = list.length ? list.map(function (o) {
+      return '<div class="ord"><div class="row"><b>' + esc(o.code || o.id) + '</b><span class="badge ' + cls[o.status] + '">' + A.STATUSES[o.status] + "</span></div>" +
+        '<div style="font-size:13px;color:var(--muted)">' + new Date(o.date).toLocaleString("ar-LY") + "</div>" +
+        '<div style="font-size:14px;margin:6px 0">' + o.items.map(function (i) { return esc(i.name) + " × " + i.qty; }).join("، ") + "</div>" +
+        '<div class="row total"><span>الإجمالي</span><span class="price">' + money(o.total) + "</span></div></div>";
+    }).join("") : '<div class="empty">📦<br>لا توجد طلبات بعد</div>';
+  });
 }
 
 function go(v) {
@@ -365,12 +371,16 @@ function go(v) {
 function openModal(h) { document.getElementById("modalBody").innerHTML = h; document.getElementById("modal").classList.add("open"); }
 function closeModal() { document.getElementById("modal").classList.remove("open"); }
 
-/* تحديث تلقائي عند تعديل البيانات من لوحة التحكم في تبويب آخر */
-window.addEventListener("storage", function (e) {
-  if (e.key === A.KEY) { A.reload(); db = A.db; renderInfo(); renderCats(); renderProducts(); }
+document.getElementById("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">جارٍ تحميل المنتجات...</div>';
+renderInfo();
+/* يُعاد الرسم تلقائياً عند أي تغيير في البيانات (من لوحة التحكم أو قاعدة البيانات) */
+A.onChange(function () {
+  db = A.db;
+  if (!A.loaded) return;
+  renderInfo(); renderCats(); renderProducts(); saveCart();
+  if (A.firebaseError && !db.products.length) document.getElementById("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">⚠️ تعذر الاتصال بقاعدة البيانات<br><small>' + esc(A.firebaseError.message) + "</small></div>";
 });
 
-renderInfo(); renderCats(); renderProducts(); saveCart();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
 </script>
 </body>
