@@ -814,6 +814,21 @@ var _lib6=lib;lib=function(){_lib6();if(!S.lv){var el=$("v-lib"),t=el&&el.queryS
 function apiGet(p){var fresh=function(){var ac=typeof AbortController!=="undefined"?new AbortController():null,tm=ac?setTimeout(function(){try{ac.abort()}catch(e){}},12000):0;return fetch(API+p,ac?{signal:ac.signal}:undefined).then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(d){ix("c","set",p,{t:Date.now(),d:d}).catch(function(){});return d})};
  return ix("c","get",p).catch(function(){return null}).then(function(c){if(c&&c.d){if(Date.now()-c.t>6048e5)fresh().catch(function(){});return c.d}return fresh()})}
 
+/* ===== v12: never-interrupt playback: retry, host rotation, prefetch, stall watchdog ===== */
+var EVH=["https://everyayah.com/data/","https://www.everyayah.com/data/"],EVHX=0,EVRT=0,EVC={},EVCN=0,EVTL=0;
+function evBase(){return EVH[EVHX%EVH.length]+EVR[EV.r].f+"/"}
+var _evSrc0=evSrc;evSrc=function(s,a,cb){var u=evUrl(s,a);if(EVC[u])return cb(EVC[u],"");_evSrc0(s,a,cb)};
+function evPre(){if(EVR[EV.r].local||EV.i<0)return;var its=evItems(EV.s),j,it,u;for(j=1;j<=3;j++){it=its[EV.i+j];if(!it)break;u=evUrl(EV.s,it.a);if(EVC[u]||EVC["~"+u])continue;(function(u){EVC["~"+u]=1;fetch(u).then(function(r){if(!r.ok)throw 0;return r.blob()}).then(function(b){if(b.size<2000)throw 0;EVC[u]=URL.createObjectURL(b);if(++EVCN>12){Object.keys(EVC).filter(function(k){return k.charAt(0)!="~"}).slice(0,4).forEach(function(k){try{URL.revokeObjectURL(EVC[k])}catch(e){}delete EVC[k];delete EVC["~"+k]})}}).catch(function(){delete EVC["~"+u]})})(u)}}
+AYA.addEventListener("playing",function(){EVRT=0;EVTL=0;evPre()});
+var _evErr0=evErr;evErr=function(e){if(EV.st=="idle")return;if(e&&e.name=="NotAllowedError")return _evErr0(e);if(EVRT<4&&EV.i>=0&&!EVR[EV.r].local){EVRT++;EVHX++;var i=EV.i;EV.st="load";evBar();setTimeout(function(){if(EV.i==i&&EV.st=="load")evGo(i,true)},EVRT*400);return}EVRT=0;_evErr0(e)};
+setInterval(function(){if(EV.st=="load"){if(++EVTL>7){EVTL=0;evErr()}}else EVTL=0},1000);
+/* library audio: auto resume after error or stall */
+var ART=0,AST=0,ALT=-1;
+function aRetry(){if(!AC||!AUD.src||ART>=4)return;ART++;var t=AUD.currentTime||0,src=AUD.src;AUD.src=src;var f=function(){try{AUD.currentTime=t}catch(e){}AUD.removeEventListener("loadedmetadata",f)};AUD.addEventListener("loadedmetadata",f);var p=AUD.play();if(p&&p.catch)p.catch(function(){})}
+AUD.addEventListener("error",function(){setTimeout(aRetry,ART*500+300)});
+AUD.addEventListener("playing",function(){ART=0;AST=0});
+setInterval(function(){if(AC&&!AUD.paused&&!AUD.ended&&AUD.readyState<3){if(++AST>8){AST=0;aRetry()}}else AST=0},1000);
+
 function all(){proUi();recalc();navb();home();quran();lib();adhkar();qibla();cal();sett();$("v-set").insertAdjacentHTML("beforeend",ABOUT);tick();if(S.lang=="en")txn(document.body)}
 function navb(){$("nav").innerHTML=V.filter(function(x){return!(S.rel&&x[0]=="adhkar")}).map(function(x){return'<button data-v="'+x[0]+'" aria-label="'+x[1]+'" aria-current="'+(x[0]==CV)+'"><svg viewBox="0 0 24 24">'+x[2]+'</svg><span>'+x[1]+'</span></button>'}).join("")}navb();
 document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var D=b.dataset;
