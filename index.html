@@ -842,10 +842,10 @@ function apiGet(p){var fresh=function(){var ac=typeof AbortController!=="undefin
 var EVH=["https://everyayah.com/data/","https://www.everyayah.com/data/"],EVHX=0,EVRT=0,EVC={},EVCN=0,EVTL=0;
 function evBase(){return EVH[EVHX%EVH.length]+EVR[EV.r].f+"/"}
 var _evSrc0=evSrc;evSrc=function(s,a,cb){var u=evUrl(s,a);if(EVC[u])return cb(EVC[u],"");_evSrc0(s,a,cb)};
-function evPre(){if(EVR[EV.r].local||EV.i<0)return;var its=evItems(EV.s),j,it,u;for(j=1;j<=3;j++){it=its[EV.i+j];if(!it)break;u=evUrl(EV.s,it.a);if(EVC[u]||EVC["~"+u])continue;(function(u){EVC["~"+u]=1;fetch(u).then(function(r){if(!r.ok)throw 0;return r.blob()}).then(function(b){if(b.size<2000)throw 0;EVC[u]=URL.createObjectURL(b);if(++EVCN>12){Object.keys(EVC).filter(function(k){return k.charAt(0)!="~"}).slice(0,4).forEach(function(k){try{URL.revokeObjectURL(EVC[k])}catch(e){}delete EVC[k];delete EVC["~"+k]})}}).catch(function(){delete EVC["~"+u]})})(u)}}
+function evPre(){if(EVR[EV.r].local||EV.i<0)return;var its=evItems(EV.s),j,it,u;for(j=1;j<=6;j++){it=its[EV.i+j];if(!it)break;u=evUrl(EV.s,it.a);if(EVC[u]||EVC["~"+u])continue;(function(u){EVC["~"+u]=1;fetch(u).then(function(r){if(!r.ok)throw 0;return r.blob()}).then(function(b){if(b.size<2000)throw 0;EVC[u]=URL.createObjectURL(b);if(++EVCN>20){Object.keys(EVC).filter(function(k){return k.charAt(0)!="~"}).slice(0,4).forEach(function(k){try{URL.revokeObjectURL(EVC[k])}catch(e){}delete EVC[k];delete EVC["~"+k]})}}).catch(function(){delete EVC["~"+u]})})(u)}}
 AYA.addEventListener("playing",function(){EVRT=0;EVTL=0;evPre()});
 var _evErr0=evErr;evErr=function(e){if(EV.st=="idle")return;if(e&&e.name=="NotAllowedError")return _evErr0(e);if(EVRT<4&&EV.i>=0&&!EVR[EV.r].local){EVRT++;EVHX++;var i=EV.i;EV.st="load";evBar();setTimeout(function(){if(EV.i==i&&EV.st=="load")evGo(i,true)},EVRT*400);return}EVRT=0;_evErr0(e)};
-setInterval(function(){if(EV.st=="load"){if(++EVTL>7){EVTL=0;evErr()}}else EVTL=0},1000);
+setInterval(function(){if(EV.st=="load"){if(++EVTL>4){EVTL=0;evErr()}}else EVTL=0},1000);
 /* library audio: auto resume after error or stall */
 var ART=0,AST=0,ALT=-1;
 function aRetry(){if(!AC||!AUD.src||ART>=4)return;ART++;var t=AUD.currentTime||0,src=AUD.src;AUD.src=src;var f=function(){try{AUD.currentTime=t}catch(e){}AUD.removeEventListener("loadedmetadata",f)};AUD.addEventListener("loadedmetadata",f);var p=AUD.play();if(p&&p.catch)p.catch(function(){})}
@@ -873,6 +873,10 @@ function libList(){var L=$("llist");if(!L||AL.st!="ok")return;if(AL.rw!==AL._rw)
  rs.sort(function(a,b){return(isLiby(b)?1:0)-(isLiby(a)?1:0)});
  var sh=rs.slice(0,AL.lim);
  L.innerHTML='<div class="g">'+(sh.map(function(r){var ms=(r.moshaf||[]).map(function(m){return rwn(m.name.split(" - ")[0])}).filter(function(x,i,a){return a.indexOf(x)==i});var lb=isLiby(r);return'<button class="row" data-lx="rc" data-a1="'+r.id+'" style="'+RB+'"><span style="display:flex;align-items:center;gap:10px"><i class="av" style="background:hsl('+(r.id*47%360)+',55%,45%)">'+qesc(r.name.trim().charAt(0))+'</i><span>'+qesc(r.name)+(lb?' <small style="color:var(--acc);font-weight:700">· ليبي</small>':"")+'<small>'+qesc(ms.slice(0,2).join(" • "))+(ms.length>2?" +"+(ms.length-2):"")+'</small></span></span><span class="chev"><svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-chl"/></svg></span></button>'}).join("")||'<p>لا نتائج. جرّب اسم قارئ أو سورة أو رواية.</p>')+(rs.length>sh.length?'<button class="btn" data-lx="more" style="background:var(--soft);color:var(--acc)">عرض المزيد ('+(rs.length-sh.length)+')</button>':"")+'</div>'}
+
+/* ===== v14: faster verse loading: warm connection, deeper prefetch, early start ===== */
+try{AYA.preload="auto";var _pc=document.createElement("link");_pc.rel="preconnect";_pc.href="https://everyayah.com";_pc.crossOrigin="anonymous";document.head.appendChild(_pc);var _dn=document.createElement("link");_dn.rel="dns-prefetch";_dn.href="https://www.everyayah.com";document.head.appendChild(_dn)}catch(e){}
+var _evGo14=evGo;evGo=function(){var r=_evGo14.apply(this,arguments);setTimeout(evPre,0);return r};
 /* ===== v14: accounts (email + password, email verification, full sync) ===== */
 var ACU="https://salat-push.vzftysb4h2.workers.dev",ACS={v:"login",f:{},busy:0,msg:"",ok:0,tm:null},ACX=["sp","tab","wel","sel","mig1","mig2","mig3","pcodes","pu","_ut"];
 function acG(){try{return JSON.parse(localStorage.getItem("taz_acct")||"null")}catch(e){return null}}
