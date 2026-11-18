@@ -76,7 +76,7 @@ async function limit(env,k,max,win){const now=Date.now(),r=await env.DB.prepare(
  if(r.n>=max)return false;await env.DB.prepare("UPDATE rl SET n=n+1 WHERE k=?").bind(k).run();return true}
 async function mail(env,to,subject,html){if(!env.BREVO_KEY||!env.MAIL_FROM)throw new Error("mail-config");
  const r=await fetch("https://api.brevo.com/v3/smtp/email",{method:"POST",headers:{"api-key":env.BREVO_KEY,"content-type":"application/json",accept:"application/json"},body:JSON.stringify({sender:{name:"الصلاة",email:env.MAIL_FROM},to:[{email:to}],subject,htmlContent:html})});
- if(!r.ok)throw new Error("mail-"+r.status)}
+ if(!r.ok){let t="";try{t=(await r.text()).replace(/[^A-Za-z0-9 _:.,-]/g,"").slice(0,60)}catch(e){}throw new Error("mail-"+r.status+" "+t)}}
 async function sendCode(env,u,kind){const code=String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,"0"),now=Date.now();
  const old=await env.DB.prepare("SELECT sent FROM codes WHERE uid=? AND kind=?").bind(u.id,kind).first();
  if(old&&now-old.sent<60000)return"wait";
@@ -160,7 +160,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
   if(!r||!same(await pbk(String(b.password||""),r.salt),r.hash))return out(env,{error:"login"},401);
   await env.DB.batch(["users WHERE id","sess WHERE uid","dat WHERE uid","codes WHERE uid"].map(t=>env.DB.prepare("DELETE FROM "+t+"=?").bind(me.id)));return out(env,{ok:true})}
  return out(env,{error:"route"},404);
- }catch(e){return out(env,{error:String(e&&e.message).indexOf("mail")===0?"mail":"server"},500)}
+ }catch(e){return out(env,{error:String(e&&e.message).indexOf("mail")===0?"mail":"server",d:String(e&&e.message).slice(0,40)},500)}
 }};
 })();
 
