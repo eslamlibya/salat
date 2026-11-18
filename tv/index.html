@@ -198,7 +198,7 @@ load();recalc();build();tick();setInterval(tick,1000);tvwLoad();setInterval(tvwL
 try{if(navigator.wakeLock){var wl=function(){navigator.wakeLock.request("screen").catch(function(){})};wl();document.addEventListener("visibilitychange",function(){if(!document.hidden)wl()})}}catch(e){}
 try{if(document.documentElement.requestFullscreen)document.addEventListener("click",function once(){document.removeEventListener("click",once);document.documentElement.requestFullscreen().catch(function(){})})}catch(e){}
 /* ===== المكتبة الصوتية (صوت فقط) ===== */
-var API="https://mp3quran.net/api/v3",LB={st:"idle",R:[],SW:{},v:"list",q:"",rw:"",lby:0,rec:null,mo:null,lim:60,err:""},AUD=new Audio(),CUR=null,RT=0,RM=0,SPD=1,SLP=0,SLT=null;AUD.preload="auto";AUD.crossOrigin="anonymous";
+var API="https://mp3quran.net/api/v3",LB={st:"idle",R:[],SW:{},v:"list",q:"",rw:"",lby:0,rec:null,mo:null,lim:60,err:""},AUD=new Audio(),CUR=null,RT=0,RM=0,SPD=1,SLP=0,SLT=null;AUD.preload="auto";
 var LIBY=["قنيوه","مجلي","العباني","ديبان","ليبي","الورفلي","الغرياني","المصراتي","الطرابلسي","البنغازي","الزاوي","الفيتوري"];
 function isLiby(r){var n=nz(r.name);return LIBY.some(function(w){return n.indexOf(nz(w))>-1})}
 function rwn(x){return String(x).replace(/^رواية\s+/,"")}
@@ -319,7 +319,7 @@ function nvFx(on){var c=document.getElementById("nvf");if(!on){FX.on=0;if(c)c.st
 
 /* محلل الصوت الحقيقي */
 var AN={c:null,a:null,d:null,bad:0,z:0};
-function anInit(){if(AN.c||AN.bad)return;try{var A=window.AudioContext||window.webkitAudioContext;if(!A||!AUD.crossOrigin){AN.bad=1;return}var c=new A(),s=c.createMediaElementSource(AUD),a=c.createAnalyser();a.fftSize=256;a.smoothingTimeConstant=.8;s.connect(a);a.connect(c.destination);AN.c=c;AN.a=a;AN.d=new Uint8Array(a.frequencyBinCount);if(c.state!="running")c.resume()}catch(e){AN.bad=1}}
+function anInit(){AN.bad=1;return;if(AN.c||AN.bad)return;try{var A=window.AudioContext||window.webkitAudioContext;if(!A||!AUD.crossOrigin){AN.bad=1;return}var c=new A(),s=c.createMediaElementSource(AUD),a=c.createAnalyser();a.fftSize=256;a.smoothingTimeConstant=.8;s.connect(a);a.connect(c.destination);AN.c=c;AN.a=a;AN.d=new Uint8Array(a.frequencyBinCount);if(c.state!="running")c.resume()}catch(e){AN.bad=1}}
 AUD.addEventListener("error",function(){if(!AN.c&&AUD.crossOrigin){AN.bad=1;AUD.removeAttribute("crossorigin")}});
 
 /* الإخفاء التلقائي بعد 15 ثانية */
