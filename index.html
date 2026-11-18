@@ -1060,7 +1060,7 @@ function nvEl(){var v=document.getElementById("nvb");if(!v){v=document.createEle
 function nvSync(){var n=document.getElementById("np"),m=S.nvm|0,go=m>0&&typeof NPO!="undefined"&&NPO&&AC&&AUD&&!AUD.paused;if(n)n.classList.toggle("nv",m>0&&!!go);
  var v=document.getElementById("nvb");if(!go){if(v){v.classList.remove("on");try{v.pause()}catch(e){}}document.documentElement.classList.remove("nvon");return}
  v=nvEl();v.classList.add("on");document.documentElement.classList.add("nvon");v.volume=.3;var want=(m==2);if(v.muted==want)v.muted=!want;
- var p=v.play();if(p&&p.catch)p.catch(function(){if(S.nvm==2){S.nvm=1;sv0();v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){});nvBtn();gxToast("تعذّر تشغيل صوت الفيديو، فتم تشغيله صامتاً")}else{v._pend=1}});
+ if(!v.src){nvLoad(v);return}var p=v.play();if(p&&p.catch)p.catch(function(){if(S.nvm==2){S.nvm=1;sv0();v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){});nvBtn();gxToast("تعذّر تشغيل صوت الفيديو، فتم تشغيله صامتاً")}else{v._pend=1}});
  if(want&&!v._chk){v._chk=1;setTimeout(function(){v._chk=0;if(S.nvm==2&&AUD.paused&&v._was){S.nvm=1;sv0();nvSync();try{AUD.play()}catch(e){}gxToast("تعذّر الجمع بين الصوتين على هذا الجهاز، فتم تشغيل الفيديو صامتاً")}},900)}
  v._was=!AUD.paused}
 function nvBtn(){var t=document.querySelector("[data-nv]");if(t){t.className=S.nvm?"hot":"";t.innerHTML=ico("nat",16)+" "+NVL[S.nvm|0]}}
