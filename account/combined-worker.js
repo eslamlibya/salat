@@ -26,7 +26,7 @@ async fetch(req,env){
  if(!b||!okEp(b.endpoint))return out(env,req,{error:"endpoint"},400);
  await init(env);const db=env.DB;
  if(u.pathname==="/sub"){
-  const now=Date.now(),ts=(Array.isArray(b.times)?b.times:[]).filter(t=>Number.isInteger(t)&&t>now-120000&&t<now+9*864e5).slice(0,80);
+  const now=Date.now(),ts=(Array.isArray(b.times)?b.times:[]).filter(t=>Number.isInteger(t)&&t>now-120000&&t<now+9*864e5).slice(0,200);
   await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(b.endpoint).run();
   if(ts.length)await db.batch(ts.map(t=>db.prepare("INSERT INTO sched(endpoint,t) VALUES(?,?)").bind(b.endpoint,t)));
   return out(env,req,{ok:true,n:ts.length});
@@ -37,11 +37,15 @@ async fetch(req,env){
 },
 async scheduled(ev,env,ctx){ctx.waitUntil((async()=>{
  await init(env);const db=env.DB,now=Date.now();
- const r=await db.prepare("SELECT rowid AS id,endpoint FROM sched WHERE t<=?1 AND t>?2 ORDER BY t LIMIT 40").bind(now,now-6*60000).all();
+ // نافذة 15 دقيقة، والصف لا يُحذف إلا بعد قبول الإرسال (إعادة محاولة تلقائية كل دقيقة)
+ const r=await db.prepare("SELECT rowid AS id,endpoint FROM sched WHERE t<=?1 AND t>?2 ORDER BY t LIMIT 90").bind(now,now-15*60000).all();
  const rows=r.results||[];
- if(rows.length)await db.batch(rows.map(x=>db.prepare("DELETE FROM sched WHERE rowid=?").bind(x.id)));
- for(const x of rows){try{const s=await push(env,x.endpoint);if(s===404||s===410)await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(x.endpoint).run()}catch(e){}}
- await db.prepare("DELETE FROM sched WHERE t<?").bind(now-6*60000).run();
+ for(let i=0;i<rows.length;i+=10){await Promise.all(rows.slice(i,i+10).map(async x=>{
+  try{let s=await push(env,x.endpoint);if(s>=500||s===429)s=await push(env,x.endpoint);
+   if(s>=200&&s<300)await db.prepare("DELETE FROM sched WHERE rowid=?").bind(x.id).run();
+   else if(s===404||s===410)await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(x.endpoint).run();
+  }catch(e){}}))}
+ await db.prepare("DELETE FROM sched WHERE t<?").bind(now-15*60000).run();
 })())}
 };
 const ACC=(()=>{
