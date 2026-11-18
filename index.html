@@ -148,10 +148,10 @@ html[lang=en] body,html[lang=en] button,html[lang=en] input,html[lang=en] select
 html.tvon,html.tvon body{overflow:hidden}
 #nvb{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;object-fit:cover;z-index:39;display:none;background:#000;pointer-events:none}
 #nvb.on{display:block}
-.np.nv{background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.5))!important;--ink:#fff;--mute:rgba(255,255,255,.78);--card:rgba(0,0,0,.35);--line:rgba(255,255,255,.25);color:#fff!important}
-.np.nv h2,.np.nv .sub,.np.nv .nphl,.np.nv .npt{color:#fff!important;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-.np.nv button{color:#fff!important}.np.nv .npb button{background:rgba(0,0,0,.35)!important;border-color:rgba(255,255,255,.3)!important}
-.np.nv .npb button.hot{color:#8ff5d4!important;border-color:#8ff5d4!important}
+.nvon .np{background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.5))!important;--ink:#fff;--mute:rgba(255,255,255,.78);--card:rgba(0,0,0,.35);--line:rgba(255,255,255,.25);color:#fff!important}
+.nvon .np h2,.nvon .np .sub,.nvon .np .nphl,.nvon .np .npt{color:#fff!important;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.nvon .np button{color:#fff!important}.nvon .np .npb button{background:rgba(0,0,0,.35)!important;border-color:rgba(255,255,255,.3)!important}
+.nvon .np .npb button.hot{color:#8ff5d4!important;border-color:#8ff5d4!important}
 /* الطقس */
 .wqi{overflow:visible;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}.wqrt{transform-origin:32px 32px;animation:wxro 24s linear infinite}@keyframes wxro{to{transform:rotate(360deg)}}
 .wqcl{animation:wxcd 6s ease-in-out infinite alternate}@keyframes wxcd{from{transform:translateX(-1.5px)}to{transform:translateX(2px)}}
@@ -1076,6 +1076,8 @@ var npr1=npr;npr=function(){npr1.apply(this,arguments);var b=document.querySelec
 document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-nv]");if(!t)return;e.preventDefault();S.nvm=((S.nvm|0)+1)%3;sv0();t.className=S.nvm?"hot":"";t.innerHTML=ico("nat",16)+" "+NVL[S.nvm];nvSync()},true);
 var aui2=aui;aui=function(){aui2();nvSync()};
 try{AUD.addEventListener("play",nvSync);AUD.addEventListener("pause",nvSync)}catch(e){}
+
+setInterval(nvSync,1000);
 /* ===== الطقس الحقيقي (Open-Meteo) — نواة مشتركة ===== */
 var WXT={0:"صافٍ",1:"غالبًا صافٍ",2:"غائم جزئيًا",3:"غائم",45:"ضباب",48:"ضباب صقيعي",51:"رذاذ خفيف",53:"رذاذ",55:"رذاذ كثيف",56:"رذاذ متجمّد",57:"رذاذ متجمّد",61:"مطر خفيف",63:"مطر",65:"مطر غزير",66:"مطر متجمّد",67:"مطر متجمّد",71:"ثلج خفيف",73:"ثلج",75:"ثلج كثيف",77:"حبيبات ثلج",80:"زخات مطر خفيفة",81:"زخات مطر",82:"زخات مطر غزيرة",85:"زخات ثلج",86:"زخات ثلج كثيفة",95:"عاصفة رعدية",96:"عاصفة رعدية وبرد",99:"عاصفة رعدية قوية"};
 function wxKind(c){if(c===0||c===1)return"sun";if(c===2)return"pc";if(c===3)return"cl";if(c===45||c===48)return"fog";if(c>=51&&c<=67||c>=80&&c<=82)return"rain";if(c>=71&&c<=77||c===85||c===86)return"snow";if(c>=95)return"storm";return"cl"}
