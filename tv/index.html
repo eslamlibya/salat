@@ -147,7 +147,7 @@ function tick(){var tz=tzo(CT[S.city][4],new Date());if(tz.d!==DAY){recalc();bui
  else{var l=Math.max(0,(tg-n)*60);L.textContent="الصلاة القادمة: "+nm(x);C.textContent=p2(Math.floor(l/3600))+":"+p2(Math.floor(l%3600/60))+":"+p2(Math.floor(l%60));$("tvb").style.width=Math.min(100,Math.max(0,(n-pv)/(tg-pv)*100))+"%";e.classList.remove("adh","sooniq")}
  for(j=0;j<6;j++){var cc=$("tvc"+j);if(cc)cc.className="tvc"+(j==x&&cur<0?" nx":"")+(j==cur?" cu":"")+(P[j][1]<=n&&j!=cur?" ps":"")}
  $("tvcity").textContent=CT[S.city][0];$("tvdt").textContent=dateLine();sky(n);
- if(TVT++%15==0){var v=$("tvft");v.classList.remove("on");setTimeout(function(){var q=TVV[TVI++%TVV.length],ar=(S.lg||"ar")=="ar",an=function(n){return String(n).replace(/\d/g,function(d){return"٠١٢٣٤٥٦٧٨٩"[d]})};v.textContent="﴿ "+q[0]+" ﴾ — "+(ar?q[3]+" "+an(q[2]):(typeof SNL!="undefined"?SNL[q[1]-1]:"")+" "+q[1]+":"+q[2]);v.classList.add("on")},400)}}
+ if(TVT++%15==0){var v=$("tvft");v.classList.remove("on");setTimeout(function(){var q=TVV[TVI++%TVV.length],ar=(S.lg||"ar")=="ar",an=function(n){return String(n).replace(/\d/g,function(d){return"٠١٢٣٤٥٦٧٨٩"[d]})};v.dir="rtl";v.textContent="﴿ "+q[0]+" ﴾ — "+(ar?q[3]+" "+an(q[2]):(typeof SNL!="undefined"?SNL[q[1]-1]:"")+" "+q[1]+":"+q[2]);v.classList.add("on")},400)}}
 /* اختيار المدينة */
 function nz(t){return String(t||"").toLowerCase().replace(/[ً-ْـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
 function pkList(q){q=nz(q.trim());var r=[],i,o=[];for(i=0;i<CT.length;i++)o.push(i);if(!q)o.sort(function(a,b){var la=CT[a][6]=="ليبيا"?0:1,lb=CT[b][6]=="ليبيا"?0:1;return la-lb||a-b});for(var z=0;z<o.length;z++){i=o[z];var c=CT[i];if(!q||nz(c[0]+" "+c[1]+" "+(c[6]||"")).indexOf(q)>-1)r.push(i);if(r.length>=60)break}
@@ -304,7 +304,7 @@ var TLD={
 "اختر مدينتك":["Choose your city","Choisissez votre ville"],"اكتب اسم المدينة أو اختر من القائمة":["Type a city name or pick from the list","Saisissez une ville ou choisissez dans la liste"],
 "ابحث عن مدينة…":["Search for a city…","Rechercher une ville…"],"القرآن الكريم — تلاوات":["Holy Quran — Recitations","Saint Coran — Récitations"],
 "زر الرجوع في الريموت يغلق هذه النافذة":["The remote's Back button closes this window","Le bouton Retour de la télécommande ferme cette fenêtre"],
-"حان وقت صلاة ":["It's time for ","C'est l'heure de la prière "]," — الإقامة بعد":[" prayer — Iqama in"," — Iqama dans"],
+"اضغط Esc لإغلاق هذه النافذة":["Press Esc to close this window","Appuyez sur Échap pour fermer cette fenêtre"],"حان وقت صلاة ":["It's time for ","C'est l'heure de la prière "]," — الإقامة بعد":[" prayer — Iqama in"," — Iqama dans"],
 "الصلاة القادمة: ":["Next prayer: ","Prochaine prière : "],
 "المدينة":["City","Ville"],"طريقة الحساب":["Calculation method","Méthode de calcul"],"نظام الساعة":["Clock format","Format de l'heure"],"12 ساعة":["12-hour","12 h"],"24 ساعة":["24-hour","24 h"],
 "مدة الإقامة بعد الأذان":["Iqama delay after adhan","Délai de l'iqama après l'adhan"],"تصحيح التاريخ الهجري":["Hijri date correction","Correction de la date hégirienne"],"نمط التاريخ":["Date style","Style de date"],
