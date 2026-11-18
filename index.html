@@ -1116,7 +1116,7 @@ var s=c.createBufferSource();s.buffer=b;s.loop=true;s.loopStart=0;s.loopEnd=n-f>
 var KP=[[200,6500,1,0],[50,520,.55,.3],[90,1150,.8,.4],[70,900,.7,.35],[100,2200,.85,.2]][k];NVN.hp.frequency.value=KP[0];NVN.lp.frequency.value=KP[1];NVN.lf.gain.value=vol*KP[3]*KP[2];vol=vol*KP[2];
 if(NVN.c.state!="running")NVN.c.resume();NVN.g.gain.value=vol}catch(e){}}
 function nvAud(v,vol){try{if(!v._g){var AC_=window.AudioContext||window.webkitAudioContext;if(!AC_)return false;var c=new AC_(),sr=c.createMediaElementSource(v),g=c.createGain();sr.connect(g);g.connect(c.destination);v._c2=c;v._g=g}v._g.gain.value=vol;if(v._c2.state!="running")v._c2.resume();return true}catch(e){return false}}
-function nvEl(){var v=document.getElementById("nvb");if(!v){v=document.createElement("video");v.id="nvb";v.muted=true;v.defaultMuted=true;v.setAttribute("muted","");v.loop=true;v.playsInline=true;v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.preload="auto";v.setAttribute("aria-hidden","true");v.addEventListener("error",function(){if(v.getAttribute("src"))gxToast("خطأ في الفيديو ("+(v.error?v.error.code:"?")+")")});document.body.appendChild(v);nvLoad(v)}return v}
+function nvEl(){var v=document.getElementById("nvb");if(!v){v=document.createElement("video");v.id="nvb";v.muted=true;v.defaultMuted=true;v.setAttribute("muted","");v.loop=true;v.autoplay=true;v.setAttribute("autoplay","");v.playsInline=true;v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.preload="auto";v.setAttribute("aria-hidden","true");v.addEventListener("error",function(){if(v.getAttribute("src"))gxToast("خطأ في الفيديو ("+(v.error?v.error.code:"?")+")")});document.body.appendChild(v);nvLoad(v)}return v}
 function nvSync(){if(!(S.nvm|0)&&!document.getElementById("nvb"))return;var n=document.getElementById("np"),m=S.nvm|0,go=m>0&&typeof NPO!="undefined"&&NPO&&AC&&AUD&&!AUD.paused;if(!go&&m>0&&NPO&&AC&&document.getElementById("nvb")&&document.getElementById("nvb").classList.contains("on")&&(window._nvg=(window._nvg|0)+1)<3)return;if(go)window._nvg=0;if(n)n.classList.toggle("nv",m>0&&!!go);
  var v=document.getElementById("nvb");if(!go){nvNoise(false);if(v){v.classList.remove("on");try{v.pause()}catch(e){}}document.documentElement.classList.remove("nvon");return}
  v=nvEl();v.classList.add("on");document.documentElement.classList.add("nvon");var want=(m==2);v.muted=true;nvNoise(want,.5,nvTi())
@@ -1149,9 +1149,13 @@ function st(){var n=document.getElementById("np"),b=n&&n.querySelector(".npb"),m
  else if(!v||!v.getAttribute("src"))t="جارٍ تحميل الفيديو… (يحتاج إنترنت، "+(NVF[i]?"قيد التنزيل":"بانتظار البدء")+")";
  else if(v.error)t="خطأ في الفيديو، الرمز "+v.error.code;
  else if(v.readyState<2)t="الفيديو يحمّل… (حالة "+v.readyState+")";
- else if(v.paused)t="الفيديو جاهز — المس الشاشة مرة لتشغيله";
+ else if(v.paused)t=(v._pe?"رفض النظام التشغيل ("+v._pe+")":"الفيديو جاهز")+" — اضغط زر ▶ فوق الفيديو. وإن لم يعمل فأطفئ وضع الطاقة المنخفضة";
  else t="الخلفية تعمل ✓";
  o.textContent=t;
+ var pb=document.getElementById("nvpb"),need=go&&v&&v.getAttribute("src")&&v.readyState>=2&&v.paused;
+ if(need&&!pb){pb=document.createElement("button");pb.id="nvpb";pb.setAttribute("aria-label","تشغيل الخلفية");pb.innerHTML="▶";pb.style.cssText="position:fixed;z-index:60;left:50%;top:calc(var(--nvh,40vh)/2);transform:translate(-50%,-50%);width:84px;height:84px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(0,0,0,.45);color:#fff;font-size:34px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)";
+  var run=function(e){e.preventDefault();e.stopPropagation();var q=document.getElementById("nvb");if(!q)return;q.muted=true;var r=q.play();if(r&&r.then)r.then(function(){q._pe=""}).catch(function(x){q._pe=(x&&x.name)||"خطأ"});};pb.addEventListener("click",run);pb.addEventListener("touchend",run);document.body.appendChild(pb)}
+ else if(!need&&pb)pb.remove();
  if(go&&v&&v.getAttribute("src")){if(LI!==i||v._sa!==v.getAttribute("src")){LI=i;v._sa=v.getAttribute("src");T0=Date.now()}
   if(v.readyState<2&&!v._fb&&Date.now()-T0>6000&&String(v.getAttribute("src")).indexOf("blob:")==0){v._fb=1;v.src=NVSRCS[i];try{v.load();v.play()}catch(e){}}
   if(v.paused&&v.readyState>=2&&!v._tp){v._tp=1;var f=function(){document.removeEventListener("touchend",f,true);document.removeEventListener("click",f,true);v._tp=0;try{var p=v.play();if(p&&p.catch)p.catch(function(){})}catch(e){}};document.addEventListener("touchend",f,true);document.addEventListener("click",f,true)}}}
