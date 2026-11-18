@@ -1,5 +1,5 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050b1f"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><title>الصلاة — نسخة التلفزيون</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https://mp3quran.net; media-src https:; object-src 'none'; base-uri 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https:; media-src https:; object-src 'none'; base-uri 'self'">
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:#050b1f;font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,system-ui,sans-serif;-webkit-text-size-adjust:100%}button{font-family:inherit}
 /* وضع التلفزيون */
@@ -102,9 +102,15 @@ var API="https://mp3quran.net/api/v3",LB={st:"idle",R:[],SW:{},v:"list",q:"",rw:
 var LIBY=["قنيوه","مجلي","العباني","ديبان","ليبي","الورفلي","الغرياني","المصراتي","الطرابلسي","البنغازي","الزاوي","الفيتوري"];
 function isLiby(r){var n=nz(r.name);return LIBY.some(function(w){return n.indexOf(nz(w))>-1})}
 function rwn(x){return String(x).replace(/^رواية\s+/,"")}
-function aget(p){var k="tvc"+p,c=null;try{c=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}if(c&&Date.now()-c.t<864e5)return Promise.resolve(c.d);
- var ac=typeof AbortController!=="undefined"?new AbortController():null,tm=ac?setTimeout(function(){try{ac.abort()}catch(e){}},15000):0;
- return fetch(API+p,ac?{signal:ac.signal}:undefined).then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("HTTP");return r.json()}).then(function(d){try{localStorage.setItem(k,JSON.stringify({t:Date.now(),d:d}))}catch(e){}return d}).catch(function(e){if(c)return c.d;throw e})}
+function idbGet(p){return new Promise(function(ok){try{var q=indexedDB.open("taz-aud",1);q.onupgradeneeded=function(){["c","f","b","p"].forEach(function(n){q.result.createObjectStore(n)})};q.onerror=function(){ok(null)};q.onsuccess=function(){try{var t=q.result.transaction("c","readonly"),x=t.objectStore("c").get(p);t.oncomplete=function(){ok(x.result&&x.result.d?x.result:null)};t.onerror=function(){ok(null)}}catch(e){ok(null)}}}catch(e){ok(null)}})}
+function fetchJ(p,tries){var ac=typeof AbortController!=="undefined"?new AbortController():null,tm=ac?setTimeout(function(){try{ac.abort()}catch(e){}},40000):0;
+ return fetch(API+p,ac?{signal:ac.signal}:undefined).then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("HTTP");return r.json()}).catch(function(e){clearTimeout(tm);if(tries>0)return new Promise(function(r){setTimeout(r,800)}).then(function(){return fetchJ(p,tries-1)});throw e})}
+function aget(p){var k="tvc"+p,c=null;try{c=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}
+ var save=function(d){try{localStorage.setItem(k,JSON.stringify({t:Date.now(),d:d}))}catch(e){}return d};
+ if(c&&Date.now()-c.t<864e5)return Promise.resolve(c.d);
+ return idbGet(p).then(function(o){var st=c?c.d:(o?o.d:null);
+  if(st){fetchJ(p,1).then(save).catch(function(){});return st}
+  return fetchJ(p,2).then(save)})}
 function lbLoad(){if(LB.st=="loading"||LB.st=="ok")return;LB.st="loading";lbDraw();
  Promise.all([aget("/reciters?language=ar"),aget("/suwar?language=ar")]).then(function(a){LB.R=(a[0].reciters||[]).slice().sort(function(x,y){return x.name.localeCompare(y.name,"ar")});(a[1].suwar||[]).forEach(function(w){LB.SW[w.id]=String(w.name).trim()});LB.st="ok";lbDraw()}).catch(function(){LB.st="err";lbDraw()})}
 function rwSet(){var m={};LB.R.forEach(function(r){(r.moshaf||[]).forEach(function(x){var b=rwn(x.name.split(" - ")[0].trim());m[b]=(m[b]||0)+1})});var pri=["قالون","ورش","حفص"],pi=function(a){for(var i=0;i<3;i++)if(a.indexOf(pri[i])>-1)return i;return 9};return Object.keys(m).sort(function(a,b){return pi(a)-pi(b)||m[b]-m[a]}).slice(0,8).map(function(k){return[k,m[k]]})}
