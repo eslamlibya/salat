@@ -152,17 +152,22 @@ html.tvon,html.tvon body{overflow:hidden}
 .nvon .np h2,.nvon .np .sub,.nvon .np .nphl,.nvon .np .npt{color:#fff!important;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 .nvon .np button{color:#fff!important}.nvon .np .npb button{background:rgba(0,0,0,.35)!important;border-color:rgba(255,255,255,.3)!important}
 .nvon .np .npb button.hot{color:#8ff5d4!important;border-color:#8ff5d4!important}
-/* ===== سطح المكتب / Mac ===== */
-@media(min-width:1100px){
-body{max-width:1360px;margin-inline:auto;padding-inline:128px 36px}
-nav{inset-inline-start:max(16px,calc((100vw - 1360px)/2 + 16px))}
-.hero{margin:18px 0 0}
-#v-home{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px 22px;align-items:start}
-#v-home>.hero{grid-column:1;grid-row:1}#v-home>#tl{grid-column:1;grid-row:2}#v-home>#qa{grid-column:1;grid-row:3}#v-home>#pr{grid-column:2;grid-row:1/4}#v-home>#spec{grid-column:1;grid-row:4}#v-home>#cards{grid-column:2;grid-row:4/6;display:grid;grid-template-columns:1fr;gap:14px;align-items:start}#v-home>.note{grid-column:1/-1}
-#v-adhkar,#v-set,#v-cal{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 20px;align-items:start}
-#v-adhkar>h2,#v-adhkar>.seg,#v-set>h2,#v-cal>h2,#v-cal>h3{grid-column:1/-1}
-#v-lib{max-width:1000px;margin-inline:auto}#v-quran,#v-qibla{max-width:1100px;margin-inline:auto}
-#mp{inset-inline-start:max(110px,calc((100vw - 1360px)/2 + 112px));inset-inline-end:max(14px,calc((100vw - 1360px)/2 + 36px))}
+/* ===== تصميم Mac (html.mac) ===== */
+@media(min-width:1000px){
+html.mac body{max-width:none;margin:0;padding:30px 40px 40px 40px;padding-inline-start:290px;background:radial-gradient(ellipse at 100% 0%,var(--soft,#e6f2ee),transparent 55%),var(--bg)}
+html.mac nav{position:fixed;top:0;bottom:0;inset-inline:auto;inset-inline-start:0;transform:none;width:250px;max-width:none;margin:0;height:100vh;border-radius:0;flex-direction:column;justify-content:flex-start;gap:4px;padding:26px 14px 18px;background:color-mix(in srgb,var(--card,#fff) 82%,transparent);-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);border:0;border-inline-end:1px solid var(--line,#0001);box-shadow:none;z-index:30}
+html.mac .mbrand{display:flex;align-items:center;gap:12px;padding:6px 10px 22px}html.mac .mbrand img{width:42px;height:42px;border-radius:11px;box-shadow:0 3px 10px #0003}html.mac .mbrand b{font:700 22px/1 system-ui,sans-serif;letter-spacing:.5px}
+html.mac nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:14px;padding:12px 14px;border-radius:12px;width:100%;height:auto;font-size:15px}html.mac nav button svg{width:22px;height:22px;flex:none}html.mac nav button span{display:block;font-size:15px;font-weight:600;margin:0}html.mac nav button[aria-current=true]{flex:none}html.mac nav button:hover{background:color-mix(in srgb,var(--ink,#000) 7%,transparent)}
+html.mac main{max-width:1500px;margin-inline:auto}
+html.mac main>h2:first-child{font-size:34px;margin:4px 0 18px}
+html.mac .g,html.mac .hero{border-radius:24px}
+html.mac #v-home{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+html.mac #v-home>.hero{grid-column:1/3;grid-row:1;margin:0}html.mac #v-home>#pr{grid-column:3;grid-row:1/4}html.mac #v-home>#tl{grid-column:1;grid-row:2}html.mac #v-home>#qa{grid-column:2;grid-row:2}html.mac #v-home>#spec{grid-column:1/3;grid-row:3}
+html.mac #v-home>#cards{grid-column:1/-1;grid-row:4;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;align-items:start}html.mac #v-home>.note{grid-column:1/-1}
+html.mac #v-adhkar,html.mac #v-set,html.mac #v-cal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px;align-items:start}
+html.mac #v-adhkar>h2,html.mac #v-adhkar>.seg,html.mac #v-set>h2,html.mac #v-cal>h2,html.mac #v-cal>h3{grid-column:1/-1}
+html.mac #v-lib{max-width:1100px}html.mac #v-quran{max-width:1250px}html.mac #v-qibla{max-width:900px}
+html.mac #mp{inset-inline-start:274px;inset-inline-end:24px;bottom:16px;max-width:760px;margin-inline:auto}
 }
 /* الطقس */
 .wqi{overflow:visible;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}.wqrt{transform-origin:32px 32px;animation:wxro 24s linear infinite}@keyframes wxro{to{transform:rotate(360deg)}}
@@ -1094,6 +1099,9 @@ document.addEventListener("keydown",function(e){var t=e.target&&e.target.tagName
  if((e.key==" "||e.code=="Space")&&AC&&NPO&&t!="BUTTON"){e.preventDefault();if(AUD.paused)AUD.play();else AUD.pause()}
  else if(e.key=="Escape"&&NPO){NPO=false;npr()}
  else if(NPO&&AC&&(e.key=="ArrowRight"||e.key=="ArrowLeft")&&AUD.duration){AUD.currentTime=Math.max(0,AUD.currentTime+(e.key=="ArrowRight"?15:-15))}});
+
+(function(){var m=/[?&]mac=(\d)/.exec(location.search),on=/Macintosh/.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1);try{if(m)localStorage.setItem("tazmac",m[1]);var v=localStorage.getItem("tazmac");if(v!==null)on=v=="1"}catch(e){}
+ if(!on)return;document.documentElement.classList.add("mac");var bm=function(){var n=document.getElementById("nav"),ic=document.querySelector('link[rel="icon"]');if(n&&!n.querySelector(".mbrand")){var d=document.createElement("div");d.className="mbrand";d.innerHTML=(ic?'<img alt="" src="'+ic.href+'">':"")+"<b>Taz</b>";n.insertBefore(d,n.firstChild)}};bm();setInterval(bm,1500)})();
 /* ===== الطقس الحقيقي (Open-Meteo) — نواة مشتركة ===== */
 var WXT={0:"صافٍ",1:"غالبًا صافٍ",2:"غائم جزئيًا",3:"غائم",45:"ضباب",48:"ضباب صقيعي",51:"رذاذ خفيف",53:"رذاذ",55:"رذاذ كثيف",56:"رذاذ متجمّد",57:"رذاذ متجمّد",61:"مطر خفيف",63:"مطر",65:"مطر غزير",66:"مطر متجمّد",67:"مطر متجمّد",71:"ثلج خفيف",73:"ثلج",75:"ثلج كثيف",77:"حبيبات ثلج",80:"زخات مطر خفيفة",81:"زخات مطر",82:"زخات مطر غزيرة",85:"زخات ثلج",86:"زخات ثلج كثيفة",95:"عاصفة رعدية",96:"عاصفة رعدية وبرد",99:"عاصفة رعدية قوية"};
 function wxKind(c){if(c===0||c===1)return"sun";if(c===2)return"pc";if(c===3)return"cl";if(c===45||c===48)return"fog";if(c>=51&&c<=67||c>=80&&c<=82)return"rain";if(c>=71&&c<=77||c===85||c===86)return"snow";if(c>=95)return"storm";return"cl"}
