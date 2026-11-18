@@ -204,6 +204,7 @@ html.mac #mp{inset-inline-start:274px;inset-inline-end:24px;bottom:16px;max-widt
 @media (min-aspect-ratio:1/1) and (max-height:520px){
  .nvon .np{background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.55))!important}
 }
+[data-nv],[data-nvt],#nvst,#nvpb,#nvb{display:none!important}
 /* الطقس */
 .wqi{overflow:visible;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}.wqrt{transform-origin:32px 32px;animation:wxro 24s linear infinite}@keyframes wxro{to{transform:rotate(360deg)}}
 .wqcl{animation:wxcd 6s ease-in-out infinite alternate}@keyframes wxcd{from{transform:translateX(-1.5px)}to{transform:translateX(2px)}}
@@ -1160,6 +1161,9 @@ function st(){var n=document.getElementById("np"),b=n&&n.querySelector(".npb"),m
   if(v.readyState<2&&!v._fb&&Date.now()-T0>6000&&String(v.getAttribute("src")).indexOf("blob:")==0){v._fb=1;v.src=NVSRCS[i];try{v.load();v.play()}catch(e){}}
   if(v.paused&&v.readyState>=2&&!v._tp){v._tp=1;var f=function(){document.removeEventListener("touchend",f,true);document.removeEventListener("click",f,true);v._tp=0;try{var p=v.play();if(p&&p.catch)p.catch(function(){})}catch(e){}};document.addEventListener("touchend",f,true);document.addEventListener("click",f,true)}}}
 setInterval(st,800)})();
+
+/* v12e: خلفية الطبيعة معطّلة في نسخة الهاتف (تبقى في التلفاز) */
+S.nvm=0;setInterval(function(){if(S.nvm){S.nvm=0;sv0()}},1000);
 /* ===== v12: all-countries Eid page + organized library ===== */
 (function(){
 var ISO=[];for(var a=65;a<91;a++)for(var b=65;b<91;b++)ISO.push(String.fromCharCode(a,b));
