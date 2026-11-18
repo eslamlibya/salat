@@ -275,9 +275,11 @@ try{NVM=+localStorage.getItem("tvnv")||0}catch(e){}
 var NVL=["خلفية الطبيعة: إيقاف","خلفية: فيديو صامت","خلفية: فيديو + أصوات الطبيعة"];
 function nvDbg(t){var d=document.getElementById("nvd");if(!d){d=document.createElement("div");d.id="nvd";d.style.cssText="position:fixed;left:2vw;right:2vw;bottom:2vh;z-index:999;background:#000c;color:#fff;font-size:2.4vmin;padding:1.2vmin 2vmin;border-radius:2vmin;text-align:center";document.body.appendChild(d)}d.textContent=t;d.style.display="block";clearTimeout(d._t);d._t=setTimeout(function(){d.style.display="none"},8000)}
 /* ===== خلفية الطبيعة: فيديوهان متناوبان بتلاشٍ + مؤثرات + موجة صوتية + إخفاء تلقائي ===== */
-function nvV(id){var v=document.getElementById(id);if(!v){v=document.createElement("video");v.id=id;v.className="nvv";v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";v.addEventListener("error",function(){nvDbg("خطأ في الفيديو ("+(v.error?v.error.code:"?")+")")});document.body.appendChild(v)}return v}
+function nvV(id){var v=document.getElementById(id);if(!v){v=document.createElement("video");v.id=id;v.className="nvv";v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="auto";v.addEventListener("playing",function(){NV.blk=0;var d=document.getElementById("nvd");if(d)d.style.display="none"});v.addEventListener("error",function(){nvDbg("خطأ في الفيديو ("+(v.error?v.error.code:"?")+")")});document.body.appendChild(v)}return v}
 var NV={ti:-1,c:0,sw:0};
-function nvPl(v){var p=v.play();if(p&&p.catch)p.catch(function(e){nvDbg("تعذّر تشغيل الفيديو: "+(e&&e.name||e))})}
+function nvPl(v){var p;try{v.muted=true;p=v.play()}catch(e){}if(p&&p.catch)p.catch(function(e){NV.blk=1;nvDbg("المس الشاشة أو اضغط أي زر لتشغيل الخلفية")})}
+["click","keydown","touchstart","touchend","mousedown","pointerdown"].forEach(function(ev){document.addEventListener(ev,function(){if(NV.go){var A=document.getElementById("nvb"),B=document.getElementById("nvb2"),c=NV.c?B:A;if(c&&c.paused){nvPl(c)}}},true)});
+setInterval(function(){if(NV.go){var A=document.getElementById("nvb"),B=document.getElementById("nvb2"),c=NV.c?B:A;if(c&&c.paused&&!NV.blk&&c.readyState>=2)nvPl(c)}},2000);
 function nvSync(){var n=$("np"),b=$("nvt");if(b){b.innerHTML=ico("nat",24)+" "+NVL[NVM];b.className=NVM?"hot":""}var b2=$("nvth");if(b2)b2.innerHTML=ico("nat",24)+" الخلفية: "+NVTN[NVT_()]+"";
  var go=NVM>0&&CUR&&n&&n.classList.contains("on");
  if(n)n.classList.toggle("nv",!!go);
