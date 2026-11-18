@@ -1127,6 +1127,24 @@ document.addEventListener("keydown",function(e){var t=e.target&&e.target.tagName
 
 (function(){var m=/[?&]mac=(\d)/.exec(location.search),on=/Macintosh/.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1);var tc=navigator.maxTouchPoints>1||("ontouchstart" in window);if(tc){try{localStorage.removeItem("tazmac")}catch(e){}return}try{if(m)localStorage.setItem("tazmac",m[1]);var v=localStorage.getItem("tazmac");if(v!==null)on=v=="1"}catch(e){}
  if(!on)return;document.documentElement.classList.add("mac");var bm=function(){var n=document.getElementById("nav"),ic=document.querySelector('link[rel="icon"]');if(n&&!n.querySelector(".mbrand")){var d=document.createElement("div");d.className="mbrand";d.innerHTML=(ic?'<img alt="" src="'+ic.href+'">':"")+"<b>Taz</b>";n.insertBefore(d,n.firstChild)}};bm();setInterval(bm,1500)})();
+
+/* ===== v12c: حالة الخلفية الظاهرة + بديل البث المباشر + تشغيل بلمسة ===== */
+(function(){var T0=0,LI=-1;
+function st(){var n=document.getElementById("np"),b=n&&n.querySelector(".npb"),m=S.nvm|0,o=document.getElementById("nvst");
+ if(!m||!b||!n.classList.contains("on")){if(o)o.remove();return}
+ if(!o){o=document.createElement("div");o.id="nvst";o.style.cssText="font-size:12px;text-align:center;margin-top:8px;opacity:.9;color:#fff;text-shadow:0 1px 4px #000a";b.insertAdjacentElement("afterend",o)}
+ var v=document.getElementById("nvb"),i=nvTi(),t,go=m>0&&NPO&&AC&&AUD&&!AUD.paused;
+ if(!AC)t="اختر تلاوة لتبدأ";else if(AUD.paused)t="شغّل التلاوة لتظهر الخلفية";
+ else if(!v||!v.getAttribute("src"))t="جارٍ تحميل الفيديو… (يحتاج إنترنت، "+(NVF[i]?"قيد التنزيل":"بانتظار البدء")+")";
+ else if(v.error)t="خطأ في الفيديو، الرمز "+v.error.code;
+ else if(v.readyState<2)t="الفيديو يحمّل… (حالة "+v.readyState+")";
+ else if(v.paused)t="الفيديو جاهز — المس الشاشة مرة لتشغيله";
+ else t="الخلفية تعمل ✓";
+ o.textContent=t;
+ if(go&&v&&v.getAttribute("src")){if(LI!==i||v._sa!==v.getAttribute("src")){LI=i;v._sa=v.getAttribute("src");T0=Date.now()}
+  if(v.readyState<2&&!v._fb&&Date.now()-T0>6000&&String(v.getAttribute("src")).indexOf("blob:")==0){v._fb=1;v.src=NVSRCS[i];try{v.load();v.play()}catch(e){}}
+  if(v.paused&&v.readyState>=2&&!v._tp){v._tp=1;var f=function(){document.removeEventListener("touchend",f,true);document.removeEventListener("click",f,true);v._tp=0;try{var p=v.play();if(p&&p.catch)p.catch(function(){})}catch(e){}};document.addEventListener("touchend",f,true);document.addEventListener("click",f,true)}}}
+setInterval(st,800)})();
 /* ===== v12: all-countries Eid page + organized library ===== */
 (function(){
 var ISO=[];for(var a=65;a<91;a++)for(var b=65;b<91;b++)ISO.push(String.fromCharCode(a,b));
