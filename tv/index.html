@@ -505,8 +505,8 @@ var MSD=[20,0,15,15,10,15],MS={f:0,items:[],al:0,done:{}};
 function msIq(i){return S.iqm&&S.iqm[i]!=null?S.iqm[i]:MSD[i]}
 function msOn(){return S.msq!==0}
 function msNow(){return tzo(CT[S.city][4],new Date())}
-function msPhone(){return S.msp||2}
-function msAz(k){return k=="m"?(S.msm||10):(S.mse||8)}
+function msPhone(){return S.msp||3}
+function msAz(k){return k=="m"?(S.msm||10):(S.mse||10)}
 function msItems(){var r=[],i;for(i=0;i<5;i++){r.push({t:"iq",i:NS[i]})}r.push({t:"on"},{t:"ph"},{t:"am"},{t:"ae"},{t:"x"});return r}
 function msOpen(){closeAll();["az","wo"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")});if(S.msq===undefined){S.msq=1;save()}MS.v="d";MS.f=0;MS.built="";$("ms").classList.add("on");document.body.classList.add("msn");msDraw()}
 function msClose(){$("ms").classList.remove("on");document.body.classList.remove("msn");MS.built="";var g=$("bms");if(g)g.focus()}
@@ -552,14 +552,22 @@ document.addEventListener("keydown",function(e){var o=$("ms");if(!o||!o.classLis
  else if(k=="Enter"||c==13){if(MS.f==9){MS.v="d";MS.built="";}else if(MS.f==5)msAct(0);h=true}
  if(h){e.preventDefault();e.stopPropagation();if($("ms").classList.contains("on"))msDraw()}},true);
 /* تنبيه إغلاق الهاتف */
+var MSAC=null;MS.bp={};
+function msBeep(k){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;MSAC=MSAC||new C();if(MSAC.state=="suspended")MSAC.resume();
+ var pat=k=="a"?[0,.3]:k=="p"?[0,.28,.56]:[0,.4,.8,1.2],f=k=="i"?1040:k=="a"?660:880,t0=MSAC.currentTime+.05;
+ pat.forEach(function(d){var o=MSAC.createOscillator(),g=MSAC.createGain();o.type="sine";o.frequency.value=f;o.connect(g);g.connect(MSAC.destination);
+  g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.35,t0+d+.02);g.gain.setValueAtTime(.35,t0+d+.16);g.gain.linearRampToValueAtTime(0,t0+d+.2);o.start(t0+d);o.stop(t0+d+.22)})}catch(e){}}
+function msOnce(key,k){if(MS.bp[key])return;MS.bp[key]=1;msBeep(k)}
+["click","keydown","touchstart"].forEach(function(e){document.addEventListener(e,function(){try{var C=window.AudioContext||window.webkitAudioContext;if(C){MSAC=MSAC||new C();if(MSAC.state=="suspended")MSAC.resume()}}catch(x){}},true)});
 function msAlert(show,html){var a=$("msa");if(!a)return;if(show){a.innerHTML=html;a.classList.add("on")}else{a.classList.remove("on")}}
 function msTick(){if(!msOn())return msAlert(false);var tz=msNow(),n=tz.min,j,i,hit=false,p2=function(v){return("0"+v).slice(-2)};
- for(j=0;j<5;j++){i=NS[j];var iq=P[i][1]+msIq(i),w=msPhone();
-  if(n>=iq-w&&n<iq){hit=true;if(MS.dis!==iq){var s=Math.max(0,(iq-n)*60);msAlert(true,'<div class="msai"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="19" y="6" width="26" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M27 46h10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M8 58L56 6" stroke="#ff6b6b" stroke-width="5" stroke-linecap="round"/></svg></div><h1>أغلق هاتفك</h1><p>الإقامة لصلاة '+nm(i)+' بعد</p><b class="msac" dir="ltr">'+p2(Math.floor(s/60))+':'+p2(Math.floor(s%60))+'</b><button id="msad">إخفاء</button>');var b=$("msad");if(b){b.onclick=function(){MS.dis=iq;msAlert(false)};if(!MS.fo){MS.fo=1;b.focus()}}}else msAlert(false)}
-  else if(n>=iq&&n<iq+.5){hit=true;if(MS.dis!==iq){msAlert(true,'<h1>أُقيمت الصلاة</h1><p>سوّوا الصفوف</p>')}}
+ for(j=0;j<5;j++){i=NS[j];var iq=P[i][1]+msIq(i),w=msPhone(),dk=tz.d+"_"+i,ie=iq+(i==0?msAz("m"):i==3?msAz("e"):10);
+  if(n>=P[i][1]&&n<P[i][1]+1)msOnce(dk+"a","a");
+  if(n>=iq-w&&n<iq){hit=true;msOnce(dk+"p","p");if(MS.dis!==iq){var s=Math.max(0,(iq-n)*60);msAlert(true,'<div class="msai"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="19" y="6" width="26" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M27 46h10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M8 58L56 6" stroke="#ff6b6b" stroke-width="5" stroke-linecap="round"/></svg></div><h1>أغلق هاتفك</h1><p>الإقامة لصلاة '+nm(i)+' بعد</p><b class="msac" dir="ltr">'+p2(Math.floor(s/60))+':'+p2(Math.floor(s%60))+'</b><button id="msad">إخفاء</button>');var b=$("msad");if(b){b.onclick=function(){MS.dis=iq;msAlert(false)};if(!MS.fo){MS.fo=1;b.focus()}}}else msAlert(false)}
+  else if(n>=iq&&n<ie){hit=true;msOnce(dk+"i","i");if(MS.dis!==iq){var rm=Math.ceil(ie-n);msAlert(true,'<h1>أُقيمت الصلاة</h1><p>سوّوا الصفوف · تنتهي الشاشة بعد '+rm+' د</p><button id="msad">إخفاء</button>');var b2=$("msad");if(b2){b2.onclick=function(){MS.dis=iq;msAlert(false)};if(!MS.fo){MS.fo=1;b2.focus()}}}else msAlert(false)}
   /* أذكار تلقائية */
   var key=null;if(i==0&&n>=iq+msAz("m")&&n<iq+msAz("m")+20)key="m";if(i==3&&n>=iq+msAz("e")&&n<iq+msAz("e")+20)key="e";
-  if(key&&!hit&&(DEMO||(S.msd||{})[key]!==tz.d)){S.msd=S.msd||{};S.msd[key]=tz.d;if(!DEMO)save();AZT=key=="m"?0:1;AZI=0;["wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")});azOpen()}}
+  if(key&&!hit&&(DEMO?!MS.bp["z"+key]:(S.msd||{})[key]!==tz.d)){MS.bp["z"+key]=1;S.msd=S.msd||{};S.msd[key]=tz.d;if(!DEMO)save();AZT=key=="m"?0:1;AZI=0;["wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")});azOpen()}}
  if(!hit){MS.fo=0;msAlert(false)}
  if($("ms")&&$("ms").classList.contains("on")){if(MS.v=="d")msUpdate();else if(MS.built!="s")msDraw()}}
 setInterval(msTick,1000);
@@ -572,6 +580,11 @@ if(DEMO){window.DEMOF=DEMO.indexOf("friday")>-1;S.msq=1;var DT0=Date.now(),DB=nu
  else if(DEMO.indexOf("evening")>-1)DB=P[3][1]+msIq(3)+msAz("e")-.1;
  var DR=msNow;msNow=function(){var r=DR();return DB===null?r:{min:DB+(Date.now()-DT0)/60000,d:r.d}};
  build();tick();if(DEMO.indexOf("morning")<0&&DEMO.indexOf("evening")<0)setTimeout(msOpen,400)}
+
+/* الأذكار تتحرك كل 15 ثانية */
+var AZLT=Date.now(),_azd=azDraw;azDraw=function(){AZLT=Date.now();return _azd.apply(this,arguments)};
+setInterval(function(){var z=$("az");if(!z||!z.classList.contains("on"))return;if(Date.now()-AZLT<15000)return;
+ var L=AZD.AK;if(AZT>=L.length-1&&AZI>=L[AZT].l.length-1)return;azGo(1)},1000);
 
 /* ===== واجهة المكتبة الجديدة ===== */
 var SNL=["Al-Fatihah","Al-Baqarah","Ali 'Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Taha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-'Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadilah","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","'Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duha","Ash-Sharh","At-Tin","Al-'Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-'Adiyat","Al-Qari'ah","At-Takathur","Al-'Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
