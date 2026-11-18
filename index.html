@@ -146,8 +146,8 @@ html[lang=en] body,html[lang=en] button,html[lang=en] input,html[lang=en] select
 .tvft{text-align:center;font-size:3.2vmin;opacity:0;transition:opacity .5s;font-family:var(--af,inherit);min-height:5vmin}.tvft.on{opacity:.8}
 @media(max-aspect-ratio:1/1){.tvm{grid-template-columns:1fr;grid-template-areas:"clk" "dt" "nx";gap:3vmin}.tvclk{font-size:22vmin}.tvcd{font-size:17vmin}.tvrow{grid-template-columns:repeat(3,1fr)}}
 html.tvon,html.tvon body{overflow:hidden}
-#nvb{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;object-fit:cover;z-index:39;display:none;background:#000;pointer-events:none}
-#nvb.on{display:block}
+#nvb{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;object-fit:cover;z-index:39;display:block;opacity:0;visibility:visible;transition:opacity .5s;background:#000;pointer-events:none;transform:translateZ(0)}
+#nvb.on{opacity:1}
 .nvon .np{background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.5))!important;--ink:#fff;--mute:rgba(255,255,255,.78);--card:rgba(0,0,0,.35);--line:rgba(255,255,255,.25);color:#fff!important}
 .nvon .np h2,.nvon .np .sub,.nvon .np .nphl,.nvon .np .npt{color:#fff!important;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 .nvon .np button{color:#fff!important}.nvon .np .npb button{background:rgba(0,0,0,.35)!important;border-color:rgba(255,255,255,.3)!important}
@@ -1084,7 +1084,7 @@ var KP=[[200,6500,1,0],[50,520,.55,.3],[90,1150,.8,.4],[70,900,.7,.35],[100,2200
 if(NVN.c.state!="running")NVN.c.resume();NVN.g.gain.value=vol}catch(e){}}
 function nvAud(v,vol){try{if(!v._g){var AC_=window.AudioContext||window.webkitAudioContext;if(!AC_)return false;var c=new AC_(),sr=c.createMediaElementSource(v),g=c.createGain();sr.connect(g);g.connect(c.destination);v._c2=c;v._g=g}v._g.gain.value=vol;if(v._c2.state!="running")v._c2.resume();return true}catch(e){return false}}
 function nvEl(){var v=document.getElementById("nvb");if(!v){v=document.createElement("video");v.id="nvb";v.muted=true;v.defaultMuted=true;v.setAttribute("muted","");v.loop=true;v.playsInline=true;v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.preload="auto";v.setAttribute("aria-hidden","true");v.addEventListener("error",function(){if(v.getAttribute("src"))gxToast("خطأ في الفيديو ("+(v.error?v.error.code:"?")+")")});document.body.appendChild(v);nvLoad(v)}return v}
-function nvSync(){if(!(S.nvm|0)&&!document.getElementById("nvb"))return;var n=document.getElementById("np"),m=S.nvm|0,go=m>0&&typeof NPO!="undefined"&&NPO&&AC&&AUD&&!AUD.paused;if(n)n.classList.toggle("nv",m>0&&!!go);
+function nvSync(){if(!(S.nvm|0)&&!document.getElementById("nvb"))return;var n=document.getElementById("np"),m=S.nvm|0,go=m>0&&typeof NPO!="undefined"&&NPO&&AC&&AUD&&!AUD.paused;if(!go&&m>0&&NPO&&AC&&document.getElementById("nvb")&&document.getElementById("nvb").classList.contains("on")&&(window._nvg=(window._nvg|0)+1)<3)return;if(go)window._nvg=0;if(n)n.classList.toggle("nv",m>0&&!!go);
  var v=document.getElementById("nvb");if(!go){nvNoise(false);if(v){v.classList.remove("on");try{v.pause()}catch(e){}}document.documentElement.classList.remove("nvon");return}
  v=nvEl();v.classList.add("on");document.documentElement.classList.add("nvon");var want=(m==2);v.muted=true;nvNoise(want,.5,nvTi())
  if(v._ti!==nvTi()||!v.getAttribute("src")){nvLoad(v);if(!v.getAttribute("src"))return}var p=v.paused?v.play():null;if(p&&p.catch)p.catch(function(){if(S.nvm==2){S.nvm=1;sv0();v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){});nvBtn();gxToast("تعذّر تشغيل صوت الفيديو، فتم تشغيله صامتاً")}else{v._pend=1}});
