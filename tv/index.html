@@ -225,8 +225,8 @@ function nvSync(){var n=$("np"),b=$("nvt");if(b){b.innerHTML=ico("nat",24)+" "+N
  var go=NVM>0&&CUR&&!AUD.paused&&n&&n.classList.contains("on"),v=document.getElementById("nvb");
  if(n)n.classList.toggle("nv",!!go);
  if(!go){if(v){v.classList.remove("on");try{v.pause()}catch(e){}}return}
- if(!v){v=document.createElement("video");v.id="nvb";v.loop=true;v.muted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="none";v.src="../video/nature.mp4";document.body.appendChild(v)}
- v.classList.add("on");v.volume=.35;v.muted=(NVM!=2);var p=v.play();if(p&&p.catch)p.catch(function(){});
+ if(!v){v=document.createElement("video");v.id="nvb";v.loop=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("playsinline","");v.preload="none";v.src="../video/nature.mp4";document.body.appendChild(v)}
+ v.classList.add("on");v.volume=.2;v.muted=(NVM!=2);var p=v.play();if(p&&p.catch)p.catch(function(){});
  if(NVM==2&&!v._c){v._c=1;setTimeout(function(){v._c=0;if(NVM==2&&AUD.paused){NVM=1;try{AUD.play()}catch(e){}nvSync()}},900)}}
 var npDraw0=npDraw;npDraw=function(){npDraw0.apply(this,arguments);nvSync()};
 setInterval(nvSync,1500);
