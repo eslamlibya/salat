@@ -3,14 +3,14 @@
 Cloudflare Worker + قاعدة D1. يوفّر: إنشاء حساب (اسم، اسم مستخدم، بريد، كلمة مرور)، تأكيد البريد برمز من 6 أرقام، الدخول، نسيان كلمة المرور، مزامنة بيانات التطبيق، حذف الحساب.
 
 ## النشر (من Cloudflare Dashboard)
-1. Workers & Pages ← Create ← Worker، سمِّه **salat-account** (الاسم مهم لأن التطبيق يتصل بـ `salat-account.vzftysb4h2.workers.dev`).
+1. Workers & Pages ← Create ← Worker، سمِّه **salat-account** (الاسم مهم لأن التطبيق يتصل بـ `autumn-frost-d70c.vzftysb4h2.workers.dev`).
 2. Edit code ← الصق محتوى `worker.js` ← Deploy.
 3. Storage & databases ← D1 ← Create database (مثلًا `salat-account`).
 4. في الـ Worker: Settings ← Bindings ← Add ← D1 database، الاسم **DB**، واختر القاعدة.
 5. Settings ← Variables and Secrets:
    - `MAIL_FROM` (Text): بريدك الذي وثّقته في Brevo كمرسِل.
    - `BREVO_KEY` (Secret): مفتاح API من Brevo. لا تضعه في GitHub أو المحادثة أبدًا.
-6. افتح `https://salat-account.vzftysb4h2.workers.dev/` فيجب أن تظهر `{"ok":true,"name":"salat-account"}`.
+6. افتح `https://autumn-frost-d70c.vzftysb4h2.workers.dev/` فيجب أن تظهر `{"ok":true,"name":"salat-account"}`.
 
 ## Brevo (إرسال البريد مجانًا)
 1. أنشئ حسابًا في brevo.com.
