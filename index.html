@@ -193,6 +193,17 @@ html.mac #mp{inset-inline-start:274px;inset-inline-end:24px;bottom:16px;max-widt
 #v-quran.qaud .chip{padding:8px 14px;font-size:14px;border-radius:99px;white-space:nowrap}
 #v-quran.qaud .g .in{border-radius:14px;font-size:16px;padding:12px 14px}
 #v-quran.qaud .g h3{font-size:17px}
+/* v12d: الخلفية تتكيّف مع الاتجاه والجهاز */
+#nvb{object-position:center 40%}
+@media (max-aspect-ratio:1/1){
+ html{--nvh:min(calc(78vw + env(safe-area-inset-top,0px)),58vh)}
+ #nvb{bottom:auto!important;height:var(--nvh)!important}
+ .nvon .np .npa2{visibility:hidden}
+ .nvon .np{background:linear-gradient(rgba(0,0,0,.22) 0,rgba(0,0,0,.4) calc(var(--nvh) - 90px),#050d0a var(--nvh),#07130f 100%)!important}
+}
+@media (min-aspect-ratio:1/1) and (max-height:520px){
+ .nvon .np{background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.55))!important}
+}
 /* الطقس */
 .wqi{overflow:visible;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}.wqrt{transform-origin:32px 32px;animation:wxro 24s linear infinite}@keyframes wxro{to{transform:rotate(360deg)}}
 .wqcl{animation:wxcd 6s ease-in-out infinite alternate}@keyframes wxcd{from{transform:translateX(-1.5px)}to{transform:translateX(2px)}}
