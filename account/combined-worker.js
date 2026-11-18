@@ -12,7 +12,7 @@ const te=new TextEncoder();
 let KEY=null,READY=false;
 async function key(env){if(KEY)return KEY;const p=unb64u(env.VAPID_PUBLIC);KEY=await crypto.subtle.importKey("jwk",{kty:"EC",crv:"P-256",x:b64u(p.slice(1,33)),y:b64u(p.slice(33,65)),d:env.VAPID_PRIVATE,ext:true},{name:"ECDSA",namedCurve:"P-256"},false,["sign"]);return KEY}
 async function jwt(env,aud){const h=b64u(te.encode(JSON.stringify({typ:"JWT",alg:"ES256"}))),p=b64u(te.encode(JSON.stringify({aud,exp:Math.floor(Date.now()/1000)+43200,sub:env.SUBJECT||"https://eslamlibya.github.io/salat"})));const s=await crypto.subtle.sign({name:"ECDSA",hash:"SHA-256"},await key(env),te.encode(h+"."+p));return h+"."+p+"."+b64u(s)}
-async function push(env,ep){const aud=new URL(ep).origin;const r=await fetch(ep,{method:"POST",headers:{Authorization:"vapid t="+await jwt(env,aud)+", k="+env.VAPID_PUBLIC,TTL:"3600",Urgency:"high","Content-Length":"0"}});return r.status}
+async function push(env,ep){if(!env.VAPID_PUBLIC||!env.VAPID_PRIVATE)throw new Error("vapid-config");const aud=new URL(ep).origin;const r=await fetch(ep,{method:"POST",headers:{Authorization:"vapid t="+await jwt(env,aud)+", k="+env.VAPID_PUBLIC,TTL:"3600",Urgency:"high","Content-Length":"0"}});return r.status}
 async function init(env){if(READY)return;await env.DB.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)").run();await env.DB.prepare("CREATE INDEX IF NOT EXISTS ix_t ON sched(t)").run();READY=true}
 const cors=(env,req)=>({"Access-Control-Allow-Origin":env.ALLOWED_ORIGIN||"https://eslamlibya.github.io","Access-Control-Allow-Methods":"POST,GET,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Vary":"Origin"});
 const out=(env,req,o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{...cors(env,req),"Content-Type":"application/json"}});
@@ -25,6 +25,7 @@ async fetch(req,env){
  let b;try{const tx=await req.text();if(tx.length>20000)return out(env,req,{error:"big"},413);b=JSON.parse(tx)}catch(e){return out(env,req,{error:"json"},400)}
  if(!b||!okEp(b.endpoint))return out(env,req,{error:"endpoint"},400);
  await init(env);const db=env.DB;
+ if(!await ACC.rl(env,"p:"+(req.headers.get("CF-Connecting-IP")||"x"),u.pathname==="/test"?10:60,36e5))return out(env,req,{error:"rate"},429);
  if(u.pathname==="/sub"){
   const now=Date.now(),ts=(Array.isArray(b.times)?b.times:[]).filter(t=>Number.isInteger(t)&&t>now-120000&&t<now+9*864e5).slice(0,200);
   await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(b.endpoint).run();
@@ -32,7 +33,7 @@ async fetch(req,env){
   return out(env,req,{ok:true,n:ts.length});
  }
  if(u.pathname==="/unsub"){await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(b.endpoint).run();return out(env,req,{ok:true})}
- if(u.pathname==="/test"){const s=await push(env,b.endpoint);return out(env,req,{ok:s>=200&&s<300,status:s})}
+ if(u.pathname==="/test"){try{const s=await push(env,b.endpoint);return out(env,req,{ok:s>=200&&s<300,status:s})}catch(e){return out(env,req,{error:"server-config"},500)}}
  return out(env,req,{error:"route"},404);
 },
 async scheduled(ev,env,ctx){ctx.waitUntil((async()=>{
@@ -76,7 +77,7 @@ async function limit(env,k,max,win){const now=Date.now(),r=await env.DB.prepare(
 async function mail(env,to,subject,html){if(!env.BREVO_KEY||!env.MAIL_FROM)throw new Error("mail-config");
  const r=await fetch("https://api.brevo.com/v3/smtp/email",{method:"POST",headers:{"api-key":env.BREVO_KEY,"content-type":"application/json",accept:"application/json"},body:JSON.stringify({sender:{name:"الصلاة",email:env.MAIL_FROM},to:[{email:to}],subject,htmlContent:html})});
  if(!r.ok)throw new Error("mail-"+r.status)}
-async function sendCode(env,u,kind){const code=String(Math.floor(Math.random()*1e6)).padStart(6,"0"),now=Date.now();
+async function sendCode(env,u,kind){const code=String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,"0"),now=Date.now();
  const old=await env.DB.prepare("SELECT sent FROM codes WHERE uid=? AND kind=?").bind(u.id,kind).first();
  if(old&&now-old.sent<60000)return"wait";
  await env.DB.prepare("INSERT OR REPLACE INTO codes(uid,kind,ch,exp,tries,sent) VALUES(?,?,?,?,0,?)").bind(u.id,kind,await sha(u.id+":"+kind+":"+code),now+15*60000,now).run();
@@ -88,13 +89,13 @@ async function chkCode(env,uid,kind,code){const r=await env.DB.prepare("SELECT c
  await env.DB.prepare("UPDATE codes SET tries=tries+1 WHERE uid=? AND kind=?").bind(uid,kind).run();
  if(!same(r.ch,await sha(uid+":"+kind+":"+String(code).trim())))return false;
  await env.DB.prepare("DELETE FROM codes WHERE uid=? AND kind=?").bind(uid,kind).run();return true}
-async function newSess(env,uid){const t=rnd(32);await env.DB.prepare("INSERT INTO sess(th,uid,exp) VALUES(?,?,?)").bind(await sha(t),uid,Date.now()+60*864e5).run();return t}
+async function newSess(env,uid){const t=rnd(32);await env.DB.prepare("INSERT INTO sess(th,uid,exp) VALUES(?,?,?)").bind(await sha(t),uid,Date.now()+30*864e5).run();return t}
 async function auth(env,req){const h=req.headers.get("Authorization")||"";if(h.slice(0,7)!=="Bearer ")return null;
  const r=await env.DB.prepare("SELECT u.id,u.email,u.username,u.name,s.exp FROM sess s JOIN users u ON u.id=s.uid WHERE s.th=?").bind(await sha(h.slice(7))).first();
  return r&&r.exp>Date.now()?r:null}
 const pub=u=>({id:u.id,email:u.email,username:u.username,name:u.name});
 const EM=/^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/,UN=/^[a-z0-9_]{3,20}$/;
-return{async fetch(req,env){
+return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env){
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors(env)});
  const u=new URL(req.url),p=u.pathname,ip=req.headers.get("CF-Connecting-IP")||"x";
  if(req.method==="GET"&&p==="/")return out(env,{ok:true,name:"salat-account"});
@@ -108,7 +109,7 @@ return{async fetch(req,env){
   if(!EM.test(em)||em.length>120)return out(env,{error:"email"},400);
   if(pw.length<8||pw.length>100)return out(env,{error:"password"},400);
   const ex=await env.DB.prepare("SELECT id,verified,email,username FROM users WHERE email=? OR username=?").bind(em,un).first();
-  if(ex&&ex.verified)return out(env,{error:ex.email===em?"email_taken":"username_taken"},409);
+  if(ex&&ex.verified){if(ex.email!==em)return out(env,{error:"username_taken"},409);if(await limit(env,"note:"+em,1,36e5))await mail(env,em,"الصلاة — محاولة تسجيل","<div dir=\"rtl\"><p>حاول أحدهم التسجيل بهذا البريد وهو مسجّل لديك أصلاً. إن كنت أنت فاستخدم «نسيت كلمة المرور». وإلا فتجاهل الرسالة.</p></div>").catch(()=>{});return out(env,{ok:true,need:"verify",wait:false})}
   const salt=rnd(16),hash=await pbk(pw,salt);let uid;
   if(ex){if(ex.email!==em||ex.username!==un)return out(env,{error:"username_taken"},409);await env.DB.prepare("UPDATE users SET name=?,salt=?,hash=? WHERE id=?").bind(name,salt,hash,ex.id).run();uid=ex.id}
   else{const r=await env.DB.prepare("INSERT INTO users(email,username,name,salt,hash,verified,created) VALUES(?,?,?,?,?,0,?)").bind(em,un,name,salt,hash,Date.now()).run();uid=r.meta.last_row_id}
@@ -126,7 +127,7 @@ return{async fetch(req,env){
   if(!await limit(env,"lg:"+ip,20,36e5))return out(env,{error:"rate"},429);
   const id=String(b.id||"").trim().toLowerCase(),pw=String(b.password||"");
   if(!id||!pw||pw.length>100)return out(env,{error:"login"},400);
-  if(!await limit(env,"lgu:"+id,8,15*60000))return out(env,{error:"rate"},429);
+  if(!await limit(env,"lgu:"+id+":"+ip,8,15*60000))return out(env,{error:"rate"},429);
   const r=await env.DB.prepare("SELECT * FROM users WHERE email=? OR username=?").bind(id,id).first();
   const salt=r?r.salt:rnd(16),h=await pbk(pw,salt);
   if(!r||!same(h,r.hash))return out(env,{error:"login"},401);
@@ -145,7 +146,7 @@ return{async fetch(req,env){
  const me=await auth(env,req);
  if(!me)return out(env,{error:"auth"},401);
  if(p==="/me"&&req.method==="GET")return out(env,{ok:true,user:pub(me)});
- if(p==="/logout"&&req.method==="POST"){await env.DB.prepare("DELETE FROM sess WHERE th=?").bind(await sha(req.headers.get("Authorization").slice(7))).run();return out(env,{ok:true})}
+ if(p==="/logout"&&req.method==="POST"){if(b.all){await env.DB.prepare("DELETE FROM sess WHERE uid=?").bind(me.id).run();return out(env,{ok:true})}await env.DB.prepare("DELETE FROM sess WHERE th=?").bind(await sha(req.headers.get("Authorization").slice(7))).run();return out(env,{ok:true})}
  if(p==="/data"&&req.method==="GET"){const r=await env.DB.prepare("SELECT j,ut FROM dat WHERE uid=?").bind(me.id).first();return out(env,{ok:true,j:r?r.j:null,ut:r?r.ut:0})}
  if(p==="/data"&&req.method==="PUT"){
   if(!await limit(env,"dt:"+me.id,120,36e5))return out(env,{error:"rate"},429);
