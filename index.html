@@ -204,7 +204,41 @@ html.mac #mp{inset-inline-start:274px;inset-inline-end:24px;bottom:16px;max-widt
 @media (min-aspect-ratio:1/1) and (max-height:520px){
  .nvon .np{background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.55))!important}
 }
-[data-nv],[data-nvt],#nvst,#nvpb,#nvb{display:none!important}
+
+/* landscape phone: compact player */
+@media (min-aspect-ratio:1/1) and (max-height:520px){
+ .np .npa2{display:none!important}
+ .np{padding-top:calc(6px + env(safe-area-inset-top,0px))!important;padding-bottom:6px!important}
+ .np h2{font-size:20px!important;margin:2px 0!important}.np .sub{margin:0 0 4px!important;font-size:12px!important}
+ .np .wv2{height:26px!important;margin:2px 0!important}.np .npt{font-size:11px!important}
+ .np .npc{height:auto!important;gap:14px!important;margin:2px 0!important}.np .npc button{transform:scale(.8)}
+ .np .npp{width:52px!important;height:52px!important}
+ .np .npb{flex-wrap:nowrap!important;overflow-x:auto;gap:6px!important;max-width:100%}
+ .np .npb button{font-size:12px!important;padding:6px 10px!important;min-height:0!important;white-space:nowrap;flex:none}
+ .np .nph{height:32px!important}.np .npx{width:34px!important;height:34px!important}
+}
+/* v12f modern reciter page + rows */
+.rhd{position:relative;border-radius:26px;padding:14px 16px 18px;margin-bottom:14px;color:#fff;background:radial-gradient(120% 120% at 100% 0%,hsl(var(--h) 60% 52%) 0%,hsl(var(--h) 55% 24%) 55%,#07110e 100%);box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.rbk{border:0;background:rgba(0,0,0,.28);color:#fff;border-radius:99px;padding:7px 14px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.rhc{display:flex;align-items:center;gap:14px;margin-top:16px}.rhc b{display:block;font-size:22px;line-height:1.3}.rhc small{opacity:.85;font-size:13px}
+.rav{flex:none;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:32px;font-weight:700;background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 2px rgba(255,255,255,.45),0 6px 16px rgba(0,0,0,.25)}
+.rmh{font-weight:700;margin:4px 4px 8px;color:var(--ink)}
+.rmo{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none}
+.rmo button{position:relative;flex:none;min-width:150px;text-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:18px;padding:12px 14px}
+.rmo button b{display:block;font-size:15px}.rmo button small{display:block;color:var(--mute);font-size:12px;margin-top:3px}
+.rmo button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}.rmo .ck{position:absolute;top:8px;inset-inline-end:10px;color:var(--acc);font-weight:800}
+.rst{display:flex;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px 4px;margin-bottom:10px}
+.rst>div{flex:1;text-align:center}.rst>div+div{border-inline-start:1px solid var(--line)}.rst b{display:block;font-size:20px;color:var(--ink)}.rst small{color:var(--mute);font-size:12px}
+.rbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:16px;padding:14px;font-size:16px;font-weight:700;background:var(--acc);color:#fff;margin-bottom:8px}
+.rbtn.sec{background:var(--soft);color:var(--acc);font-weight:600}
+.rnote{background:var(--card);border-radius:14px;padding:12px;margin-bottom:8px;text-align:center;color:var(--ink)}
+.rls{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:4px 14px;margin-top:6px}
+.rls .row{padding:11px 0}
+#v-quran.qaud .row .mb{min-width:42px;min-height:42px;border-radius:14px;display:inline-grid;place-items:center;padding:0 12px}
+#v-quran.qaud .row .mb.apl{width:44px;height:44px;border-radius:50%;background:var(--acc);color:#fff;padding:0}
+#v-quran.qaud .row .mb.apl svg{fill:currentColor}
+#v-quran.qaud .g .row .dt{flex:none}
+#v-quran.qrec .g:has(#lsi){display:none}
 /* الطقس */
 .wqi{overflow:visible;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}.wqrt{transform-origin:32px 32px;animation:wxro 24s linear infinite}@keyframes wxro{to{transform:rotate(360deg)}}
 .wqcl{animation:wxcd 6s ease-in-out infinite alternate}@keyframes wxcd{from{transform:translateX(-1.5px)}to{transform:translateX(2px)}}
@@ -1150,20 +1184,14 @@ function st(){var n=document.getElementById("np"),b=n&&n.querySelector(".npb"),m
  else if(!v||!v.getAttribute("src"))t="جارٍ تحميل الفيديو… (يحتاج إنترنت، "+(NVF[i]?"قيد التنزيل":"بانتظار البدء")+")";
  else if(v.error)t="خطأ في الفيديو، الرمز "+v.error.code;
  else if(v.readyState<2)t="الفيديو يحمّل… (حالة "+v.readyState+")";
- else if(v.paused)t=(v._pe?"رفض النظام التشغيل ("+v._pe+")":"الفيديو جاهز")+" — اضغط زر ▶ فوق الفيديو. وإن لم يعمل فأطفئ وضع الطاقة المنخفضة";
+ else if(v.paused)t=(v._pe?"رفض النظام التشغيل ("+v._pe+")":"الفيديو جاهز")+" — المس الشاشة مرة";
  else t="الخلفية تعمل ✓";
- o.textContent=t;
- var pb=document.getElementById("nvpb"),need=go&&v&&v.getAttribute("src")&&v.readyState>=2&&v.paused;
- if(need&&!pb){pb=document.createElement("button");pb.id="nvpb";pb.setAttribute("aria-label","تشغيل الخلفية");pb.innerHTML="▶";pb.style.cssText="position:fixed;z-index:60;left:50%;top:calc(var(--nvh,40vh)/2);transform:translate(-50%,-50%);width:84px;height:84px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(0,0,0,.45);color:#fff;font-size:34px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)";
-  var run=function(e){e.preventDefault();e.stopPropagation();var q=document.getElementById("nvb");if(!q)return;q.muted=true;var r=q.play();if(r&&r.then)r.then(function(){q._pe=""}).catch(function(x){q._pe=(x&&x.name)||"خطأ"});};pb.addEventListener("click",run);pb.addEventListener("touchend",run);document.body.appendChild(pb)}
- else if(!need&&pb)pb.remove();
+ o.textContent=t;if(t.indexOf("تعمل ✓")>-1)o.style.display="none";else o.style.display="";
+
  if(go&&v&&v.getAttribute("src")){if(LI!==i||v._sa!==v.getAttribute("src")){LI=i;v._sa=v.getAttribute("src");T0=Date.now()}
   if(v.readyState<2&&!v._fb&&Date.now()-T0>6000&&String(v.getAttribute("src")).indexOf("blob:")==0){v._fb=1;v.src=NVSRCS[i];try{v.load();v.play()}catch(e){}}
   if(v.paused&&v.readyState>=2&&!v._tp){v._tp=1;var f=function(){document.removeEventListener("touchend",f,true);document.removeEventListener("click",f,true);v._tp=0;try{var p=v.play();if(p&&p.catch)p.catch(function(){})}catch(e){}};document.addEventListener("touchend",f,true);document.addEventListener("click",f,true)}}}
 setInterval(st,800)})();
-
-/* v12e: خلفية الطبيعة معطّلة في نسخة الهاتف (تبقى في التلفاز) */
-S.nvm=0;setInterval(function(){if(S.nvm){S.nvm=0;sv0()}},1000);
 /* ===== v12: all-countries Eid page + organized library ===== */
 (function(){
 var ISO=[];for(var a=65;a<91;a++)for(var b=65;b<91;b++)ISO.push(String.fromCharCode(a,b));
@@ -1227,6 +1255,16 @@ try{SP=SP.filter(function(x){return x[0]!="goals"});if(S.sp=="goals"){S.sp="";}}
 var _qr12=quran;quran=function(){var o=document.getElementById("qsbx");if(o)o.remove();_qr12();var el=$("v-quran");if(!el)return;el.classList.toggle("qaud",S.qt=="a");var so=el.querySelector(".seg.sc .on");if(so&&so.parentNode){var pr=so.parentNode.getBoundingClientRect(),r=so.getBoundingClientRect();so.parentNode.scrollLeft+=(r.left+r.width/2)-(pr.left+pr.width/2)}var b=el.querySelector('[data-qa="bm"]');if(b){var g=b.closest(".g");if(g){g.classList.add("qsb");g.id="qsbx";document.body.appendChild(g)}}
  if(S.qt=="m"&&!(S.qbm||[]).length){var p=el.querySelector(".g p");if(p&&p.textContent.indexOf("لا علامات")==0)p.textContent="لا علامات بعد. افتح «القراءة» واضغط على أي آية، ثم اضغط «علامة» في الشريط الذي يظهر أسفل الشاشة."}};
 setInterval(function(){var o=document.getElementById("qsbx");if(o&&(typeof CV=="undefined"||CV!="quran"))o.remove()},400);
+
+/* ---- v12f: modern reciter page ---- */
+function recHtml(){var r=AL.R.filter(function(x){return x.id==AL.rec})[0];if(!r)return"";var hue=r.id*47%360,ms=r.moshaf||[];
+ var h='<div class="rhd" style="--h:'+hue+'"><button class="rbk" data-lx="back" aria-label="رجوع"><svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-chr"/></svg> القراء</button><div class="rhc"><i class="rav">'+qesc(r.name.trim().charAt(0))+'</i><div><b>'+qesc(r.name)+'</b><small>'+ms.length+' رواية وتسجيل</small></div></div></div>';
+ h+='<div class="rmh">اختر الرواية</div><div class="rmo">'+ms.map(function(m){var on=AL.mo==m.id;return'<button data-lx="mo" data-a1="'+m.id+'" class="'+(on?"on":"")+'"><b>'+qesc(rwn(m.name.split(" - ")[0]))+'</b><small>'+qesc((m.name.split(" - ")[1]||"")+" · "+m.surah_total+" سورة")+'</small>'+(on?'<span class="ck">✓</span>':'')+'</button>'}).join("")+'</div>';
+ var mo=AL.mo&&MOS[AL.mo];if(mo&&mo.rid==r.id)h+=moHtml(mo);else h+='<p class="note" style="text-align:center">اختر روايةً لتظهر السور.</p>';return h}
+function moHtml(mo){var used=0,n=0;Object.keys(DONE).forEach(function(k){if(DONE[k].mid==mo.id){used+=DONE[k].size;n++}});var da=AL.da&&AL.da.mid==mo.id?AL.da:null,box;
+ if(da&&da.st=="calc")box='<div class="rnote">يحسب الحجم… '+da.n+' / '+da.tot+'</div>';else if(da&&da.st=="ready")box='<div class="rnote">الحجم التقريبي: <b>'+fmb(da.sum)+'</b>'+(da.q?' · المتاح '+fmb(da.q):"")+'</div><button class="rbtn" data-lx="da2" data-a1="'+mo.id+'">ابدأ تنزيل '+da.cnt+' سورة</button>';else box='<button class="rbtn" data-lx="da" data-a1="'+mo.id+'">'+ico("dl",18)+' تنزيل كل السور</button>';
+ return'<div class="rst"><div><b>'+n+'</b><small>سورة محمّلة</small></div><div><b>'+(n?fmb(used):"0")+'</b><small>المساحة</small></div><div><b>'+mo.list.length+'</b><small>سورة متاحة</small></div></div>'+box+(n?'<button class="rbtn sec" data-lx="dd" data-a1="'+mo.id+'">حذف تنزيلات هذا التسجيل</button>':"")+'<div class="rls">'+mo.list.map(function(s){return srow(mo,s)}).join("")+'</div>'}
+var _ll12=libList;libList=function(){_ll12.apply(this,arguments);var e=$("v-quran");if(e)e.classList.toggle("qrec",!!AL.rec)};
 /* ===== الطقس الحقيقي (Open-Meteo) — نواة مشتركة ===== */
 var WXT={0:"صافٍ",1:"غالبًا صافٍ",2:"غائم جزئيًا",3:"غائم",45:"ضباب",48:"ضباب صقيعي",51:"رذاذ خفيف",53:"رذاذ",55:"رذاذ كثيف",56:"رذاذ متجمّد",57:"رذاذ متجمّد",61:"مطر خفيف",63:"مطر",65:"مطر غزير",66:"مطر متجمّد",67:"مطر متجمّد",71:"ثلج خفيف",73:"ثلج",75:"ثلج كثيف",77:"حبيبات ثلج",80:"زخات مطر خفيفة",81:"زخات مطر",82:"زخات مطر غزيرة",85:"زخات ثلج",86:"زخات ثلج كثيفة",95:"عاصفة رعدية",96:"عاصفة رعدية وبرد",99:"عاصفة رعدية قوية"};
 function wxKind(c){if(c===0||c===1)return"sun";if(c===2)return"pc";if(c===3)return"cl";if(c===45||c===48)return"fog";if(c>=51&&c<=67||c>=80&&c<=82)return"rain";if(c>=71&&c<=77||c===85||c===86)return"snow";if(c>=95)return"storm";return"cl"}
