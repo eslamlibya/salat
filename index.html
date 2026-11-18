@@ -682,7 +682,7 @@ function zkPage(){var z=S.zk||{},F=[["g","ذهب (غرام، للادخار أو
  return'<div class="g"><h3>حاسبة الزكاة</h3><p class="note">أدخل كل المبالغ بعملة واحدة. الأسعار تُدخلها بنفسك لأن التطبيق لا يجلب أسعارًا مباشرة.</p><div class="row"><span>العملة</span><input class="in" id="zk_cu" value="'+qesc(z.cu||"")+'" placeholder="د.ل" style="width:96px;text-align:center"></div>'+F.map(function(f){return'<div class="row"><span style="max-width:60%">'+f[1]+'</span><input class="in" id="zk_'+f[0]+'" type="text" inputmode="decimal" dir="ltr" value="'+qesc(z[f[0]]||"")+'" placeholder="0" style="width:110px;text-align:center"></div>'}).join("")+'<div class="row"><span>النصاب بحسب</span><span class="seg" style="margin:0"><button data-xz="nz" data-xi="g" aria-pressed="'+(z.nz!="s")+'">الذهب</button><button data-xz="nz" data-xi="s" aria-pressed="'+(z.nz=="s")+'">الفضة</button></span></div></div><div class="g" id="zkr"><h3>النتيجة</h3>'+zres()+'</div><p class="note">تجب الزكاة إذا بلغ المال النصاب وحال عليه حول هجري كامل. الذهب أحوط للنصاب عند كثير من العلماء لأنه أعلى قيمة من نصاب الفضة غالبًا، وبعضهم يعتمد الفضة لمصلحة الفقراء. هذه حاسبة مساعدة لا فتوى؛ اسأل أهل العلم في حالتك (مثل الحلي المستعمل أو الأسهم).</p>'}
 document.addEventListener("input",function(e){var id=e.target.id||"";if(id.indexOf("zk_")!=0)return;S.zk=S.zk||{};S.zk[id.slice(3)]=e.target.value;sv();var r=$("zkr");if(r)r.innerHTML='<h3>النتيجة</h3>'+zres()});
 document.addEventListener("change",function(e){if(e.target.id=="xzc"){S.mcs=e.target.value;sv();sett()}});
-function xzAct(D){var a=D.xz,x=D.xi,L=plAll(),i;
+function xzAct(D){var a=D.xz,x=D.xi,L=plAll(),i;if(a=="lby"||a=="lby0"){AL.lby=a=="lby";AL.rw="";AL._rw="";AL.lim=60;libList();return}
  if(a=="play"){ensAU(x);if(AU[x])aplay(x);lib()}
  else if(a=="fav"){S.fv=S.fv||[];i=S.fv.indexOf(x);if(i>-1)S.fv.splice(i,1);else S.fv.push(x);S.tm=S.tm||{};S.tm[x]=ttl(x);sv();lib()}
  else if(a=="pladd"){var q=L[+$("xzs").value];if(q&&AC&&q.i.indexOf(AC)<0){q.i.push(AC);S.tm=S.tm||{};S.tm[AC]=ttl(AC);sv()}lib()}
@@ -828,6 +828,27 @@ function aRetry(){if(!AC||!AUD.src||ART>=4)return;ART++;var t=AUD.currentTime||0
 AUD.addEventListener("error",function(){setTimeout(aRetry,ART*500+300)});
 AUD.addEventListener("playing",function(){ART=0;AST=0});
 setInterval(function(){if(AC&&!AUD.paused&&!AUD.ended&&AUD.readyState<3){if(++AST>8){AST=0;aRetry()}}else AST=0},1000);
+
+/* ===== v13: smarter reciter search, Libyan reciters first ===== */
+var LIBY=["قنيوه","مجلي","العباني","ديبان","ليبي","الورفلي","الغرياني","المصراتي","الطرابلسي","البنغازي","الزاوي","الفيتوري"];
+function isLiby(r){var n=qnorm(r.name);return LIBY.some(function(w){return n.indexOf(qnorm(w))>-1})}
+function libList(){var L=$("llist");if(!L||AL.st!="ok")return;if(AL.rw!==AL._rw){if(AL.rw)AL.lby=false;AL._rw=AL.rw}
+ var ks=rwKeys(),ch=$("lch"),nl=AL.R.filter(isLiby).length;
+ if(ch)ch.innerHTML='<button class="chip'+(!AL.rw&&!AL.lby?" on":"")+'" data-xz="lby0">الكل</button>'+(nl?'<button class="chip'+(AL.lby?" on":"")+'" data-xz="lby">ليبيون <small>'+nl+'</small></button>':"")+ks.map(function(k,i){return'<button class="chip'+(AL.rw===k?" on":"")+'" data-lx="chip" data-a1="'+i+'">'+qesc(rwn(k))+' <small>'+AL.RW[k]+'</small></button>'}).join("");
+ if(AL.rec){L.innerHTML=recHtml();return}
+ var q=qnorm((AL.q||"").trim()),toks=q.split(/\s+/).filter(Boolean),sids=[];
+ if(q.length>1){for(var id in AL.SW){var sn=qnorm(String(AL.SW[id]));if(sn.indexOf(q)>-1||sn.indexOf(q.replace(/^(ال|سوره)\s*/,""))>-1&&q.length>3)sids.push(+id)}}
+ var rs=AL.R.filter(function(r){
+  if(AL.rw&&!(r.moshaf||[]).some(function(m){return m.name.split(" - ")[0].trim()==AL.rw}))return false;
+  if(AL.lby&&!isLiby(r))return false;
+  if(!toks.length)return true;
+  var hay=qnorm(r.name+" "+(r.moshaf||[]).map(function(m){return m.name}).join(" "));
+  if(toks.every(function(t){return hay.indexOf(t)>-1}))return true;
+  return sids.length&&(r.moshaf||[]).some(function(m){var o=MOS[m.id];return o&&sids.some(function(s){return o.list.indexOf(s)>-1})})
+ });
+ rs.sort(function(a,b){return(isLiby(b)?1:0)-(isLiby(a)?1:0)});
+ var sh=rs.slice(0,AL.lim);
+ L.innerHTML='<div class="g">'+(sh.map(function(r){var ms=(r.moshaf||[]).map(function(m){return rwn(m.name.split(" - ")[0])}).filter(function(x,i,a){return a.indexOf(x)==i});var lb=isLiby(r);return'<button class="row" data-lx="rc" data-a1="'+r.id+'" style="'+RB+'"><span style="display:flex;align-items:center;gap:10px"><i class="av" style="background:hsl('+(r.id*47%360)+',55%,45%)">'+qesc(r.name.trim().charAt(0))+'</i><span>'+qesc(r.name)+(lb?' <small style="color:var(--acc);font-weight:700">· ليبي</small>':"")+'<small>'+qesc(ms.slice(0,2).join(" • "))+(ms.length>2?" +"+(ms.length-2):"")+'</small></span></span><span class="chev"><svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-chl"/></svg></span></button>'}).join("")||'<p>لا نتائج. جرّب اسم قارئ أو سورة أو رواية.</p>')+(rs.length>sh.length?'<button class="btn" data-lx="more" style="background:var(--soft);color:var(--acc)">عرض المزيد ('+(rs.length-sh.length)+')</button>':"")+'</div>'}
 
 function all(){proUi();recalc();navb();home();quran();lib();adhkar();qibla();cal();sett();$("v-set").insertAdjacentHTML("beforeend",ABOUT);tick();if(S.lang=="en")txn(document.body)}
 function navb(){$("nav").innerHTML=V.filter(function(x){return!(S.rel&&x[0]=="adhkar")}).map(function(x){return'<button data-v="'+x[0]+'" aria-label="'+x[1]+'" aria-current="'+(x[0]==CV)+'"><svg viewBox="0 0 24 24">'+x[2]+'</svg><span>'+x[1]+'</span></button>'}).join("")}navb();
