@@ -1,0 +1,71 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Taz</title>
+<style>@font-face{font-family:TazHud;src:url(TazHud.woff) format("woff");font-weight:400 800}@font-face{font-family:TazQ;src:url(TazQ.woff) format("woff")}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#050a1c;color:#fff;font-family:TazHud,"Segoe UI",Tahoma,Arial,sans-serif}
+body{background:#050a1c}#bg{position:fixed;top:0;left:0;right:0;bottom:0;transition:background 1s}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%}
+#glow{position:fixed;width:46vmin;height:46vmin;border-radius:50%;left:0;top:0;pointer-events:none;background:radial-gradient(circle,rgba(90,220,200,.22),rgba(90,220,200,0) 65%);transform:translate(-50%,-50%);transition:left .25s ease-out,top .25s ease-out}
+#w{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2vmin;transition:opacity .7s,transform .7s}
+#w.out{opacity:0;transform:scale(1.08)}
+#st{position:relative;width:21vmin;height:21vmin;animation:fl 6s ease-in-out infinite;filter:drop-shadow(0 0 4vmin rgba(110,130,255,.45))}
+#st img{width:100%;height:100%;border-radius:22%;display:block}
+#st::after{content:"";position:absolute;top:-8%;left:-8%;right:-8%;bottom:-8%;border-radius:50%;border:.25vmin solid rgba(140,160,255,.45);animation:rg 3.6s ease-out infinite}
+@keyframes sp{to{transform:rotate(360deg)}}@keyframes sp2{from{transform:rotate(45deg)}to{transform:rotate(-315deg)}}
+@keyframes rg{0%{transform:scale(.6);opacity:.8}100%{transform:scale(1.9);opacity:0}}@keyframes fl{50%{transform:translateY(-1.6vmin)}}
+h1{margin:0;font-size:10vmin;letter-spacing:1.6vmin;font-weight:300;background:linear-gradient(90deg,#8ff0dc,#fff,#f5d58a);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+#hi{font-family:TazQ,TazHud,serif;font-size:7.2vmin;font-weight:400;margin-top:-1vmin;color:#f5d58a;text-shadow:0 0 2.4vmin rgba(245,213,138,.35)}#sub{font-size:3.4vmin;opacity:.8;letter-spacing:.4vmin}
+#bar{width:44vmin;height:.9vmin;border-radius:1vmin;background:rgba(255,255,255,.12);overflow:hidden}#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4ed3c0,#f0c765);transition:width .3s}
+#msg{font-family:TazQ,TazHud,serif;font-size:3.6vmin;opacity:.75;min-height:4vmin}
+#btn{margin-top:1vmin;border:.35vmin solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;font-size:3.2vmin;padding:1.6vmin 6vmin;border-radius:10vmin;cursor:pointer;opacity:0;transition:opacity .5s,transform .2s}
+#btn.on{opacity:1}#btn:focus,#btn:hover{outline:none;transform:scale(1.08);border-color:#8ff0dc;box-shadow:0 0 3vmin rgba(120,240,215,.45)}
+#clk{position:fixed;top:3vmin;left:4vmin;font-size:5.4vmin;font-weight:600;direction:ltr;text-shadow:0 0 2vmin rgba(0,0,0,.5)}
+#dt{position:fixed;bottom:3.4vmin;left:0;right:0;text-align:center;font-size:3vmin;opacity:.75}
+</style></head><body>
+<div id="bg"></div><canvas id="c"></canvas><div id="glow"></div><div id="clk"></div>
+<div id="w"><div id="st"><img src="logo.png" alt=""></div><h1>Taz</h1><div id="sub">رفيقك في الصلاة والقرآن والأذكار</div><div id="bar"><i id="pg"></i></div><div id="msg">جارٍ التحميل…</div><button id="btn">ادخل الآن</button></div>
+<div id="dt"></div>
+<script>
+var U="https://eslamlibya.github.io/salat/tv/",c=document.getElementById("c"),g=c.getContext("2d"),W,H,P=[],M={x:.5,y:.5,t:0},R=[],T0=Date.now(),ready=false,done=false,pr=0;
+function rs(){W=c.width=innerWidth/1.5|0;H=c.height=innerHeight/1.5|0}rs();addEventListener("resize",rs);
+for(var i=0;i<150;i++)P.push({x:Math.random(),y:Math.random(),z:.2+Math.random()*.8,p:Math.random()*6,s:.3+Math.random()*1.4});
+function mv(x,y){M.x=x;M.y=y;var gl=document.getElementById("glow");gl.style.left=x*100+"%";gl.style.top=y*100+"%"}
+addEventListener("mousemove",function(e){mv(e.clientX/innerWidth,e.clientY/innerHeight)});
+addEventListener("click",function(e){R.push({x:e.clientX/innerWidth*W,y:e.clientY/innerHeight*H,r:0})});
+var SH=null;
+function frame(t){requestAnimationFrame(frame);g.clearRect(0,0,W,H);var s=t/1000,mx=M.x*W,my=M.y*H,i,k;
+ g.globalCompositeOperation="lighter";
+ for(i=0;i<P.length;i++){var p=P[i];p.y-=.00006*p.z*p.s;if(p.y<0){p.y=1;p.x=Math.random()}
+  var bx=(p.x+(M.x-.5)*.05*p.z)*W,by=p.y*H;p.ox=p.ox||0;p.oy=p.oy||0;p.vx=p.vx||0;p.vy=p.vy||0;
+  var x=bx+p.ox,y=by+p.oy,dx=x-mx,dy=y-my,d2=dx*dx+dy*dy,near=0;
+  if(d2<9000){near=1-d2/9000;var d=Math.sqrt(d2)+1;p.vx+=dx/d*near*.55;p.vy+=dy/d*near*.55}
+  for(k=0;k<R.length;k++){var r=R[k],rx=x-r.x,ry=y-r.y,rd=Math.sqrt(rx*rx+ry*ry);if(Math.abs(rd-r.r)<22){p.vx+=rx/(rd+1)*1.1;p.vy+=ry/(rd+1)*1.1}}
+  p.vx+=-p.ox*.04;p.vy+=-p.oy*.04;p.vx*=.9;p.vy*=.9;p.ox+=p.vx;p.oy+=p.vy;
+  var tw=.45+.55*Math.abs(Math.sin(s*p.s+p.p)),rad=(1+p.z*2.2)*(1+near*1.6),al=Math.min(1,(.35+.65*tw)*p.z+near*.6),gr=rad*3.4;
+  var q=g.createRadialGradient(x,y,0,x,y,gr);q.addColorStop(0,"rgba(255,255,255,"+al+")");q.addColorStop(.18,"rgba("+(near>0?"150,245,225":"190,225,255")+","+al*.4+")");q.addColorStop(1,"rgba(120,200,255,0)");
+  g.fillStyle=q;g.beginPath();g.arc(x,y,gr,0,6.3);g.fill();
+  if(near>0){g.strokeStyle="rgba(120,240,215,"+(.5*near)+")";g.lineWidth=1;g.beginPath();g.moveTo(x,y);g.lineTo(mx,my);g.stroke()}}
+ if(!SH&&Math.random()<.006)SH={x:Math.random()*W,y:Math.random()*H*.35,l:0};
+ if(SH){SH.l++;SH.x-=7;SH.y+=3.2;var al2=Math.max(0,1-SH.l/38),sg=g.createLinearGradient(SH.x,SH.y,SH.x+90,SH.y-40);sg.addColorStop(0,"rgba(255,255,255,"+al2+")");sg.addColorStop(1,"rgba(255,255,255,0)");g.strokeStyle=sg;g.lineWidth=2;g.beginPath();g.moveTo(SH.x,SH.y);g.lineTo(SH.x+90,SH.y-40);g.stroke();if(SH.l>38)SH=null}
+ g.globalCompositeOperation="source-over";
+ for(k=R.length-1;k>=0;k--){var r2=R[k];r2.r+=5;g.strokeStyle="rgba(143,240,220,"+Math.max(0,1-r2.r/180)+")";g.lineWidth=2;g.beginPath();g.arc(r2.x,r2.y,r2.r,0,6.3);g.stroke();if(r2.r>180)R.splice(k,1)}
+ var el=(Date.now()-T0)/1000;pr=Math.min(ready?1:.9,Math.max(pr,Math.min(.9,el/1.6)));if(ready&&pr<1)pr=Math.min(1,pr+.03);document.getElementById("pg").style.width=(pr*100)+"%";
+ if(ready&&pr>=1&&el>(window.HOLD||1.8)&&!/preview/.test(location.search))enter()}
+requestAnimationFrame(frame);
+function enter(){if(done)return;done=true;document.getElementById("w").className="out";setTimeout(function(){location.replace(U)},650)}
+function clock(){var d=new Date(),f=function(n){return(n<10?"0":"")+n};document.getElementById("clk").textContent=f(d.getHours())+":"+f(d.getMinutes());
+ try{document.getElementById("dt").textContent=new Intl.DateTimeFormat("ar-LY-u-ca-islamic-umalqura",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(d)+"  ·  "+new Intl.DateTimeFormat("ar-LY",{day:"numeric",month:"long",year:"numeric"}).format(d)}catch(e){}}
+function theme(){var h=new Date().getHours(),t,g,a;
+ if(h>=4&&h<7){t="radial-gradient(ellipse at 50% 100%,#f2a56b 0%,#3b4f8a 45%,#0c1535 100%)";g="صباح النور";a="255,190,120"}
+ else if(h>=7&&h<12){t="radial-gradient(ellipse at 50% 0%,#3a8fd0 0%,#1c4a86 50%,#0a1a40 100%)";g="صباح الخير";a="140,210,255"}
+ else if(h>=12&&h<16){t="radial-gradient(ellipse at 50% 0%,#2f7fc4 0%,#173f78 50%,#081634 100%)";g="أهلًا بك";a="140,220,255"}
+ else if(h>=16&&h<19){t="radial-gradient(ellipse at 50% 100%,#e07a4a 0%,#6a3a78 45%,#140f33 100%)";g="مساء الخير";a="255,170,120"}
+ else{t="radial-gradient(ellipse at 50% 45%,#13234f 0%,#0a1230 45%,#050a1c 100%)";g="حيّاك الله";a="120,240,215"}
+ document.getElementById("bg").style.background=t;document.getElementById("glow").style.background="radial-gradient(circle,rgba("+a+",.25),rgba("+a+",0) 65%)"}
+theme();clock();setInterval(function(){clock();theme()},60000);
+function load(){var m=document.getElementById("msg"),b=document.getElementById("btn");m.textContent="لحظات…";b.className="";var x=new XMLHttpRequest();x.timeout=9000;
+ x.onload=function(){ready=true;m.textContent="بسم الله الرحمن الرحيم";b.textContent="ادخل الآن";b.className="on";b.focus()};
+ x.onerror=x.ontimeout=function(){ready=false;pr=.2;T0=Date.now();m.textContent="لا يوجد اتصال بالإنترنت";b.textContent="إعادة المحاولة";b.className="on";b.focus()};
+ try{x.open("GET",U+"?t="+Date.now());x.send()}catch(e){ready=true}}
+document.getElementById("btn").onclick=function(){if(ready)enter();else load()};
+addEventListener("keydown",function(e){var k=e.keyCode;if(k==37)mv(Math.max(0,M.x-.1),M.y);else if(k==39)mv(Math.min(1,M.x+.1),M.y);else if(k==38)mv(M.x,Math.max(0,M.y-.1));else if(k==40)mv(M.x,Math.min(1,M.y+.1));if(k>=37&&k<=40)R.push({x:M.x*W,y:M.y*H,r:0});if(k==13&&ready)enter()});
+load();
+</script></body></html>
