@@ -329,14 +329,16 @@ function idleBump(e){IDL.last=Date.now();anInit();if(AN.c&&AN.c.state!="running"
  if(IDL.on){idleSet(0);if(e&&(e.type=="keydown"||e.type=="click"||e.type=="mousedown")){var k=e.key,c=e.keyCode;if(!(k=="Escape"||k=="BrowserBack"||c==10009||c==461||c==27)){e.preventDefault();e.stopPropagation()}}}}
 ["keydown","mousemove","mousedown","click","touchstart","wheel"].forEach(function(ev){document.addEventListener(ev,idleBump,true)});
 setInterval(function(){var n=$("np"),o=n&&n.classList.contains("on")&&CUR;if(o&&!IDL.was)IDL.last=Date.now();IDL.was=o;if(!o){if(IDL.on)idleSet(0);return}if(!IDL.on&&Date.now()-IDL.last>15000)idleSet(1);if(IDL.on)immFill()},1000);
-function wvLoop(ts){if(!IDL.on){WV.run=0;return}requestAnimationFrame(wvLoop);var c=document.getElementById("imw");if(!c)return;var g=c.getContext("2d"),W=c.width,H=c.height,N=48,i,v,playing=!AUD.paused,t=ts/1000,real=false,col=getComputedStyle(document.getElementById("imm")).getPropertyValue("--hc")||"#7fe3d4";
- if(AN.a&&playing){AN.a.getByteFrequencyData(AN.d);var sum=0;for(i=0;i<AN.d.length;i++)sum+=AN.d[i];if(sum>0){real=true;AN.z=0}else AN.z++;}
- g.clearRect(0,0,W,H);var bw=W/(N*2+1);
- for(i=0;i<N;i++){var tgt;if(!playing)tgt=.03;else if(real){var b=Math.min(AN.d.length-1,2+Math.floor(i*1.3));tgt=Math.pow(AN.d[b]/255,1.25)*(1.15-i/N*.35)}else tgt=.1+.55*Math.abs(Math.sin(t*1.7+i*.5)*Math.sin(t*.9+i*.23))*(1-i/N*.5);
-  WV.s[i]=(WV.s[i]||0)+(tgt-(WV.s[i]||0))*.35;v=Math.max(.03,Math.min(1,WV.s[i]))*H*.5;
-  var gr=g.createLinearGradient(0,H/2-v,0,H/2+v);gr.addColorStop(0,col);gr.addColorStop(.5,"#fff");gr.addColorStop(1,col);g.fillStyle=gr;g.globalAlpha=.92;
-  var xr=W/2+(i+.5)*bw*2,xl=W/2-(i+.5)*bw*2;g.beginPath();[xr,xl].forEach(function(x){g.rect(x-bw*.5,H/2-v,bw,v*2)});g.fill()}
- g.globalAlpha=1}
+function wvLoop(ts){if(!IDL.on){WV.run=0;return}requestAnimationFrame(wvLoop);try{var c=document.getElementById("imw");if(!c)return;var g=c.getContext("2d"),W=c.width,H=c.height,N=64,i,playing=!AUD.paused,t=ts/1000,real=false,col=(HUDC[NVT_()]||HUDC[0])[0];
+ if(AN.a&&playing){try{AN.a.getByteFrequencyData(AN.d);var sum=0;for(i=0;i<AN.d.length;i++)sum+=AN.d[i];if(sum>0)real=true}catch(e){}}
+ g.clearRect(0,0,W,H);WV.ph=(WV.ph||0)+(playing?.07:.015);
+ for(i=0;i<N;i++){var tgt;if(!playing)tgt=.14;else if(real){var b=Math.min(AN.d.length-1,1+Math.floor(i*1.6));tgt=.18+Math.pow(AN.d[b]/255,1.1)*.95}else tgt=.2+.6*Math.abs(Math.sin(t*1.7+i*.35)*Math.sin(t*.9+i*.17));WV.s[i]=(WV.s[i]||0)+(tgt-(WV.s[i]||0))*.3}
+ var pts=[],k;for(i=0;i<N;i++){var x=W*.04+i*(W*.92)/(N-1),ph=WV.ph+i*.32,env=Math.min(1,WV.s[i]),A=H*.46*Math.min(1,.5+env*.7)*(.6+.4*Math.sin(i*Math.PI/(N-1)));pts.push({x:x,y:Math.sin(ph)*A,z:Math.cos(ph)})}
+ g.lineCap="round";
+ for(i=0;i<N;i+=2){var p=pts[i];g.globalAlpha=.25+.3*Math.abs(p.z);g.strokeStyle="#fff";g.lineWidth=2;g.beginPath();g.moveTo(p.x,H/2-p.y);g.lineTo(p.x,H/2+p.y);g.stroke()}
+ for(k=0;k<2;k++){var sg=k?-1:1;g.strokeStyle=col;g.lineWidth=5;g.globalAlpha=.9;g.beginPath();for(i=0;i<N;i++){var q=pts[i];if(i)g.lineTo(q.x,H/2-sg*q.y);else g.moveTo(q.x,H/2-sg*q.y)}g.stroke()}
+ for(k=0;k<2;k++){sg=k?-1:1;for(i=0;i<N;i+=2){var q2=pts[i],d=sg*q2.z;g.globalAlpha=.55+.45*Math.max(0,d);g.fillStyle=d>0?"#fff":col;g.beginPath();g.arc(q2.x,H/2-sg*q2.y,4+3*Math.max(0,d),0,6.3);g.fill()}}
+ g.globalAlpha=1}catch(e){}}
 
 
 /* ===== نافذة معلومات فوق خلفية الطبيعة: طقس + ساعة (أعلى اليمين) وتاريخ هجري وميلادي (أسفل) ===== */
