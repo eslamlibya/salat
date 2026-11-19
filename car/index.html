@@ -861,7 +861,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795110224";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795110517";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1070,4 +1070,7 @@ document.addEventListener("wheel",function(e){if(e.ctrlKey)e.preventDefault()},{
  document.addEventListener("pointerdown",function f(){try{if(screen.orientation&&screen.orientation.lock&&document.fullscreenElement)screen.orientation.lock("landscape").catch(function(){})}catch(x){}},{once:true})})();
 /* تحديث تلقائي إذا كانت النسخة المحفوظة قديمة */
 (function(){try{var B=window.CAR_BUILD;if(!B)return;fetch(location.pathname,{cache:"no-cache"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/CAR_BUILD="([^"]+)"/);if(m&&m[1]!=B&&!sessionStorage.getItem("carrl")){sessionStorage.setItem("carrl","1");location.replace(location.pathname+"?b="+m[1])}}).catch(function(){})}catch(e){}})();
+
+/* car: "close your phone" screen makes no sense while driving — suppress it */
+(function(){if(typeof msAlert!=="function")return;var o=msAlert;msAlert=function(s,h){if(s&&h&&h.indexOf("msai")>-1)return o(false);return o(s,h)}})();
 </script></body></html>
