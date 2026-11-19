@@ -110,6 +110,7 @@ body.msn #nvh{display:none!important}
 #ms .mpc.cu{transform:translateY(-1.2vmin) scale(1.04);border-color:#8ff0dc;background:linear-gradient(180deg,rgba(143,240,220,.28),rgba(143,240,220,.06));animation:mcp 1.8s ease-in-out infinite}@keyframes mcp{50%{box-shadow:0 0 4vmin rgba(143,240,220,.45)}}
 #ms .mpc.ps{opacity:.45}
 #ms .mst,#ms .msb,#ms .mso2,#ms .msh{margin-left:6vw;margin-right:6vw}#ms .mst{margin-top:3.4vmin;margin-bottom:2vmin}#ms .mso2{margin-top:2vmin}#ms .msr{padding:.8vmin 2.4vmin}
+#ms .mb{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:6vmin;height:6vmin;border-radius:50%;background:rgba(255,255,255,.18);font-size:4.4vmin;font-weight:800;line-height:1;cursor:pointer}#ms .mb:hover{background:rgba(255,211,107,.5)}#ms .ob{display:inline-flex;align-items:center;gap:1.4vmin}#ms .ob u{text-decoration:none;min-width:14vmin;text-align:center;font-size:3.6vmin}#ms .msr .c{gap:1.4vmin}
 #ac{background:radial-gradient(120% 90% at 80% 0%,#12304a 0%,#06101c 70%);justify-content:center;font-family:"TazHud","IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif}
 #ac .acb{width:62vw;max-width:900px;display:flex;flex-direction:column;gap:2vmin;align-items:stretch}
 #ac h1{text-align:center;color:#ffd36b}#ac p{font-size:2.6vmin;margin:0}
@@ -539,18 +540,18 @@ function msUpdate(){if(MS.v!="d"||MS.built!="d")return;var tz=msNow(),n=tz.min,x
  $("mrl").textContent=before?"الأذان بعد":"الإقامة بعد";$("mrn").textContent="صلاة "+nm(ni);$("mrc").textContent=lf>=3600?msFmt(lf):p2(Math.floor(lf/60))+":"+p2(Math.floor(lf%60));
  for(j=0;j<5;j++){i=NS[j];var a=P[i][1],q=a+msIq(i),c=$("mpc"+j);if(!c)continue;$("mca"+j).textContent=f(a);$("mcq"+j).textContent=f(q);var st=(j==nxj?(before?"nx":"cu"):(x<0||n>=q?"ps":""));if(x<0&&j==0)st="nx";c.className="mpc "+st}}
 function msDrawS(o){var n=msNow().min,x=msNext(n),j,i,rows="";MS.items=msItems();MS.built="s";
- for(j=0;j<5;j++){i=NS[j];rows+='<div class="msr'+(MS.f==j?" foc":"")+'" data-k="'+j+'"><span class="n">'+nm(i)+'</span><span class="a"><small>الأذان</small><b dir="ltr">'+f(P[i][1])+'</b></span><span class="q"><small>الإقامة</small><b dir="ltr">'+f(P[i][1]+msIq(i))+'</b></span><span class="c"><i>‹</i><b>'+msIq(i)+' د</b><i>›</i></span></div>'}
+ for(j=0;j<5;j++){i=NS[j];rows+='<div class="msr'+(MS.f==j?" foc":"")+'" data-k="'+j+'"><span class="n">'+nm(i)+'</span><span class="a"><small>الأذان</small><b dir="ltr">'+f(P[i][1])+'</b></span><span class="q"><small>الإقامة</small><b dir="ltr">'+f(P[i][1]+msIq(i))+'</b></span><span class="c"><i class="mb" data-d="1">+</i><b>'+msIq(i)+' د</b><i class="mb" data-d="-1">−</i></span></div>'}
  var opt=[["تفعيل تنبيهات المسجد",msOn()?"مفعّل":"معطّل"],["«أغلق هاتفك» قبل الإقامة بـ",msPhone()+" دقيقة"],["أذكار الصباح بعد صلاة الفجر بـ",msAz("m")+" دقيقة"],["أذكار المساء بعد صلاة العصر بـ",msAz("e")+" دقيقة"]];
  o.style.backgroundImage=MSPAT+",radial-gradient(120% 100% at 50% 0%,#0d5a4b 0%,#073b34 45%,#04201d 100%)";
- o.innerHTML='<div class="mst" dir="ltr"><button id="msx"'+(MS.f==9?' class="foc"':'')+'>‹ رجوع</button><b>إعدادات المسجد</b></div><div class="msb">'+rows+'</div><div class="mso2">'+opt.map(function(r,k){return'<div class="mso'+(MS.f==5+k?" foc":"")+'" data-k="'+(5+k)+'"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>'}).join("")+'</div><div class="msh">▲ ▼ تنقّل · ◀ ▶ تغيير القيمة · موافق للتبديل</div>';
- $("msx").onclick=function(){MS.v="d";MS.built="";msDraw()};[].forEach.call(o.querySelectorAll("[data-k]"),function(e){e.onclick=function(){MS.f=+e.getAttribute("data-k");msAct(0);msDraw()}})}
+ o.innerHTML='<div class="mst" dir="ltr"><button id="msx"'+(MS.f==9?' class="foc"':'')+'>‹ رجوع</button><b>إعدادات المسجد</b></div><div class="msb">'+rows+'</div><div class="mso2">'+opt.map(function(r,k){return'<div class="mso'+(MS.f==5+k?" foc":"")+'" data-k="'+(5+k)+'"><span>'+r[0]+'</span>'+(k>0?'<b class="ob"><i class="mb" data-d="1">+</i><u>'+r[1]+'</u><i class="mb" data-d="-1">−</i></b>':'<b>'+r[1]+'</b>')+'</div>'}).join("")+'</div><div class="msh">▲ ▼ تنقّل · ◀ نقص · ▶ زيادة · موافق للتبديل</div>';
+ $("msx").onclick=function(){MS.v="d";MS.built="";msDraw()};[].forEach.call(o.querySelectorAll("[data-k]"),function(e){e.onclick=function(ev){MS.f=+e.getAttribute("data-k");var m=ev.target.closest&&ev.target.closest("[data-d]");msAct(m?+m.getAttribute("data-d"):0);msDraw()}})}
 function msFmt(s){var p=function(v){return("0"+v).slice(-2)};return p(Math.floor(s/3600))+":"+p(Math.floor(s%3600/60))+":"+p(Math.floor(s%60))}
 function msAct(dir){var it=MS.items[MS.f];if(!it)return;
  if(it.t=="iq"){var v=msIq(it.i)+(dir||0);v=Math.max(1,Math.min(60,v));if(!S.iqm)S.iqm=MSD.slice();S.iqm[it.i]=v}
  else if(it.t=="on")S.msq=msOn()?0:1;
- else if(it.t=="ph"){S.msp=Math.max(1,Math.min(5,msPhone()+(dir||1)))}
- else if(it.t=="am"){S.msm=Math.max(1,Math.min(60,msAz("m")+(dir||1)))}
- else if(it.t=="ae"){S.mse=Math.max(1,Math.min(60,msAz("e")+(dir||1)))}
+ else if(it.t=="ph"){var w=msPhone()+(dir||1);S.msp=dir?Math.max(1,Math.min(5,w)):(w>5?1:w)}
+ else if(it.t=="am"){var w=msAz("m")+(dir||5);S.msm=dir?Math.max(1,Math.min(60,w)):(w>60?5:w)}
+ else if(it.t=="ae"){var w=msAz("e")+(dir||5);S.mse=dir?Math.max(1,Math.min(60,w)):(w>60?5:w)}
  else if(it.t=="x"){msClose();return}
  save()}
 document.addEventListener("keydown",function(e){var o=$("ms");if(!o||!o.classList.contains("on"))return;var k=e.key,c=e.keyCode,h=false,bk=(k=="Escape"||k=="BrowserBack"||c==10009||c==461||c==27);
@@ -559,7 +560,7 @@ document.addEventListener("keydown",function(e){var o=$("ms");if(!o||!o.classLis
   if(h){e.preventDefault();e.stopPropagation()}return}
  if(k=="ArrowUp"||c==38){MS.f=Math.max(0,MS.f-1);h=true}else if(k=="ArrowDown"||c==40){MS.f=Math.min(9,MS.f+1);h=true}
  else if(k=="ArrowRight"||c==39){msAct(1);h=true}else if(k=="ArrowLeft"||c==37){msAct(-1);h=true}
- else if(k=="Enter"||c==13){if(MS.f==9){MS.v="d";MS.built="";}else if(MS.f==5)msAct(0);h=true}
+ else if(k=="Enter"||c==13){if(MS.f==9){MS.v="d";MS.built="";}else if(MS.f>=5&&MS.f<=8)msAct(0);else if(MS.f<5){}h=true}
  if(h){e.preventDefault();e.stopPropagation();if($("ms").classList.contains("on"))msDraw()}},true);
 /* تنبيه إغلاق الهاتف */
 MS.bp={};MS.unl=0;var MSW={};
