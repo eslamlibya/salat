@@ -316,6 +316,18 @@ html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 #cr .crl{order:1!important}#cr .crk{order:2!important}#cr .crlg{order:3!important}#cr .crr{order:4!important;align-items:flex-end!important}
 #cr .crr small{font-size:2.3vmin!important}#cr .crr b{font-size:4.8vmin!important}
 
+/* map: centered modern mini player + fullscreen map */
+#cr .mpm{left:50%!important;right:auto!important;top:auto!important;bottom:calc(2.2*var(--u))!important;transform:translateX(-50%);width:max-content;max-width:calc(100% - 22*var(--u))!important;gap:calc(1.6*var(--u))!important;padding:calc(1*var(--u)) calc(2.2*var(--u))!important;border-radius:99px!important;background:rgba(14,22,40,.78)!important;backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border:1px solid rgba(255,255,255,.16)!important;box-shadow:0 calc(1.4*var(--u)) calc(4*var(--u)) rgba(0,0,0,.5)!important;direction:ltr}
+#cr .mpm .mpmt{display:flex!important;direction:rtl;order:-1;text-align:right;margin:0 calc(.6*var(--u))!important;max-width:calc(28*var(--u))}
+#cr .mpm .mpmt b{font-size:calc(2.8*var(--u))!important;color:#fff}#cr .mpm .mpmt small{overflow:hidden;text-overflow:ellipsis}
+#cr .mpm button{width:calc(6.6*var(--u))!important;height:calc(6.6*var(--u))!important;background:rgba(255,255,255,.1)!important;color:#fff!important}
+#cr .mpm button.big{width:calc(8.6*var(--u))!important;height:calc(8.6*var(--u))!important;background:linear-gradient(135deg,#ffe29a,#f2b94b)!important;color:#1a2a22!important;box-shadow:0 0 calc(3*var(--u)) rgba(242,185,75,.4)}
+#cr .mpm button.wd{width:auto!important;border-radius:99px;background:linear-gradient(135deg,#ffe29a,#f2b94b)!important;color:#1a2a22!important;font-weight:700}
+#cr .mpnav .mpm{bottom:calc(14*var(--u))!important}
+#cr.mfs .crdk,#cr.mfs .crt{display:none!important}
+#cr.mfs .crmn{padding:0!important}#cr.mfs .mp,#cr.mfs .mpv{border-radius:0!important}
+#cr.mfs .crm{padding:0!important;margin:0!important}
+
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
 #tv .tvg{gap:2vmin}
@@ -890,7 +902,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795111093";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795111401";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -914,7 +926,7 @@ function gpsGo(ui){if(!S.gps||!navigator.geolocation){GPSM="غير مدعوم";r
 setTimeout(function(){if(S.gps)gpsGo()},3000);setInterval(function(){if(S.gps)gpsGo()},6e5);
 
 
-var MI={home:'<path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/>',book:'<path d="M4 5h6a3 3 0 013 3v12a2 2 0 00-2-2H4zM20 5h-6a3 3 0 00-3 3v12a2 2 0 012-2h7z"/>',star:'<path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 16.6 6.7 19.6l1.1-6L3.4 9.4l6-.8z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>',play:'<path d="M8 5v14l11-7z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',loc:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+var MI={expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',shrink:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',home:'<path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/>',book:'<path d="M4 5h6a3 3 0 013 3v12a2 2 0 00-2-2H4zM20 5h-6a3 3 0 00-3 3v12a2 2 0 012-2h7z"/>',star:'<path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 16.6 6.7 19.6l1.1-6L3.4 9.4l6-.8z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>',play:'<path d="M8 5v14l11-7z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',loc:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',moon:'<path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>',
  mosque:'<path d="M5 21v-8a7 7 0 0114 0v8M3 21h18M12 2v3M9.5 21v-4a2.5 2.5 0 015 0v4"/>',fuel:'<path d="M4 21V5a2 2 0 012-2h6a2 2 0 012 2v16M3 21h12M14 9h2a2 2 0 012 2v5a1.5 1.5 0 003 0V8l-3-3M7 8h4"/>',
  food:'<path d="M6 3v7a2 2 0 004 0V3M8 3v18M17 21V3c-2.6 1.6-3 4.6-3 8h3"/>',cafe:'<path d="M4 8h13v5a5 5 0 01-5 5H9a5 5 0 01-5-5V8zM17 9h1.5a2.5 2.5 0 010 5H17M8 3v2M12 3v2"/>',
@@ -954,7 +966,7 @@ function mapMini(){var m=$("mpm");if(!m)return;var pz=!CUR||AUD.paused;m.innerHT
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};q("mpb1",function(){nxt(-1);save();mapMini()});q("mpb3",function(){nxt(1);save();mapMini()});
  q("mpb2",function(){if(AUD.paused){var p=AUD.play();if(p&&p.catch)p.catch(function(){})}else AUD.pause();setTimeout(mapMini,150)});q("mpb4",function(){CR.v="np";crDraw()})}
 function mpTO(p,ms){return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej(new Error("to"))},ms)})])}
-function mpGet(fs){var i=0;return new Promise(function(ok,no){(function nx(){if(i>=fs.length)return no(new Error("all"));var f=fs[i++];mpTO(Promise.resolve().then(f),14000).then(ok,nx)})()})}
+function mpGet(fs){return new Promise(function(ok,no){var n=fs.length,d=0,last,got=0,fin=0;function chk(){if(++d>=n&&!fin){fin=1;if(got)ok(last);else no(new Error("all"))}}fs.forEach(function(f,k){setTimeout(function(){if(fin)return;mpTO(Promise.resolve().then(f),8000).then(function(v){if(fin)return;var good=Array.isArray(v)?v.length>0:!!v;if(good){fin=1;ok(v)}else{last=v;got=1;chk()}},function(){chk()})},k*150)})})}
 function mapSearch(){var q=($("mpi").value||"").trim();if(!q)return;MP.cat="";MP.busy=1;MP.msg="";MP.res=[];MP.sel=-1;MP.route=null;mapPanel();
  var cl=MP.lat,co=MP.lon;mpGet([function(){return fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&accept-language=ar&viewbox="+(co-1)+","+(cl+1)+","+(co+1)+","+(cl-1)+"&q="+encodeURIComponent(q)).then(function(r){return r.json()})},function(){return fetch("https://photon.komoot.io/api/?limit=8&lat="+cl+"&lon="+co+"&q="+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(g){return(g.features||[]).map(function(f){var p=f.properties||{};return{name:p.name,display_name:[p.name,p.street,p.city||p.county,p.country].filter(Boolean).join("، "),lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]}})})}]).then(function(a){MP.busy=0;
   MP.res=(a||[]).map(function(e){var p=String(e.display_name||"").split("،").length>1?String(e.display_name).split("،"):String(e.display_name).split(",");return{n:e.name||p[0]||q,s:p.slice(1,3).join("،"),la:+e.lat,lo:+e.lon,d:MP.me?mpD(MP.me[0],MP.me[1],+e.lat,+e.lon):null}});
@@ -998,7 +1010,7 @@ function navTick(){if(!NAV.on||!MP.me||!MP.route||!MP.route.steps)return;var now
 function mapInit(){var v=$("mpv");if(!v)return;if(!MP.lat){var c=CT[S.city]||[];MP.lat=+c[2]||21.4;MP.lon=+c[3]||39.8}
  mapDraw();mapPanel();mapMini();if(NAV.on){$("mp").classList.add("mpnav");navUI()}if(!MP.me)mapMe();if(MP.pc){var _k=MP.pc;MP.pc=null;setTimeout(function(){mapCat(_k)},400)}
  $("mpzi").onclick=function(){MP.z=Math.min(18,MP.z+1);mapDraw()};$("mpzo").onclick=function(){MP.z=Math.max(3,MP.z-1);mapDraw()};$("mpme").onclick=function(){mapMe(1)};
- $("mpg").onclick=mapSearch;$("mpdn").onclick=function(){MP.day=MP.day?0:1;try{localStorage.setItem("mpday",MP.day)}catch(e){}$("mpdn").innerHTML=mi(MP.day?"moon":"sun",26);mapDraw()};$("mpi").onkeydown=function(e){if(e.key=="Enter")mapSearch()};
+ $("mpg").onclick=mapSearch;$("mpfs").onclick=function(){MP.fs=!MP.fs;var c=$("cr");c.classList.toggle("mfs",MP.fs);$("mpfs").innerHTML=mi(MP.fs?"shrink":"expand",26);setTimeout(mapDraw,60);setTimeout(mapDraw,400)};$("mpdn").onclick=function(){MP.day=MP.day?0:1;try{localStorage.setItem("mpday",MP.day)}catch(e){}$("mpdn").innerHTML=mi(MP.day?"moon":"sun",26);mapDraw()};$("mpi").onkeydown=function(e){if(e.key=="Enter")mapSearch()};
  $("mpc").onclick=function(e){var b=e.target.closest("[data-c]");if(b)mapCat(b.getAttribute("data-c"))};
  $("mpr").onclick=function(e){var b=e.target.closest(".mpi");if(b)mapSel(+b.getAttribute("data-i"))};
  var ptr={},st=null,pd=0,pz=0;v.style.touchAction="none";
@@ -1050,14 +1062,14 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
   +'<button class="crtile st" data-a="slp">مؤقّت النوم<small>'+SL+'</small></button>'
   +'<button class="crtile st" data-a="gps">الموقع التلقائي (GPS)<small>'+(S.gps?"مفعّل — تتغير المدينة عند السفر":"معطّل")+(GPSM?" — "+GPSM:"")+'</small></button>'
   +'<button class="crtile st" data-a="msq">تنبيهات المسجد (الإقامة والأذكار)<small>'+(msOn()?"مفعّلة":"معطّلة")+'</small></button></div>'}
- else if(CR.v=="mq"){h+='<div class="mp" id="mp"><div class="mpv" id="mpv"></div><div class="mpb"><button id="mpzi" aria-label="تكبير">'+mi("plus",26)+'</button><button id="mpzo" aria-label="تصغير">'+mi("minus",26)+'</button><button id="mpme" aria-label="موقعي">'+mi("loc",26)+'</button><button id="mpdn" aria-label="نهار/ليل">'+mi(MP.day?"moon":"sun",26)+'</button></div>'
+ else if(CR.v=="mq"){h+='<div class="mp" id="mp"><div class="mpv" id="mpv"></div><div class="mpb"><button id="mpzi" aria-label="تكبير">'+mi("plus",26)+'</button><button id="mpzo" aria-label="تصغير">'+mi("minus",26)+'</button><button id="mpme" aria-label="موقعي">'+mi("loc",26)+'</button><button id="mpdn" aria-label="نهار/ليل">'+mi(MP.day?"moon":"sun",26)+'</button><button id="mpfs" aria-label="ملء الشاشة">'+mi(MP.fs?"shrink":"expand",26)+'</button></div>'
   +'<div class="mps"><div class="mpq"><span class="mpsi">'+mi("search",24)+'</span><input id="mpi" type="search" placeholder="ابحث عن مكان أو عنوان" autocomplete="off"><button id="mpg">بحث</button></div><div class="mpc" id="mpc"></div><div class="mpr" id="mpr"></div></div>'
   +'<div class="mpm" id="mpm"></div><div class="mpn1" id="mpn1"></div><div class="mpn2" id="mpn2"></div></div>'}
  else if(CR.v=="ct"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>اختر المدينة</b></div><div class="crg c4" id="cgl">'+CT.map(function(c,i){return'<button class="crtile'+(i==S.city?" cur":"")+'" data-i="'+i+'">'+esc(c[0])+'<small>'+esc(c[6]||c[1]||"")+'</small></button>'}).join("")+'</div>'}
  else if(CR.v=="su"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button>'+crav(CR.rec.name,8)+'<b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crsb"><span>'+mi("search",26)+'</span><input id="crq" type="search" placeholder="ابحث عن سورة بالاسم أو الرقم" autocomplete="off"></div><div class="crg c4" id="cgl">'+suTiles("")+'</div>'}
 
  h+='</div>';var DK=[["chm","home","الرئيسية",CR.v=="hm"],["cq","book","القرآن",CR.v=="np"||CR.v=="rc"||CR.v=="mo"||CR.v=="su"],["cmq","pin","الخريطة",CR.v=="mq"],["caz","star","الأذكار",0],["cst","gear","الإعدادات",CR.v=="st"||CR.v=="ct"]];
- d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'</div><div class="crmn">'+h+'</div>';crTop();if(CR.v=="mq")mapInit();
+ d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'</div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();
 
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  var sq=$("crq");if(sq)sq.oninput=function(){var g=$("cgl");if(g)g.innerHTML=CR.v=="rc"?rcTiles(sq.value):suTiles(sq.value)};
