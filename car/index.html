@@ -327,6 +327,13 @@ html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 #cr.mfs .crdk,#cr.mfs .crt{display:none!important}
 #cr.mfs .crmn{padding:0!important}#cr.mfs .mp,#cr.mfs .mpv{border-radius:0!important}
 #cr.mfs .crm{padding:0!important;margin:0!important}
+#adh{position:fixed;top:2vmin;left:50%;transform:translateX(-50%);z-index:9500;display:flex;align-items:center;gap:2vmin;padding:1.2vmin 2vmin 1.2vmin 1.4vmin;border-radius:99px;background:rgba(14,22,40,.9);border:1px solid rgba(255,211,107,.5);color:#ffe29a;font-size:3vmin;font-weight:700;box-shadow:0 1.4vmin 4vmin rgba(0,0,0,.5)}
+#adh button{font:inherit;font-size:2.6vmin;color:#fff;background:#c0392b;border:0;border-radius:99px;padding:.8vmin 2.4vmin}
+/* mini player buttons: fixed icon sizes */
+#cr .mpm button svg{width:calc(3.4*var(--u))!important;height:calc(3.4*var(--u))!important;display:block}
+#cr .mpm button.big svg{width:calc(4.4*var(--u))!important;height:calc(4.4*var(--u))!important}
+#cr .mpm button{flex:none;overflow:hidden;line-height:0}
+#cr .mpm{gap:calc(1.2*var(--u))!important}
 
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
@@ -902,7 +909,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795111401";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795111672";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1129,4 +1136,11 @@ function draw(t){if(!on)return;var W=innerWidth,H=innerHeight,n=Math.max(24,Math
 ["pointerdown","keydown","touchstart"].forEach(function(e){addEventListener(e,function(){if(!on)lt=Date.now()},true)});
 addEventListener("resize",function(){if(on)sz()});
 setInterval(function(){var np=!!document.querySelector("#cr .crnp .crct");if(!on&&np&&CUR&&!AUD.paused&&Date.now()-lt>20000)show();else if(on&&(!CUR||!np))hide()},1000)})();
+
+/* car: full adhan at prayer time (replaces the short beep) */
+(function(){if(typeof msBeep!=="function")return;var ob=msBeep,U=["https://cdn.aladhan.com/audio/adhans/a1.mp3","https://cdn.aladhan.com/audio/adhans/a4.mp3"],A=null,was=false;
+function bar(on){var d=document.getElementById("adh");if(!on){if(d)d.remove();return}if(d)return;d=document.createElement("div");d.id="adh";d.innerHTML='<span>🕌 الأذان</span><button>إيقاف</button>';d.querySelector("button").onclick=function(){stop(true)};document.body.appendChild(d)}
+function stop(r){if(A){try{A.pause()}catch(e){}A=null}bar(false);if(was&&r!==false){was=false;try{var p=AUD.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}else was=false}
+function go(i){if(i>=U.length){stop(false);return ob("a")}var a=new Audio(U[i]);a.volume=1;A=a;a.onended=function(){stop(true)};a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a){stop(false);ob("a")}});bar(true)}
+msBeep=function(k){if(k!=="a")return ob(k);if(A)return;was=!!(typeof AUD!=="undefined"&&AUD&&!AUD.paused);if(was)try{AUD.pause()}catch(e){}go(0)}})();
 </script></body></html>
