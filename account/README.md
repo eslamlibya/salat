@@ -25,3 +25,7 @@ Cloudflare Worker + قاعدة D1. يوفّر: إنشاء حساب (اسم، ا�
 
 ## النشر الموحّد (الأسهل)
 الملف `combined-worker.js` يجمع الإشعارات والحسابات في Worker واحد، ويُنشر فوق الـ Worker الحالي `salat-push` الذي يملك ربط D1 جاهزًا. أضف إليه المتغيرين `MAIL_FROM` و`BREVO_KEY` فقط.
+
+## لوحة الإدارة (/panel/)
+أضف سرّاً في Cloudflare Worker باسم `ADMIN_KEY` (كلمة سر طويلة تختارها أنت)، ثم Deploy للكود الجديد.
+المسارات: /cfg (عام)، /admin/stats، /admin/users، /admin/user/{delete,logout,verify}، /admin/flags، /admin/broadcast، /admin/update.

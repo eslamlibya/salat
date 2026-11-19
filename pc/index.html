@@ -1421,6 +1421,16 @@ function gpsGo(){if(!S.auto)return;if(!navigator.geolocation){GPSM="غير مد�
 document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest('[data-k="auto"]');if(t)setTimeout(gpsGo,300)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)gpsGo()});
 setTimeout(gpsGo,2500);setInterval(gpsGo,6e5);
+/* إعدادات عن بُعد من لوحة التحكم: إخفاء ميزات، شريط إعلان، فرض تحديث */
+var CFG_U="https://salat-push.vzftysb4h2.workers.dev/cfg",SP0=SP.slice();
+function cfgApply(c){try{var off=(c.flags&&c.flags.off)||[];SP=SP0.filter(function(x){return off.indexOf(x[0])<0});
+ var b=document.getElementById("cfgb"),t=c.flags&&c.flags.banner;
+ if(t){if(!b){b=document.createElement("div");b.id="cfgb";b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:#ffd36b;color:#1a2a22;padding:8px 14px;font:600 14px/1.4 system-ui,sans-serif;text-align:center;padding-top:calc(8px + env(safe-area-inset-top,0px))";document.body.appendChild(b)}b.textContent=t}else if(b)b.remove();
+ all()}catch(e){}
+ try{var v=+(c.ver||0),o=+(localStorage.getItem("tazver")||0);if(v&&!o)localStorage.setItem("tazver",v);else if(v>o){localStorage.setItem("tazver",v);(navigator.serviceWorker?navigator.serviceWorker.getRegistrations():Promise.resolve([])).then(function(l){return Promise.all(l.map(function(r){return r.unregister()}))}).then(function(){return window.caches?caches.keys():[]}).then(function(k){return Promise.all(k.filter(function(x){return x!="salat-sched"}).map(function(x){return caches.delete(x)}))}).then(function(){location.reload()})}}catch(e){}}
+function cfgGo(){fetch(CFG_U,{cache:"no-store"}).then(function(r){return r.json()}).then(function(c){if(c&&c.ok){try{localStorage.setItem("tazcfg",JSON.stringify(c))}catch(e){}cfgApply(c)}}).catch(function(){})}
+try{var c0=JSON.parse(localStorage.getItem("tazcfg")||"null");if(c0)setTimeout(function(){cfgApply(c0)},800)}catch(e){}
+setTimeout(cfgGo,1800);document.addEventListener("visibilitychange",function(){if(!document.hidden)cfgGo()});
 
 function all(){proUi();recalc();navb();home();quran();lib();adhkar();qibla();cal();sett();$("v-set").insertAdjacentHTML("beforeend",ABOUT);tick();if(S.lang=="en")txn(document.body)}
 function navb(){$("nav").innerHTML=V.filter(function(x){return!(S.rel&&x[0]=="adhkar")}).map(function(x){return'<button data-v="'+x[0]+'" aria-label="'+x[1]+'" aria-current="'+(x[0]==CV)+'"><svg viewBox="0 0 24 24">'+x[2]+'</svg><span>'+x[1]+'</span></button>'}).join("")}navb();

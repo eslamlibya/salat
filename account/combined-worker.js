@@ -47,6 +47,7 @@ async scheduled(ev,env,ctx){ctx.waitUntil((async()=>{
    else if(s===404||s===410)await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(x.endpoint).run();
   }catch(e){}}))}
  await db.prepare("DELETE FROM sched WHERE t<?").bind(now-15*60000).run();
+ try{await db.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)").run();const q=await db.prepare("SELECT endpoint FROM bq LIMIT 30").all();for(const x of(q.results||[])){try{const s=await push(env,x.endpoint);if(s===404||s===410)await db.prepare("DELETE FROM sched WHERE endpoint=?").bind(x.endpoint).run()}catch(e){}await db.prepare("DELETE FROM bq WHERE endpoint=?").bind(x.endpoint).run()}}catch(e){}
 })())}
 };
 const ACC=(()=>{
@@ -68,7 +69,10 @@ async function init(env){if(READY)return;const d=env.DB;
  d.prepare("CREATE TABLE IF NOT EXISTS codes(uid INTEGER NOT NULL,kind TEXT NOT NULL,ch TEXT NOT NULL,exp INTEGER NOT NULL,tries INTEGER NOT NULL DEFAULT 0,sent INTEGER NOT NULL,PRIMARY KEY(uid,kind))"),
  d.prepare("CREATE TABLE IF NOT EXISTS sess(th TEXT PRIMARY KEY,uid INTEGER NOT NULL,exp INTEGER NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS dat(uid INTEGER PRIMARY KEY,j TEXT NOT NULL,ut INTEGER NOT NULL)"),
- d.prepare("CREATE TABLE IF NOT EXISTS rl(k TEXT PRIMARY KEY,n INTEGER NOT NULL,w INTEGER NOT NULL)")]);READY=true}
+ d.prepare("CREATE TABLE IF NOT EXISTS rl(k TEXT PRIMARY KEY,n INTEGER NOT NULL,w INTEGER NOT NULL)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS cfg(k TEXT PRIMARY KEY,v TEXT NOT NULL)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)")]);READY=true}
 const cors=env=>({"Access-Control-Allow-Origin":env.ALLOWED_ORIGIN||"https://eslamlibya.github.io","Access-Control-Allow-Methods":"GET,POST,PUT,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization","Vary":"Origin"});
 const out=(env,o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{...cors(env),"Content-Type":"application/json","Cache-Control":"no-store"}});
 async function limit(env,k,max,win){const now=Date.now(),r=await env.DB.prepare("SELECT n,w FROM rl WHERE k=?").bind(k).first();
@@ -101,6 +105,31 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
  if(req.method==="GET"&&p==="/")return out(env,{ok:true,name:"salat-account"});
  try{await init(env);
  let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>400000)return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}}
+
+ if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0})}
+ if(p.indexOf("/admin/")===0){
+  if(!env.ADMIN_KEY)return out(env,{error:"no-admin-key"},503);
+  const ak=(req.headers.get("Authorization")||"").slice(7);
+  const bl=await env.DB.prepare("SELECT n,w FROM rl WHERE k=?").bind("admf:"+ip).first();if(bl&&bl.n>=10&&Date.now()-bl.w<36e5)return out(env,{error:"rate"},429);
+  if(!ak||!same(await sha(ak),await sha(env.ADMIN_KEY))){await limit(env,"admf:"+ip,10,36e5);return out(env,{error:"auth"},401)}
+  const DB=env.DB,now=Date.now(),setc=(k,v)=>DB.prepare("INSERT OR REPLACE INTO cfg(k,v) VALUES(?,?)").bind(k,JSON.stringify(v)).run(),getc=async k=>{const x=await DB.prepare("SELECT v FROM cfg WHERE k=?").bind(k).first();try{return x?JSON.parse(x.v):null}catch(e){return null}};
+  if(p==="/admin/stats"){const n=async q=>{const x=await DB.prepare(q).first();return x?x.n:0};
+   const rec=await DB.prepare("SELECT username,name,verified,created FROM users ORDER BY created DESC LIMIT 8").all();
+   return out(env,{ok:true,users:await n("SELECT COUNT(*) n FROM users"),verified:await n("SELECT COUNT(*) n FROM users WHERE verified=1"),withData:await n("SELECT COUNT(*) n FROM dat"),sessions:await n("SELECT COUNT(*) n FROM sess WHERE exp>"+now),devices:await n("SELECT COUNT(DISTINCT endpoint) n FROM sched"),queue:await n("SELECT COUNT(*) n FROM bq"),recent:rec.results||[],ver:await getc("ver")||0,bc:await getc("bc"),flags:await getc("flags")||{}})}
+  if(p==="/admin/users"){const q="%"+String(u.searchParams.get("q")||"").trim().toLowerCase().replace(/[%_]/g,"")+"%";
+   const rs=await DB.prepare("SELECT u.id,u.email,u.username,u.name,u.verified,u.created,d.ut,length(d.j) sz,d.j FROM users u LEFT JOIN dat d ON d.uid=u.id WHERE lower(u.email) LIKE ?1 OR lower(u.username) LIKE ?1 OR lower(u.name) LIKE ?1 ORDER BY u.created DESC LIMIT 100").bind(q).all();
+   return out(env,{ok:true,users:(rs.results||[]).map(x=>{let o={};try{o=JSON.parse(x.j||"{}")}catch(e){}const tv=(o.tv&&o.tv.s)||{};return{id:x.id,email:x.email,username:x.username,name:x.name,verified:x.verified,created:x.created,ut:x.ut||0,size:x.sz||0,city:o.city,lang:o.lang,th:o.th,auto:o.auto,tvCity:tv.city}})})}
+  if(b.id!==undefined&&Number.isInteger(+b.id)){const id=+b.id;
+   if(p==="/admin/user/delete"){await DB.batch(["users WHERE id","sess WHERE uid","dat WHERE uid","codes WHERE uid"].map(t=>DB.prepare("DELETE FROM "+t+"=?").bind(id)));return out(env,{ok:true})}
+   if(p==="/admin/user/logout"){await DB.prepare("DELETE FROM sess WHERE uid=?").bind(id).run();return out(env,{ok:true})}
+   if(p==="/admin/user/verify"){await DB.prepare("UPDATE users SET verified=1 WHERE id=?").bind(id).run();return out(env,{ok:true})}}
+  if(p==="/admin/flags"&&req.method==="PUT"){const f=b.flags;if(!f||typeof f!=="object"||JSON.stringify(f).length>5000)return out(env,{error:"bad"},400);await setc("flags",f);return out(env,{ok:true})}
+  if(p==="/admin/broadcast"&&req.method==="POST"){const t=String(b.title||"").slice(0,80).trim(),m=String(b.body||"").slice(0,300).trim();if(!t&&!m)return out(env,{error:"empty"},400);
+   await setc("bc",{id:now,t:now,title:t||"Taz",body:m,url:String(b.url||"").slice(0,200)});
+   const x=await DB.prepare("INSERT OR IGNORE INTO bq(endpoint) SELECT DISTINCT endpoint FROM sched").run();
+   const c=await DB.prepare("SELECT COUNT(*) n FROM bq").first();return out(env,{ok:true,queued:c?c.n:0})}
+  if(p==="/admin/update"&&req.method==="POST"){const v=now;await setc("ver",v);return out(env,{ok:true,ver:v})}
+  return out(env,{error:"route"},404)}
  if(p==="/register"&&req.method==="POST"){
   if(!await limit(env,"reg:"+ip,10,36e5))return out(env,{error:"rate"},429);
   const name=String(b.name||"").trim(),un=String(b.username||"").trim().toLowerCase(),em=String(b.email||"").trim().toLowerCase(),pw=String(b.password||"");
@@ -164,8 +193,8 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
 }};
 })();
 
-const AR=["/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete"];
 export default{
- fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
+ fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){return PUSH.scheduled(ev,env,ctx)}
 };

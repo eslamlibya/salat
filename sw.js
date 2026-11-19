@@ -1,8 +1,12 @@
-var V="salat-v59";
+var V="salat-v60";
 self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(x){return x!=V&&x!="salat-sched"}).map(function(x){return caches.delete(x)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){var u=new URL(e.request.url);if(e.request.method!="GET"||u.origin!=location.origin||u.pathname.indexOf("/video/")>=0)return;e.respondWith(fetch(e.request,{cache:"no-cache"}).then(function(r){if(r.ok){var c=r.clone();caches.open(V).then(function(x){x.put(e.request,c)})}return r}).catch(function(){return caches.match(e.request).then(function(m){return m||caches.match("./")})}))});
-self.addEventListener("push",function(e){e.waitUntil((async function(){var list=[];try{var c=await caches.open("salat-sched"),r=await c.match("sched.json");if(r)list=await r.json()}catch(x){}
+self.addEventListener("push",function(e){e.waitUntil((async function(){
+ try{var ctl=new AbortController(),tm=setTimeout(function(){ctl.abort()},4000),rr=await fetch("https://salat-push.vzftysb4h2.workers.dev/cfg",{cache:"no-store",signal:ctl.signal});clearTimeout(tm);var cf=await rr.json(),bc=cf&&cf.bc;
+  if(bc&&Date.now()-bc.t<216e5){var cc=await caches.open("salat-sched"),sr=await cc.match("bc.txt"),seen=sr?await sr.text():"";
+   if(String(bc.id)!==seen){await cc.put("bc.txt",new Response(String(bc.id)));await self.registration.showNotification(bc.title||"Taz",{body:bc.body||"",tag:"bc-"+bc.id,data:{u:bc.url||"./"}});return}}}catch(x){}
+ var list=[];try{var c=await caches.open("salat-sched"),r=await c.match("sched.json");if(r)list=await r.json()}catch(x){}
  var now=Date.now(),best=null,bd=1e15;list.forEach(function(x){var d=Math.abs(now-x.t);if(now>=x.t-4*60000&&now<=x.t+12*60000&&d<bd){bd=d;best=x}});
  await self.registration.showNotification(best?best.title:"حان وقت الصلاة",{body:best?best.body:"الصلاة",tag:"salat-"+(best?best.t:Math.floor(now/60000)),data:{u:"./"}})})())});
 self.addEventListener("notificationclick",function(e){e.notification.close();e.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(function(l){for(var i=0;i<l.length;i++){if("focus"in l[i])return l[i].focus()}return clients.openWindow("./")}))});
