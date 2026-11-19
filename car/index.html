@@ -299,6 +299,15 @@ html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 #cwv .cwt{position:absolute;left:0;right:0;bottom:7vmin;text-align:center;color:#fff;text-shadow:0 .4vmin 2vmin rgba(0,0,0,.6)}
 #cwv .cwt b{display:block;font-size:7vmin;color:#f8d57e}#cwv .cwt span{font-size:3.4vmin;opacity:.8}
 
+/* dock redesign: floating glass rail, uniform items */
+#cr .crdk{width:15vmin!important;box-sizing:border-box;margin:1.6vmin 0 1.6vmin 1.6vmin;padding:1.2vmin!important;gap:.8vmin!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:4vmin;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03))!important;backdrop-filter:blur(10px);box-shadow:0 1.6vmin 5vmin rgba(0,0,0,.4);align-self:stretch}
+#cr .crdk button{position:relative;width:100%!important;height:auto!important;max-width:none!important;min-width:0!important;flex:1 1 0!important;gap:.5vmin!important;border-radius:3vmin!important;color:#9fb0c6!important;background:transparent!important;border:1px solid transparent!important;box-shadow:none!important;transition:background .2s,color .2s}
+#cr .crdk button svg{width:6.4vmin!important;height:6.4vmin!important;flex:none;stroke-width:1.8}
+#cr .crdk button span{font-size:2.5vmin!important;font-weight:700;line-height:1;white-space:nowrap}
+#cr .crdk button.on{color:#ffe29a!important;background:linear-gradient(180deg,rgba(255,211,107,.2),rgba(255,211,107,.07))!important;border-color:rgba(255,211,107,.45)!important;box-shadow:0 0 3vmin rgba(255,211,107,.18)!important}
+#cr .crdk button.on::before{content:"";position:absolute;inset-inline-end:-1.3vmin;top:28%;bottom:28%;width:.7vmin;border-radius:1vmin;background:#ffd36b}
+#cr .crdk button:active{background:rgba(255,255,255,.1)!important}
+
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
 #tv .tvg{gap:2vmin}
@@ -873,7 +882,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795110860";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795111037";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
