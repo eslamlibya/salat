@@ -195,6 +195,8 @@ body.msn #nvh{display:none!important}
 @media(max-aspect-ratio:1/1){#cr .crk{font-size:9vmin}#cr .crg.c4{grid-template-columns:repeat(2,1fr)}#cr .crct button{width:18vmin;height:18vmin}#cr .crct button.big{width:28vmin;height:28vmin}}
 #cr .crct button:not(.big) svg{transform:scaleX(-1)}
 #cr .crtile small{display:block;font-size:2.6vmin;opacity:.75;margin-top:.6vmin}#cr .crtile.st{min-height:16vmin;font-size:4vmin;text-align:right;padding:2vmin 3vmin}#cr .crtile.cur{background:#ffd36b;color:#13251f}#cr .crtile.cur small{opacity:.8}
+#cr .crlg{position:absolute;top:17vmin;left:3vmin;font:inherit;font-size:3vmin;color:#fff;background:rgba(255,255,255,.12);border:.3vmin solid rgba(255,255,255,.3);border-radius:99px;padding:1.2vmin 3vmin}
+#ac{align-items:center!important}#ac .acb{width:80vw;margin:0 auto}#ac h1{width:100%}
 
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
@@ -787,11 +789,11 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  if(CR.v=="np"){
   if(CUR){var pz=AUD.paused;h+='<div class="crnp"><div class="crsn">'+esc(sname(CUR.s))+'</div><div class="crrn">'+esc(CUR.rec.name)+' · '+esc(rwn(CUR.mo.name))+'</div><div class="crpb" id="crsk"><i id="crb"></i></div><div class="crtm" id="crt" dir="ltr"></div><div class="crct"><button id="cpv" aria-label="السابقة">'+ic("pv",48)+'</button><button id="cpp" class="big" aria-label="تشغيل">'+ic(pz?"pl":"pa",72)+'</button><button id="cnx" aria-label="التالية">'+ic("nx",48)+'</button></div></div>'}
   else{var l=last();h+='<div class="crnp"><div class="crsn">القرآن الكريم</div>'+(LB.st=="ok"?(l?'<button class="crw" id="clr">تابع: '+esc(sname(l.s))+' — '+esc(l.rec.name)+'</button>':'')+'<button class="crw alt" id="cpk">اختر قارئاً</button>':'<div class="crrn">'+(LB.st=="err"?'تعذّر التحميل. تأكد من الإنترنت.':'جارٍ تحميل القرّاء…')+'</div>'+(LB.st=="err"?'<button class="crw" id="crty">إعادة المحاولة</button>':''))+'</div>'}
- }else if(CR.v=="rc"){var R=LB.R.slice().sort(function(a,b){return(isLiby(b)?1:0)-(isLiby(a)?1:0)});h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>اختر القارئ</b></div><div class="crg c2" id="cgl">'+R.map(function(r,i){return'<button class="crtile'+(isLiby(r)?" lb":"")+'" data-i="'+LB.R.indexOf(r)+'">'+esc(r.name)+'</button>'}).join("")+'</div>'}
+ var AG=acG();h+='<button class="crlg" id="clg">'+(AG?"👤 "+esc(AG.user.username):"👤 تسجيل الدخول")+'</button>'}else if(CR.v=="rc"){var R=LB.R.slice().sort(function(a,b){return(isLiby(b)?1:0)-(isLiby(a)?1:0)});h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>اختر القارئ</b></div><div class="crg c2" id="cgl">'+R.map(function(r,i){return'<button class="crtile'+(isLiby(r)?" lb":"")+'" data-i="'+LB.R.indexOf(r)+'">'+esc(r.name)+'</button>'}).join("")+'</div>'}
  else if(CR.v=="mo"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>'+esc(CR.rec.name)+'</b></div><div class="crg c2" id="cgl">'+(CR.rec.moshaf||[]).map(function(m,i){return'<button class="crtile" data-i="'+i+'">'+esc(m.name)+'</button>'}).join("")+'</div>'}
  else if(CR.v=="st"){var A=acG(),RMN=["بلا تكرار","تكرار السورة","تكرار كل السور"],SL=SLP?SLP+" دقيقة":"متوقف";h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>الإعدادات</b></div><div class="crg c2" id="cgl">'
   +'<button class="crtile st" data-a="city">المدينة<small>'+esc(CT[S.city][0])+'</small></button>'
-  +'<button class="crtile st" data-a="acct">الحساب والمزامنة<small>'+(A?"@"+esc(A.user.username)+" — اضغط للمزامنة":"غير مرتبط — اضغط للربط")+'</small></button>'
+  +'<button class="crtile st" data-a="acct">تسجيل الدخول والمزامنة<small>'+(A?"@"+esc(A.user.username)+" — اضغط للمزامنة":"غير مسجّل — اضغط لتسجيل الدخول")+'</small></button>'
   +'<button class="crtile st" data-a="spd">سرعة القراءة<small>'+SPD+'×</small></button>'
   +'<button class="crtile st" data-a="rm">التكرار<small>'+RMN[RM]+'</small></button>'
   +'<button class="crtile st" data-a="slp">مؤقّت النوم<small>'+SL+'</small></button>'
@@ -806,7 +808,7 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  q("cpk",function(){CR.v="rc";crDraw()});q("cpl",function(){CR.v="rc";crDraw()});q("cq",function(){CR.v="np";crDraw()});
  q("clr",function(){var l=last();if(l)go(l.rec,l.mo,l.s)});q("crty",function(){LB.st="idle";lbLoad();crDraw()});
  q("cbk",function(){CR.v=CR.v=="ct"?"st":CR.v=="st"?"np":CR.v=="su"?((CR.rec.moshaf||[]).length>1?"mo":"rc"):CR.v=="mo"?"rc":"np";crDraw()});
- q("caz",function(){azOpen()});q("cst",function(){CR.v="st";crDraw()});
+ q("caz",function(){azOpen()});q("clg",function(){acOpen()});q("cst",function(){CR.v="st";crDraw()});
  var sk=$("crsk");if(sk)sk.onclick=function(e){var r=sk.getBoundingClientRect(),x=(e.clientX-r.left)/r.width;if(document.dir=="rtl"||getComputedStyle(sk).direction=="rtl")x=1-x;if(isFinite(AUD.duration))AUD.currentTime=Math.max(0,Math.min(1,x))*AUD.duration};
  var g=$("cgl");if(g)g.onclick=function(e){var b=e.target.closest("button");if(!b)return;
   if(CR.v=="rc"){CR.rec=LB.R[+b.getAttribute("data-i")];if((CR.rec.moshaf||[]).length>1){CR.v="mo"}else{CR.mo=CR.rec.moshaf[0];CR.v="su"}crDraw()}
