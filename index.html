@@ -1389,6 +1389,21 @@ setInterval(function(){var el=$("wxl2");if(!el)return;if(!el.querySelector("#wxf
  d.querySelector("button").onclick=function(){try{localStorage.setItem("taz_pcb","1")}catch(e){}d.remove()};
  document.body.appendChild(d)}catch(e){}})();
 
+/* ===== CarPlay / شاشة القفل: Media Session كاملة ===== */
+function amBase(){return location.href.replace(/[?#].*$/,"").replace(/pc\/(index\.html)?$/,"").replace(/[^\/]*$/,"")}
+function ams(){if(!("mediaSession" in navigator)||!AC||!window.MediaMetadata)return;var a=AU[AC];if(!a)return;
+ try{var art=[{src:amBase()+"icon-art.png",sizes:"192x192",type:"image/png"}];
+  navigator.mediaSession.metadata=new MediaMetadata({title:a.k=="r"?a.t:atitle(AC),artist:a.artist||"",album:a.k=="q"||a.k=="r"?"القرآن الكريم":(a.mo||"الصلاة"),artwork:art});
+  navigator.mediaSession.playbackState=AUD.paused?"paused":"playing";
+  var h={play:function(){if(AUD.paused)aact({aq:"pp"})},pause:function(){if(!AUD.paused)aact({aq:"pp"})},stop:function(){aact({aq:"x"})},previoustrack:function(){aact({aq:"pv"})},nexttrack:function(){aact({aq:"nx"})},seekbackward:function(e){AUD.currentTime=Math.max(0,AUD.currentTime-((e&&e.seekOffset)||15))},seekforward:function(e){AUD.currentTime=AUD.currentTime+((e&&e.seekOffset)||15)},seekto:function(e){AUD.currentTime=e.seekTime}};
+  Object.keys(h).forEach(function(k){try{navigator.mediaSession.setActionHandler(k,h[k])}catch(e){}})}catch(e){}}
+(function(){if(!("mediaSession" in navigator))return;var lt=0;
+ function ps(){try{navigator.mediaSession.playbackState=AUD.paused?"paused":"playing"}catch(e){}}
+ AUD.addEventListener("play",ps);AUD.addEventListener("pause",ps);AUD.addEventListener("playing",ps);
+ AUD.addEventListener("loadedmetadata",function(){try{ams()}catch(e){}});
+ AUD.addEventListener("timeupdate",function(){var n=Date.now();if(n-lt<1000)return;lt=n;
+  try{if(isFinite(AUD.duration)&&AUD.duration>0)navigator.mediaSession.setPositionState({duration:AUD.duration,position:Math.min(AUD.currentTime,AUD.duration),playbackRate:AUD.playbackRate||1})}catch(e){}})})();
+
 function all(){proUi();recalc();navb();home();quran();lib();adhkar();qibla();cal();sett();$("v-set").insertAdjacentHTML("beforeend",ABOUT);tick();if(S.lang=="en")txn(document.body)}
 function navb(){$("nav").innerHTML=V.filter(function(x){return!(S.rel&&x[0]=="adhkar")}).map(function(x){return'<button data-v="'+x[0]+'" aria-label="'+x[1]+'" aria-current="'+(x[0]==CV)+'"><svg viewBox="0 0 24 24">'+x[2]+'</svg><span>'+x[1]+'</span></button>'}).join("")}navb();
 document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var D=b.dataset;
