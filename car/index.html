@@ -287,6 +287,18 @@ body.msn #nvh{display:none!important}
 #rot b{display:block;font-size:6.4vw;margin:3vw 0 1vw}#rot small{display:block;font-size:4vw;opacity:.75;margin-bottom:6vw}#rot .rt1{font-size:16vw}#rot button{font:inherit;font-size:4.4vw;font-weight:800;border:0;border-radius:99px;background:#ffd36b;color:#13251f;padding:3vw 7vw}
 html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 
+/* player redesign */
+#cr .crnp{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:4.5vmin;padding:3vmin 4.5vmin!important;box-shadow:0 2vmin 6vmin rgba(0,0,0,.35);margin:1vmin 0;backdrop-filter:blur(6px)}
+#cr .crnp .crhero .crav{box-shadow:0 0 0 1vmin rgba(248,213,126,.12),0 0 0 2.2vmin rgba(248,213,126,.06),0 2vmin 5vmin rgba(0,0,0,.4)}
+#cr .crnp .crpb{background:rgba(255,255,255,.12);border-radius:2vmin;overflow:hidden;height:1.4vmin!important}
+#cr .crnp .crct button{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)}
+#cr .crnp .crct button.big{background:linear-gradient(135deg,#ffe29a,#f2b94b)!important;box-shadow:0 1.4vmin 4vmin rgba(242,185,75,.35);border:0}
+#cwv{position:fixed;inset:0;z-index:9000;background:radial-gradient(circle at 50% 40%,#0c1a33,#02050d 70%);display:none;touch-action:none}
+#cwv.on{display:block;animation:cwi .6s ease}@keyframes cwi{from{opacity:0}to{opacity:1}}
+#cwv canvas{position:absolute;inset:0;width:100%;height:100%}
+#cwv .cwt{position:absolute;left:0;right:0;bottom:7vmin;text-align:center;color:#fff;text-shadow:0 .4vmin 2vmin rgba(0,0,0,.6)}
+#cwv .cwt b{display:block;font-size:7vmin;color:#f8d57e}#cwv .cwt span{font-size:3.4vmin;opacity:.8}
+
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
 #tv .tvg{gap:2vmin}
@@ -861,7 +873,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795110517";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795110860";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1073,4 +1085,19 @@ document.addEventListener("wheel",function(e){if(e.ctrlKey)e.preventDefault()},{
 
 /* car: "close your phone" screen makes no sense while driving — suppress it */
 (function(){if(typeof msAlert!=="function")return;var o=msAlert;msAlert=function(s,h){if(s&&h&&h.indexOf("msai")>-1)return o(false);return o(s,h)}})();
+
+/* car: idle audio-wave screen (after 20 s without touch while playing) */
+(function(){var lt=Date.now(),cv,cx,raf=0,on=false;
+function el(){var d=document.getElementById("cwv");if(d)return d;d=document.createElement("div");d.id="cwv";d.innerHTML='<canvas></canvas><div class="cwt"><b></b><span></span></div>';document.body.appendChild(d);d.addEventListener("pointerdown",function(e){e.preventDefault();e.stopPropagation();hide()},true);return d}
+function show(){var d=el();var a=document.querySelector("#cr .crsn"),r=document.querySelector("#cr .crrn");d.querySelector("b").textContent=a?a.textContent:"";d.querySelector("span").textContent=r?r.textContent:"";d.classList.add("on");on=true;cv=d.querySelector("canvas");sz();raf=requestAnimationFrame(draw)}
+function hide(){lt=Date.now();on=false;cancelAnimationFrame(raf);var d=document.getElementById("cwv");if(d)d.classList.remove("on")}
+function sz(){var r=window.devicePixelRatio||1;cv.width=innerWidth*r;cv.height=innerHeight*r;cx=cv.getContext("2d");cx.setTransform(r,0,0,r,0,0)}
+function draw(t){if(!on)return;var W=innerWidth,H=innerHeight,n=Math.max(24,Math.floor(W/26)),g=W/n,pl=!AUD.paused;cx.clearRect(0,0,W,H);
+ for(var i=0;i<n;i++){var x=i*g+g/2,p=i/n,a=(Math.sin(t/330+i*.55)+Math.sin(t/570+i*.23+1.3)*.8+Math.sin(t/210+i*1.1)*.4+2.2)/4.4,env=.35+.65*Math.sin(Math.PI*p),h=H*.5*a*env*(pl?1:.15)+6;
+  var gr=cx.createLinearGradient(0,H/2-h,0,H/2+h);gr.addColorStop(0,"#7ee0c3");gr.addColorStop(.5,"#f8d57e");gr.addColorStop(1,"#7ee0c3");cx.fillStyle=gr;cx.beginPath();
+  if(cx.roundRect)cx.roundRect(x-g*.32,H/2-h/2,g*.64,h,g*.32);else cx.rect(x-g*.32,H/2-h/2,g*.64,h);cx.fill()}
+ raf=requestAnimationFrame(draw)}
+["pointerdown","keydown","touchstart"].forEach(function(e){addEventListener(e,function(){if(!on)lt=Date.now()},true)});
+addEventListener("resize",function(){if(on)sz()});
+setInterval(function(){var np=!!document.querySelector("#cr .crnp .crct");if(!on&&np&&CUR&&!AUD.paused&&Date.now()-lt>20000)show();else if(on&&(!CUR||!np))hide()},1000)})();
 </script></body></html>
