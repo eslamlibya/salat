@@ -1034,7 +1034,7 @@ function acRe(){if(S.sp=="acct"&&typeof sett=="function")sett()}
 function acRead(){["name","user","email","pw","code"].forEach(function(k){var e=$("ac_"+k);if(e)ACS.f[k]=e.value})}
 document.addEventListener("input",function(e){var id=e.target.id||"";if(id.indexOf("ac_")==0)ACS.f[id.slice(3)]=e.target.value});
 function acSet(m,ok){ACS.msg=m||"";ACS.ok=ok?1:0;ACS.busy=0;acRe()}
-function acErr(r){return ACE[r.error]||ACE.server}
+function acErr(r){return (ACE[r.error]||ACE.server)+(r.d?" ["+r.d+"]":"")}
 function acGather(){var o={};Object.keys(S).forEach(function(k){if(ACX.indexOf(k)<0)o[k]=S[k]});return JSON.stringify(o)}
 function acApply(j){var o;try{o=JSON.parse(j)}catch(e){return false}var ls=S.ls||{};Object.keys(o).forEach(function(k){if(ACX.indexOf(k)<0)S[k]=o[k]});var m=o.ls||{};Object.keys(ls).forEach(function(d){m[d]=Math.max(m[d]||0,ls[d])});S.ls=m;return true}
 function acLogin(r,pw){acP({tok:r.token,user:r.user,ls:0});ACS.f={};acPull(true)}
