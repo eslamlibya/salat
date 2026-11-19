@@ -1,0 +1,1 @@
+{"name":"Taz — السيارة","short_name":"Taz سيارة","start_url":"./","scope":"./","display":"fullscreen","display_override":["fullscreen","standalone"],"orientation":"landscape","background_color":"#050b1a","theme_color":"#050b1a","lang":"ar","dir":"rtl","icons":[{"src":"../icon-art.png","sizes":"512x512","type":"image/png","purpose":"any"}]}
