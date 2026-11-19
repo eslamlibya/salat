@@ -194,6 +194,7 @@ body.msn #nvh{display:none!important}
 #cr .crnv{display:flex;gap:1.6vmin}#cr .crnv button{flex:1;font-size:3.6vmin;padding:1.8vmin 0;border-radius:99px;background:rgba(255,255,255,.12);font-weight:700}#cr .crnv button.on{background:#ffd36b;color:#13251f}
 @media(max-aspect-ratio:1/1){#cr .crk{font-size:9vmin}#cr .crg.c4{grid-template-columns:repeat(2,1fr)}#cr .crct button{width:18vmin;height:18vmin}#cr .crct button.big{width:28vmin;height:28vmin}}
 #cr .crct button:not(.big) svg{transform:scaleX(-1)}
+#cr .crtile small{display:block;font-size:2.6vmin;opacity:.75;margin-top:.6vmin}#cr .crtile.st{min-height:16vmin;font-size:4vmin;text-align:right;padding:2vmin 3vmin}#cr .crtile.cur{background:#ffd36b;color:#13251f}#cr .crtile.cur small{opacity:.8}
 
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
@@ -772,6 +773,8 @@ var ic=function(k,s){return'<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'
 var d=document.createElement("div");d.id="cr";document.body.appendChild(d);
 function save(){try{if(CUR)localStorage.setItem("carlast",JSON.stringify({r:CUR.rec.id,m:CUR.mo.id,s:CUR.s}))}catch(e){}}
 function last(){try{var o=JSON.parse(localStorage.getItem("carlast")||"null");if(!o||LB.st!="ok")return null;var r=LB.R.filter(function(x){return x.id==o.r})[0];if(!r)return null;var m=(r.moshaf||[]).filter(function(x){return x.id==o.m})[0];return m?{rec:r,mo:m,s:o.s}:null}catch(e){return null}}
+function csave(){try{localStorage.setItem("carset",JSON.stringify({s:SPD,r:RM}))}catch(e){}}
+try{var cs=JSON.parse(localStorage.getItem("carset")||"null");if(cs){SPD=cs.s||1;RM=cs.r||0;AUD.playbackRate=SPD}}catch(e){}
 function sname(s){return"سورة "+(LB.SW[s]||s)}
 function go(rec,mo,s){play(rec,mo,s,0,true);CR.v="np";save();crDraw()}
 function nextP(){var tz=tzo(CT[S.city][4],new Date()),n=tz.min,i,j;for(j=0;j<5;j++){i=NS[j];if(P[i][1]>n)return{i:i,left:(P[i][1]-n)*60,n:n}}return{i:0,left:(P[0][1]+1440-n)*60,n:n}}
@@ -786,20 +789,36 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
   else{var l=last();h+='<div class="crnp"><div class="crsn">القرآن الكريم</div>'+(LB.st=="ok"?(l?'<button class="crw" id="clr">تابع: '+esc(sname(l.s))+' — '+esc(l.rec.name)+'</button>':'')+'<button class="crw alt" id="cpk">اختر قارئاً</button>':'<div class="crrn">'+(LB.st=="err"?'تعذّر التحميل. تأكد من الإنترنت.':'جارٍ تحميل القرّاء…')+'</div>'+(LB.st=="err"?'<button class="crw" id="crty">إعادة المحاولة</button>':''))+'</div>'}
  }else if(CR.v=="rc"){var R=LB.R.slice().sort(function(a,b){return(isLiby(b)?1:0)-(isLiby(a)?1:0)});h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>اختر القارئ</b></div><div class="crg c2" id="cgl">'+R.map(function(r,i){return'<button class="crtile'+(isLiby(r)?" lb":"")+'" data-i="'+LB.R.indexOf(r)+'">'+esc(r.name)+'</button>'}).join("")+'</div>'}
  else if(CR.v=="mo"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>'+esc(CR.rec.name)+'</b></div><div class="crg c2" id="cgl">'+(CR.rec.moshaf||[]).map(function(m,i){return'<button class="crtile" data-i="'+i+'">'+esc(m.name)+'</button>'}).join("")+'</div>'}
+ else if(CR.v=="st"){var A=acG(),RMN=["بلا تكرار","تكرار السورة","تكرار كل السور"],SL=SLP?SLP+" دقيقة":"متوقف";h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>الإعدادات</b></div><div class="crg c2" id="cgl">'
+  +'<button class="crtile st" data-a="city">المدينة<small>'+esc(CT[S.city][0])+'</small></button>'
+  +'<button class="crtile st" data-a="acct">الحساب والمزامنة<small>'+(A?"@"+esc(A.user.username)+" — اضغط للمزامنة":"غير مرتبط — اضغط للربط")+'</small></button>'
+  +'<button class="crtile st" data-a="spd">سرعة القراءة<small>'+SPD+'×</small></button>'
+  +'<button class="crtile st" data-a="rm">التكرار<small>'+RMN[RM]+'</small></button>'
+  +'<button class="crtile st" data-a="slp">مؤقّت النوم<small>'+SL+'</small></button>'
+  +'<button class="crtile st" data-a="msq">تنبيهات المسجد (الإقامة والأذكار)<small>'+(msOn()?"مفعّلة":"معطّلة")+'</small></button></div>'}
+ else if(CR.v=="ct"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>اختر المدينة</b></div><div class="crg c4" id="cgl">'+CT.map(function(c,i){return'<button class="crtile'+(i==S.city?" cur":"")+'" data-i="'+i+'">'+esc(c[0])+'<small>'+esc(c[6]||c[1]||"")+'</small></button>'}).join("")+'</div>'}
  else if(CR.v=="su"){var L=String(CR.mo.surah_list||"").split(",").filter(Boolean).map(Number);h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crg c4" id="cgl">'+L.map(function(s){return'<button class="crtile s" data-s="'+s+'">'+s+'. '+esc(LB.SW[s]||"")+'</button>'}).join("")+'</div>'}
- h+='</div><div class="crbt"><div class="crst">'+strip()+'</div><div class="crnv"><button id="cq"'+(CR.v=="np"?' class="on"':'')+'>القرآن</button><button id="cpl">اختر القارئ</button><button id="caz">الأذكار</button></div></div>';
+ h+='</div><div class="crbt"><div class="crst">'+strip()+'</div><div class="crnv"><button id="cq"'+(CR.v=="np"?' class="on"':'')+'>القرآن</button><button id="cpl">القرّاء</button><button id="cst"'+(CR.v=="st"||CR.v=="ct"?' class="on"':'')+'>الإعدادات</button><button id="caz">الأذكار</button></div></div>';
  d.innerHTML=h;crTop();
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  q("cpv",function(){nxt(-1);save();crDraw()});q("cnx",function(){nxt(1);save();crDraw()});
  q("cpp",function(){if(AUD.paused){var p=AUD.play();if(p&&p.catch)p.catch(function(){})}else AUD.pause()});
  q("cpk",function(){CR.v="rc";crDraw()});q("cpl",function(){CR.v="rc";crDraw()});q("cq",function(){CR.v="np";crDraw()});
  q("clr",function(){var l=last();if(l)go(l.rec,l.mo,l.s)});q("crty",function(){LB.st="idle";lbLoad();crDraw()});
- q("cbk",function(){CR.v=CR.v=="su"?((CR.rec.moshaf||[]).length>1?"mo":"rc"):CR.v=="mo"?"rc":"np";crDraw()});
- q("caz",function(){azOpen()});
+ q("cbk",function(){CR.v=CR.v=="ct"?"st":CR.v=="st"?"np":CR.v=="su"?((CR.rec.moshaf||[]).length>1?"mo":"rc"):CR.v=="mo"?"rc":"np";crDraw()});
+ q("caz",function(){azOpen()});q("cst",function(){CR.v="st";crDraw()});
  var sk=$("crsk");if(sk)sk.onclick=function(e){var r=sk.getBoundingClientRect(),x=(e.clientX-r.left)/r.width;if(document.dir=="rtl"||getComputedStyle(sk).direction=="rtl")x=1-x;if(isFinite(AUD.duration))AUD.currentTime=Math.max(0,Math.min(1,x))*AUD.duration};
  var g=$("cgl");if(g)g.onclick=function(e){var b=e.target.closest("button");if(!b)return;
   if(CR.v=="rc"){CR.rec=LB.R[+b.getAttribute("data-i")];if((CR.rec.moshaf||[]).length>1){CR.v="mo"}else{CR.mo=CR.rec.moshaf[0];CR.v="su"}crDraw()}
   else if(CR.v=="mo"){CR.mo=CR.rec.moshaf[+b.getAttribute("data-i")];CR.v="su";crDraw()}
+  else if(CR.v=="st"){var a=b.getAttribute("data-a");
+   if(a=="city"){CR.v="ct"}else if(a=="acct"){if(acG()){acSync(true)}else{acOpen();return}}
+   else if(a=="spd"){var Ls=[.75,1,1.25,1.5,2];SPD=Ls[(Ls.indexOf(SPD)+1)%Ls.length];AUD.playbackRate=SPD;csave()}
+   else if(a=="rm"){RM=(RM+1)%3;csave()}
+   else if(a=="slp"){var Q=[0,15,30,60];SLP=Q[(Q.indexOf(SLP)+1)%4];clearTimeout(SLT);if(SLP)SLT=setTimeout(function(){AUD.pause();SLP=0;crDraw()},SLP*6e4)}
+   else if(a=="msq"){S.msq=msOn()?0:1;save()}
+   crDraw()}
+  else if(CR.v=="ct"){S.city=+b.getAttribute("data-i");S.set=1;save();try{recalc();build()}catch(e){}CR.v="st";crDraw()}
   else if(CR.v=="su"){go(CR.rec,CR.mo,+b.getAttribute("data-s"))}}}
 ["play","pause","playing","loadedmetadata"].forEach(function(e){AUD.addEventListener(e,function(){if(CR.v=="np"){var b=$("cpp");if(b){b.innerHTML=ic(AUD.paused?"pl":"pa",72)}else crDraw()}})});
 var _ld=lbDraw;lbDraw=function(){try{_ld.apply(this,arguments)}catch(e){}if(typeof crDraw=="function"&&CR.v=="np"&&!CUR)crDraw()};
