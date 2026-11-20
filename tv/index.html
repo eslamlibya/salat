@@ -687,7 +687,7 @@ var q=document.createElement("div");q.id="iqc";document.body.appendChild(q);
 function ssHide(){if(SS&&SS.classList.contains("on"))SS.classList.remove("on");IDL=Date.now()}
 ["pointerdown","keydown","touchstart","mousemove"].forEach(function(e){document.addEventListener(e,function(){ssHide()},true)});
 function ssShow(){if(!SS){SS=document.createElement("div");SS.id="ssv";SS.innerHTML="<p></p><small></small><i></i>";document.body.appendChild(SS)}SS.classList.add("on");ssNext()}
-function ssNext(){var a=AY[AI++%AY.length],p=SS.querySelector("p");p.style.opacity=0;setTimeout(function(){p.textContent="﴿ "+a[0]+" ﴾";SS.querySelector("small").textContent=a[1];p.style.opacity=1},900)}
+function ssNext(){var L=AY.concat(((window.CTX&&CTX.v)||[]).map(function(x){return[x.t,x.s,1]})),a=L[AI++%L.length],p=SS.querySelector("p");p.style.opacity=0;setTimeout(function(){p.textContent=a[2]?a[0]:"﴿ "+a[0]+" ﴾";SS.querySelector("small").textContent=a[1];p.style.opacity=1},900)}
 setInterval(function(){try{
  var tz=msNow(),n=tz.min,j,i,hit=null;
  if(msOn&&msOn())for(j=0;j<5;j++){i=NS[j];var iq=P[i][1]+msIq(i);if(n>=P[i][1]&&n<iq){hit={i:i,s:Math.round((iq-n)*60)}}}
@@ -822,7 +822,7 @@ document.addEventListener("visibilitychange",function(){if(!document.hidden)D.ti
 D.say=function(m,ok){try{if(kind()=="phone"||kind()=="pc"){ACS.msg=m;ACS.ok=ok?1:0;acRe()}else acMsg(m,ok)}catch(e){}};
 D.pull=function(from){if(!D.fresh(from)){D.say("الجهاز غير نشط الآن. افتح Taz عليه ثم حاول (التطبيق المغلق أو في الخلفية لا يستقبل الطلبات).",0);return}D.say("جارٍ طلب التشغيل من الجهاز الآخر…",1);D.send(from,{a:"give",f:D.id,t:Date.now()}).then(function(r){if(!r||r.error)D.say("تعذّر إرسال الطلب ("+((r&&r.error)||"net")+").",0);else{D.say("أُرسل الطلب، بانتظار الجهاز الآخر…",1);setTimeout(function(){var o=D.devs.filter(function(d){return d.did==from})[0];if(!snap().pl)D.say("لم يستجب الجهاز الآخر. تأكد أن التطبيق مفتوح عليه ومحدَّث، وأن فيه تشغيلًا.",0)},15000)}})};
 D.run=function(c){if(!c)return;if(c.t&&Math.abs(Date.now()-c.t)>120000)return;if(c.a=="play"&&c.s){try{DV_PLAY(c.s);D.say("تم استلام التشغيل.",1)}catch(e){D.say("فشل التشغيل: "+e.message,0)}setTimeout(D.tick,800)}
- else if(c.a=="ctl"){try{DV_CTL(c.c)}catch(e){}}else if(c.a=="give"){var s=snap();if(s.k){D.send(c.f,{a:"play",s:s,t:Date.now()});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
+ else if(c.a=="msg"){try{xmsg(c.title,c.body)}catch(e){}}else if(c.a=="ctl"){try{DV_CTL(c.c)}catch(e){}}else if(c.a=="give"){var s=snap();if(s.k){D.send(c.f,{a:"play",s:s,t:Date.now()});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
 D.txt=function(d){var j=d.j||{},on=D.now-d.ut<45000;if(!on)return"غير متصل";
  var t=j.t||"";if(j.act=="listen")return(j.pl?"يستمع الآن: ":"متوقف: ")+t+(j.rec?" — "+j.rec:"");
  if(j.act=="radio")return(j.pl?"راديو: ":"متوقف: ")+t;if(j.act=="read")return"يقرأ: "+t;return"متصل"};
@@ -914,6 +914,7 @@ document.addEventListener("keydown",function(e){var o=$("ac");if(!o||!o.classLis
  else if((k=="ArrowLeft"||k=="ArrowRight"||c==37||c==39)&&document.activeElement.tagName=="BUTTON"){e.preventDefault();e.stopPropagation();var d=(k=="ArrowLeft"||c==37)?1:-1,B=L.filter(function(x){return x.tagName=="BUTTON"}),j=B.indexOf(document.activeElement);(B[(j+d+B.length)%B.length]||B[0]).focus()}},true);
 /* إعدادات عن بُعد: إعلان وفرض تحديث (من لوحة التحكم) */
 var FOFF=[];function FO(k){return(window.FOFF||[]).indexOf(k)>-1}
+function xmsg(t,b){var d=document.createElement("div");d.style.cssText="position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:4vmin";d.innerHTML='<div style="background:#14201b;color:#fff;max-width:70vmin;width:100%;border-radius:3vmin;padding:4vmin;text-align:center;direction:rtl;font:3.4vmin/1.7 system-ui,sans-serif"><h3 style="margin:0 0 1.5vmin;font-size:4.4vmin"></h3><p style="margin:0 0 3vmin;white-space:pre-wrap"></p></div>';d.querySelector("h3").textContent=t||"Taz";d.querySelector("p").textContent=b||"";document.body.appendChild(d);setTimeout(function(){d.remove()},20000);d.onclick=function(){d.remove()}}
 var CTX={};
 function ctRecs(){return(CTX.r||[]).map(function(x){var sv=String(x.s||"");if(!/^https:\/\//.test(sv))return null;if(sv.slice(-1)!="/")sv+="/";var l=String(x.l||"").replace(/[^0-9,]/g,"").replace(/^,+|,+$/g,"");if(!l){l=[];for(var i=1;i<=114;i++)l.push(i);l=l.join(",")}return{id:+x.id,name:String(x.n||""),moshaf:[{id:+x.id,name:String(x.m||"حفص عن عاصم"),server:sv,surah_list:l,surah_total:l.split(",").length}]}}).filter(Boolean)}
 function ctApply(ct){try{CTX=ct||{};var n=(CTX.r||[]).length;if(typeof LB!="undefined"&&n!=(LB.ctn||0)){LB.ctn=n;if(LB.st=="ok"){LB.st="idle";if(typeof lbLoad=="function")lbLoad()}}}catch(e){}}
