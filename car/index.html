@@ -203,6 +203,7 @@ body.msn #nvh{display:none!important}
 #ac .dvb:focus{background:#fff!important;color:#000!important;transform:scale(1.05)}
 #ac .dvn{padding:2.2vmin 2.8vmin;font-size:2.5vmin;color:#a1a1a6;line-height:1.7}#ac .dvh{font-size:2.5vmin;color:#a1a1a6;margin:1.2vmin 1vmin 0;font-weight:600}
 #ac .acb{max-height:94vh;overflow-y:auto;scrollbar-width:none}#ac .acb::-webkit-scrollbar{display:none}#ac .acu i{width:9vmin!important;height:9vmin!important;font-size:4.4vmin!important}
+@media(max-aspect-ratio:1/1){.tvbr{top:2.4vmin}.tvg{top:12vmin!important;left:2vw!important;right:2vw;flex-wrap:wrap;justify-content:center;gap:1.4vmin!important}.tvg button{font-size:2.6vmin!important;padding:1.1vmin 2.2vmin!important}}
 </style><style id="carcss">
 #tv,#mini,#mshn{display:none!important}
 #cr{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;display:flex;flex-direction:column;background:radial-gradient(120% 100% at 80% 0%,#12304a 0%,#050b1a 70%);color:#fff;font-family:"TazHud","IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;direction:rtl;overflow:hidden;box-sizing:border-box;padding:2vmin 3vmin}
@@ -1129,7 +1130,7 @@ D.send=function(to,c){var a=A();if(!a)return Promise.resolve();return acReq("POS
 D.push=function(to){var s=snap();if(!s.k)return;D.send(to,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)};
 D.pull=function(from){D.send(from,{a:"give",f:D.id})};
 D.run=function(c){if(!c)return;if(c.a=="play"&&c.s){try{DV_PLAY(c.s)}catch(e){}setTimeout(D.tick,800)}
- else if(c.a=="give"){var s=snap();if(s.k&&s.pl){D.send(c.f,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
+ else if(c.a=="give"){var s=snap();if(s.k){D.send(c.f,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
 D.txt=function(d){var j=d.j||{},on=D.now-d.ut<45000;if(!on)return"غير متصل";
  var t=j.t||"";if(j.act=="listen")return(j.pl?"يستمع الآن: ":"متوقف: ")+t+(j.rec?" — "+j.rec:"");
  if(j.act=="radio")return(j.pl?"راديو: ":"متوقف: ")+t;if(j.act=="read")return"يقرأ: "+t;return"متصل"};
@@ -1146,7 +1147,7 @@ D.tick=function(){var a=A();if(!a||D.busy)return;var s=snap();
 D.act=function(a){var m=a.split("_"),id=m.slice(2).join("_");if(m[1]=="pull")D.pull(id);else if(m[1]=="push")D.push(id)};
 D.html=function(){var me=snap(),h="";if(!D.devs.length)return'<div class="dvn">لا توجد أجهزة أخرى بعد. سجّل الدخول بنفس الحساب في التلفزيون أو السيارة.</div>';
  D.devs.forEach(function(d){var on=D.now-d.ut<45000,j=d.j||{},b="";
-  if(on&&j.k&&j.pl)b+='<button class="dvb" data-xz="ac_dvx_pull_'+d.did+'" id="dvp_'+d.did+'">اسحب التشغيل إلى هنا</button>';
+  if(on&&j.k)b+='<button class="dvb" data-xz="ac_dvx_pull_'+d.did+'" id="dvp_'+d.did+'">اسحب التشغيل إلى هنا</button>';
   if(on&&me.k&&me.pl)b+='<button class="dvb s" data-xz="ac_dvx_push_'+d.did+'" id="dvs_'+d.did+'">أرسل التشغيل إليه</button>';
   h+='<div class="dvd'+(on?" on":"")+'"><i></i><div><b>'+(ND[d.kd]||d.nm)+'</b><span>'+D.txt(d)+'</span></div>'+(b?'<div class="dvq">'+b+'</div>':'')+'</div>'});return h};
 setInterval(D.tick,4000);setTimeout(D.tick,1500);
@@ -1279,7 +1280,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795155503";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795162530";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1532,7 +1533,7 @@ function mapInit(){var v=$("mpv");if(!v)return;if(msty0().v&&!VM.load)vmLoad();i
 
 function csave(){try{localStorage.setItem("carset",JSON.stringify({s:SPD,r:RM}))}catch(e){}}
 try{var cs=JSON.parse(localStorage.getItem("carset")||"null");if(cs){SPD=cs.s||1;RM=cs.r||0;AUD.playbackRate=SPD}}catch(e){}
-var CARV=50;
+var CARV=51;
 function crForce(){var t=document.getElementById("crf"),say=function(x){if(window.CT_)window.CT_(x)};if(t)t.classList.add("spin");
  var clear=function(){var p=[];try{if(window.caches)p.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}))}catch(e){}try{if(navigator.serviceWorker)p.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}return Promise.all(p).catch(function(){})};
  var rl=function(){location.replace(location.pathname+"?b="+Date.now())};
@@ -1542,7 +1543,7 @@ function crForce(){var t=document.getElementById("crf"),say=function(x){if(windo
  }).catch(function(){say("تعذّر الاتصال — جارٍ مسح الذاكرة وإعادة التحميل");clear().then(rl)})}
 
 /* ===== الإشعارات والتحديثات ===== */
-var NT={bc:null,pub:0,st:"idle"},NTLOG=[["v50","نقل التشغيل الفوري بين الأجهزة: اسحب القرآن من الهاتف إلى السيارة تلقائيًا، وشاهد ما يفعله كل جهاز"],["v49","تصميم جديد لشاشة ربط الحساب بنمط Apple في كل النسخ"],["v48","إصلاح اختفاء اسم السورة في مشغّل القرآن"],["v47","مراجعة مجلس التصميم: إصلاح تداخل المشغّل مع لوحة المفاتيح والطقس، قص الأسماء، أسهم الإعدادات"],["v46","اللغة الإنجليزية والفرنسية مثل التلفزيون، وتحسين شكل المشغّل المصغّر"],["v45","تصميم جديد للإشعارات والمشغّل المصغّر، تشغيل الصوتيات في كل مكان، فرض الوضع الأفقي"],["v44","إصلاح تبويب صوتيات (كان يبحث عن radio__)"],["v43","إذاعة القرآن الكريم ليبيا (qrl.ly) داخل الصوتيات"],["v42","صوتيات + إذاعة ليبيا + مشغل جديد، طقس وسرعة، مشغل مصغّر عام، أذكار بشكل جديد"],["v41","شاشة الموجة الصوتية بنمط التلفزيون فوق خلفية الطبيعة مع المؤثرات"],["v40","خلفية طبيعة متحركة لشاشة القرآن مثل التلفزيون"],["v39","خرائط Google داخل الخريطة (من زر الطبقات)"],["v38","زر «خرائط Google» للملاحة إلى المكان المحدد"],["v37","إعادة ترتيب لوحة المفاتيح وزر الحذف، وإصلاح الميكروفون"],["v36","إصلاح زر الميكروفون وتغيير أيقونته"],["v35","زر 🎤 يفتح لوحة النظام للإملاء الصوتي (إصلاح التعطل)"],["v34","بحث صوتي، أمازيغية (تيفيناغ)، إنجليزية، صف أرقام"],["v33","لوحة مفاتيح خاصة للبحث (عربي/English/أرقام)"],["v32","البحث عن «مسجد» يعرض المساجد والجوامع، وإصلاح البحث"],["v31","البحث بكلمة «مسجد» يعرض المساجد والجوامع؛ إصلاح البحث عن الأماكن والفئات (مساجد…) وترتيب النتائج"],["v30","التنبيه قبل الأذان صار 15 دقيقة افتراضياً"],["v29","تنبيه قبل الأذان وتنبيه عند وقت الإقامة"],["v28","زر الإشعارات والتحديثات (الجرس) ونقل زر التحديث"],["v27","إصلاح بطاقات القرّاء مع القوائم الطويلة"],["v26","تصميم القرآن بنمط التلفزيون: بطاقات القرّاء والمشغّل الكبير"],["v25","زر التحديث يخبرك إن كانت هناك نسخة أحدث"],["v24","الأذكار: سحب باللمس وأيقونات جديدة"],["v22","خريطة حديثة (MapLibre) مع ملاحة بمنظور ثلاثي الأبعاد"],["v21","أنماط الخريطة: شوارع، فاتحة، داكنة، قمر صناعي"],["v20","الطقس، وإكمال القرآن عند ضعف الإنترنت"],["—","الأذان الكامل عند دخول وقت الصلاة"]];
+var NT={bc:null,pub:0,st:"idle"},NTLOG=[["v51","إصلاح ازدحام الأزرار في العرض العمودي، وسحب التشغيل حتى لو كان متوقفًا"],["v50","نقل التشغيل الفوري بين الأجهزة: اسحب القرآن من الهاتف إلى السيارة تلقائيًا، وشاهد ما يفعله كل جهاز"],["v49","تصميم جديد لشاشة ربط الحساب بنمط Apple في كل النسخ"],["v48","إصلاح اختفاء اسم السورة في مشغّل القرآن"],["v47","مراجعة مجلس التصميم: إصلاح تداخل المشغّل مع لوحة المفاتيح والطقس، قص الأسماء، أسهم الإعدادات"],["v46","اللغة الإنجليزية والفرنسية مثل التلفزيون، وتحسين شكل المشغّل المصغّر"],["v45","تصميم جديد للإشعارات والمشغّل المصغّر، تشغيل الصوتيات في كل مكان، فرض الوضع الأفقي"],["v44","إصلاح تبويب صوتيات (كان يبحث عن radio__)"],["v43","إذاعة القرآن الكريم ليبيا (qrl.ly) داخل الصوتيات"],["v42","صوتيات + إذاعة ليبيا + مشغل جديد، طقس وسرعة، مشغل مصغّر عام، أذكار بشكل جديد"],["v41","شاشة الموجة الصوتية بنمط التلفزيون فوق خلفية الطبيعة مع المؤثرات"],["v40","خلفية طبيعة متحركة لشاشة القرآن مثل التلفزيون"],["v39","خرائط Google داخل الخريطة (من زر الطبقات)"],["v38","زر «خرائط Google» للملاحة إلى المكان المحدد"],["v37","إعادة ترتيب لوحة المفاتيح وزر الحذف، وإصلاح الميكروفون"],["v36","إصلاح زر الميكروفون وتغيير أيقونته"],["v35","زر 🎤 يفتح لوحة النظام للإملاء الصوتي (إصلاح التعطل)"],["v34","بحث صوتي، أمازيغية (تيفيناغ)، إنجليزية، صف أرقام"],["v33","لوحة مفاتيح خاصة للبحث (عربي/English/أرقام)"],["v32","البحث عن «مسجد» يعرض المساجد والجوامع، وإصلاح البحث"],["v31","البحث بكلمة «مسجد» يعرض المساجد والجوامع؛ إصلاح البحث عن الأماكن والفئات (مساجد…) وترتيب النتائج"],["v30","التنبيه قبل الأذان صار 15 دقيقة افتراضياً"],["v29","تنبيه قبل الأذان وتنبيه عند وقت الإقامة"],["v28","زر الإشعارات والتحديثات (الجرس) ونقل زر التحديث"],["v27","إصلاح بطاقات القرّاء مع القوائم الطويلة"],["v26","تصميم القرآن بنمط التلفزيون: بطاقات القرّاء والمشغّل الكبير"],["v25","زر التحديث يخبرك إن كانت هناك نسخة أحدث"],["v24","الأذكار: سحب باللمس وأيقونات جديدة"],["v22","خريطة حديثة (MapLibre) مع ملاحة بمنظور ثلاثي الأبعاد"],["v21","أنماط الخريطة: شوارع، فاتحة، داكنة، قمر صناعي"],["v20","الطقس، وإكمال القرآن عند ضعف الإنترنت"],["—","الأذان الكامل عند دخول وقت الصلاة"]];
 function ntSeen(){try{return localStorage.getItem("carbc")||""}catch(e){return""}}
 function ntHot(){return !!(NT.bc&&String(NT.bc.id)!==ntSeen())||NT.pub>CARV}
 function ntMark(){if(NT.bc)try{localStorage.setItem("carbc",String(NT.bc.id))}catch(e){}var b=$("cbl");if(b)b.classList.toggle("hot",ntHot())}
@@ -1613,7 +1614,7 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  else if(CR.v=="su"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button>'+crav(CR.rec.name,8)+'<b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crsb"><span>'+mi("search",26)+'</span><input id="crq" type="search" placeholder="ابحث عن سورة بالاسم أو الرقم" autocomplete="off"></div><div class="crg c4" id="cgl">'+suTiles("")+'</div>'}
 
  h+='</div>';var DK=[["chm","home","الرئيسية",CR.v=="hm"],["cq","book","القرآن",CR.v=="np"||CR.v=="rc"||CR.v=="mo"||CR.v=="su"],["cmq","pin","الخريطة",CR.v=="mq"],["cpd","pod","صوتيات",CR.v=="pd"],["caz","star","الأذكار",0],["cst","gear","الإعدادات",CR.v=="st"||CR.v=="ct"]];
- d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v50</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
+ d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v51</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
 
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  var ch=$("crch");if(ch)ch.onclick=function(e){var b=e.target.closest("button");if(!b)return;var c=b.getAttribute("data-c");CR.rw=c=="rw"?b.getAttribute("data-k"):"";CR.lby=c=="lby"?1:0;ch.innerHTML=rcChips();var g=$("cgl"),q=$("crq");if(g)g.innerHTML=rcTiles(q?q.value:"")};var sq=$("crq");if(sq)sq.oninput=function(){var g=$("cgl");if(g)g.innerHTML=CR.v=="rc"?rcTiles(sq.value):suTiles(sq.value)};

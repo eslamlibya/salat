@@ -1103,7 +1103,7 @@ D.send=function(to,c){var a=A();if(!a)return Promise.resolve();return acReq("POS
 D.push=function(to){var s=snap();if(!s.k)return;D.send(to,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)};
 D.pull=function(from){D.send(from,{a:"give",f:D.id})};
 D.run=function(c){if(!c)return;if(c.a=="play"&&c.s){try{DV_PLAY(c.s)}catch(e){}setTimeout(D.tick,800)}
- else if(c.a=="give"){var s=snap();if(s.k&&s.pl){D.send(c.f,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
+ else if(c.a=="give"){var s=snap();if(s.k){D.send(c.f,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
 D.txt=function(d){var j=d.j||{},on=D.now-d.ut<45000;if(!on)return"غير متصل";
  var t=j.t||"";if(j.act=="listen")return(j.pl?"يستمع الآن: ":"متوقف: ")+t+(j.rec?" — "+j.rec:"");
  if(j.act=="radio")return(j.pl?"راديو: ":"متوقف: ")+t;if(j.act=="read")return"يقرأ: "+t;return"متصل"};
@@ -1120,7 +1120,7 @@ D.tick=function(){var a=A();if(!a||D.busy)return;var s=snap();
 D.act=function(a){var m=a.split("_"),id=m.slice(2).join("_");if(m[1]=="pull")D.pull(id);else if(m[1]=="push")D.push(id)};
 D.html=function(){var me=snap(),h="";if(!D.devs.length)return'<div class="dvn">لا توجد أجهزة أخرى بعد. سجّل الدخول بنفس الحساب في التلفزيون أو السيارة.</div>';
  D.devs.forEach(function(d){var on=D.now-d.ut<45000,j=d.j||{},b="";
-  if(on&&j.k&&j.pl)b+='<button class="dvb" data-xz="ac_dvx_pull_'+d.did+'" id="dvp_'+d.did+'">اسحب التشغيل إلى هنا</button>';
+  if(on&&j.k)b+='<button class="dvb" data-xz="ac_dvx_pull_'+d.did+'" id="dvp_'+d.did+'">اسحب التشغيل إلى هنا</button>';
   if(on&&me.k&&me.pl)b+='<button class="dvb s" data-xz="ac_dvx_push_'+d.did+'" id="dvs_'+d.did+'">أرسل التشغيل إليه</button>';
   h+='<div class="dvd'+(on?" on":"")+'"><i></i><div><b>'+(ND[d.kd]||d.nm)+'</b><span>'+D.txt(d)+'</span></div>'+(b?'<div class="dvq">'+b+'</div>':'')+'</div>'});return h};
 setInterval(D.tick,4000);setTimeout(D.tick,1500);
