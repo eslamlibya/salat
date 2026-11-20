@@ -73,6 +73,11 @@ async function init(env){if(READY)return;const d=env.DB;
  d.prepare("CREATE TABLE IF NOT EXISTS cfg(k TEXT PRIMARY KEY,v TEXT NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)"),
  d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS subs(uid INTEGER PRIMARY KEY,plan TEXT NOT NULL,exp INTEGER NOT NULL,ut INTEGER NOT NULL,note TEXT)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS fin(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,kind TEXT NOT NULL,amt REAL NOT NULL,cur TEXT NOT NULL,cat TEXT,note TEXT,uid INTEGER)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS log(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,a TEXT NOT NULL,d TEXT)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS sch(id INTEGER PRIMARY KEY AUTOINCREMENT,at INTEGER NOT NULL,title TEXT,body TEXT,rep TEXT,done INTEGER NOT NULL DEFAULT 0)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS blk(uid INTEGER PRIMARY KEY)"),
  d.prepare("CREATE TABLE IF NOT EXISTS dev(uid INTEGER NOT NULL,did TEXT NOT NULL,nm TEXT NOT NULL,kd TEXT NOT NULL,j TEXT NOT NULL,ut INTEGER NOT NULL,cmd TEXT,PRIMARY KEY(uid,did))")]);READY=true}
 const cors=env=>({"Access-Control-Allow-Origin":env.ALLOWED_ORIGIN||"https://eslamlibya.github.io","Access-Control-Allow-Methods":"GET,POST,PUT,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization","Vary":"Origin"});
 const out=(env,o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{...cors(env),"Content-Type":"application/json","Cache-Control":"no-store"}});
@@ -96,11 +101,13 @@ async function chkCode(env,uid,kind,code){const r=await env.DB.prepare("SELECT c
  await env.DB.prepare("DELETE FROM codes WHERE uid=? AND kind=?").bind(uid,kind).run();return true}
 async function newSess(env,uid){const t=rnd(32);await env.DB.prepare("INSERT INTO sess(th,uid,exp) VALUES(?,?,?)").bind(await sha(t),uid,Date.now()+30*864e5).run();return t}
 async function auth(env,req){const h=req.headers.get("Authorization")||"";if(h.slice(0,7)!=="Bearer ")return null;
- const r=await env.DB.prepare("SELECT u.id,u.email,u.username,u.name,s.exp FROM sess s JOIN users u ON u.id=s.uid WHERE s.th=?").bind(await sha(h.slice(7))).first();
- return r&&r.exp>Date.now()?r:null}
+ const r=await env.DB.prepare("SELECT u.id,u.email,u.username,u.name,s.exp,(SELECT 1 FROM blk WHERE uid=u.id) bk FROM sess s JOIN users u ON u.id=s.uid WHERE s.th=?").bind(await sha(h.slice(7))).first();
+ return r&&r.exp>Date.now()&&!r.bk?r:null}
+const proOf=async(env,uid)=>{const r=await env.DB.prepare("SELECT plan,exp FROM subs WHERE uid=?").bind(uid).first();return r&&r.exp>Date.now()?{plan:r.plan,exp:r.exp}:null};
+async function bcast(env,title,body){await env.DB.prepare("INSERT OR REPLACE INTO cfg(k,v) VALUES(?,?)").bind("bc",JSON.stringify({id:Date.now(),t:Date.now(),title:title||"Taz",body:body||"",url:""})).run();await env.DB.prepare("INSERT OR IGNORE INTO bq(endpoint) SELECT DISTINCT endpoint FROM sched").run()}
 const pub=u=>({id:u.id,email:u.email,username:u.username,name:u.name});
 const EM=/^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/,UN=/^[a-z0-9_]{3,20}$/;
-return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env){
+return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){await init(env);const now=Date.now(),r=await env.DB.prepare("SELECT * FROM sch WHERE done=0 AND at<=? ORDER BY at LIMIT 5").bind(now).all();for(const x of(r.results||[])){if(now-x.at>6*36e5&&!x.rep){await env.DB.prepare("UPDATE sch SET done=1 WHERE id=?").bind(x.id).run();continue}await bcast(env,x.title,x.body);if(x.rep==="d"||x.rep==="w"){let n=x.at;const st=x.rep==="d"?864e5:6048e5;while(n<=now)n+=st;await env.DB.prepare("UPDATE sch SET at=? WHERE id=?").bind(n,x.id).run()}else await env.DB.prepare("UPDATE sch SET done=1 WHERE id=?").bind(x.id).run()}},async fetch(req,env){
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors(env)});
  const u=new URL(req.url),p=u.pathname,ip=req.headers.get("CF-Connecting-IP")||"x";
  if(req.method==="GET"&&p==="/")return out(env,{ok:true,name:"salat-account"});
@@ -114,9 +121,10 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
   const bl=await env.DB.prepare("SELECT n,w FROM rl WHERE k=?").bind("admf:"+ip).first();if(bl&&bl.n>=10&&Date.now()-bl.w<36e5)return out(env,{error:"rate"},429);
   if(!ak||!same(await sha(ak),await sha(env.ADMIN_KEY))){await limit(env,"admf:"+ip,10,36e5);return out(env,{error:"auth"},401)}
   const DB=env.DB,now=Date.now(),setc=(k,v)=>DB.prepare("INSERT OR REPLACE INTO cfg(k,v) VALUES(?,?)").bind(k,JSON.stringify(v)).run(),getc=async k=>{const x=await DB.prepare("SELECT v FROM cfg WHERE k=?").bind(k).first();try{return x?JSON.parse(x.v):null}catch(e){return null}};
+  if(req.method!=="GET"){try{await DB.prepare("INSERT INTO log(t,a,d) VALUES(?,?,?)").bind(now,p,JSON.stringify(b).slice(0,200)).run();await DB.prepare("DELETE FROM log WHERE id<(SELECT MAX(id)-500 FROM log)").run()}catch(e){}}
   if(p==="/admin/stats"){const n=async q=>{const x=await DB.prepare(q).first();return x?x.n:0};
    const rec=await DB.prepare("SELECT username,name,verified,created FROM users ORDER BY created DESC LIMIT 8").all();
-   return out(env,{ok:true,users:await n("SELECT COUNT(*) n FROM users"),verified:await n("SELECT COUNT(*) n FROM users WHERE verified=1"),withData:await n("SELECT COUNT(*) n FROM dat"),sessions:await n("SELECT COUNT(*) n FROM sess WHERE exp>"+now),devices:await n("SELECT COUNT(DISTINCT endpoint) n FROM sched"),queue:await n("SELECT COUNT(*) n FROM bq"),recent:rec.results||[],act24:await n("SELECT COUNT(DISTINCT uid) n FROM dev WHERE ut>"+(now-864e5)),act7:await n("SELECT COUNT(DISTINCT uid) n FROM dev WHERE ut>"+(now-6048e5)),new7:await n("SELECT COUNT(*) n FROM users WHERE created>"+(now-6048e5)),devTotal:await n("SELECT COUNT(*) n FROM dev"),playing:await n("SELECT COUNT(*) n FROM dev WHERE ut>"+(now-12e4)+" AND (j LIKE '%\"act\":\"listen\"%' OR j LIKE '%\"act\":\"read\"%' OR j LIKE '%\"act\":\"radio\"%')"),kinds:((await DB.prepare("SELECT kd,COUNT(*) n FROM dev WHERE ut>? GROUP BY kd").bind(now-6048e5).all()).results||[]),daily:((await DB.prepare("SELECT strftime('%m-%d',created/1000,'unixepoch') d,COUNT(*) n FROM users WHERE created>? GROUP BY d ORDER BY d").bind(now-12096e5).all()).results||[]),ver:await getc("ver")||0,bc:await getc("bc"),flags:await getc("flags")||{}})}
+   return out(env,{ok:true,users:await n("SELECT COUNT(*) n FROM users"),verified:await n("SELECT COUNT(*) n FROM users WHERE verified=1"),withData:await n("SELECT COUNT(*) n FROM dat"),sessions:await n("SELECT COUNT(*) n FROM sess WHERE exp>"+now),devices:await n("SELECT COUNT(DISTINCT endpoint) n FROM sched"),queue:await n("SELECT COUNT(*) n FROM bq"),recent:rec.results||[],act24:await n("SELECT COUNT(DISTINCT uid) n FROM dev WHERE ut>"+(now-864e5)),act7:await n("SELECT COUNT(DISTINCT uid) n FROM dev WHERE ut>"+(now-6048e5)),new7:await n("SELECT COUNT(*) n FROM users WHERE created>"+(now-6048e5)),devTotal:await n("SELECT COUNT(*) n FROM dev"),playing:await n("SELECT COUNT(*) n FROM dev WHERE ut>"+(now-12e4)+" AND (j LIKE '%\"act\":\"listen\"%' OR j LIKE '%\"act\":\"read\"%' OR j LIKE '%\"act\":\"radio\"%')"),kinds:((await DB.prepare("SELECT kd,COUNT(*) n FROM dev WHERE ut>? GROUP BY kd").bind(now-6048e5).all()).results||[]),daily:((await DB.prepare("SELECT strftime('%m-%d',created/1000,'unixepoch') d,COUNT(*) n FROM users WHERE created>? GROUP BY d ORDER BY d").bind(now-12096e5).all()).results||[]),ver:await getc("ver")||0,bc:await getc("bc"),flags:await getc("flags")||{},top:await(async()=>{const m={};((await DB.prepare("SELECT j FROM dev WHERE ut>? LIMIT 500").bind(now-6048e5).all()).results||[]).forEach(x=>{try{const o=JSON.parse(x.j||"{}");if(o.act=="listen"&&o.t){const k=String(o.t).slice(0,40);m[k]=(m[k]||0)+1}}catch(e){}});return Object.keys(m).map(k=>({t:k,n:m[k]})).sort((a,b)=>b.n-a.n).slice(0,8)})(),subsN:await n("SELECT COUNT(*) n FROM subs WHERE exp>"+now),blocked:await n("SELECT COUNT(*) n FROM blk")})}
   if(p==="/admin/users"){const q="%"+String(u.searchParams.get("q")||"").trim().toLowerCase().replace(/[%_]/g,"")+"%";
    const rs=await DB.prepare("SELECT u.id,u.email,u.username,u.name,u.verified,u.created,d.ut,length(d.j) sz,d.j,(SELECT COUNT(*) FROM dev WHERE uid=u.id) dc FROM users u LEFT JOIN dat d ON d.uid=u.id WHERE lower(u.email) LIKE ?1 OR lower(u.username) LIKE ?1 OR lower(u.name) LIKE ?1 ORDER BY u.created DESC LIMIT 100").bind(q).all();
    return out(env,{ok:true,users:(rs.results||[]).map(x=>{let o={};try{o=JSON.parse(x.j||"{}")}catch(e){}const tv=(o.tv&&o.tv.s)||{};return{id:x.id,email:x.email,username:x.username,name:x.name,verified:x.verified,created:x.created,ut:x.ut||0,dc:x.dc||0,size:x.sz||0,city:o.city,lang:o.lang,th:o.th,auto:o.auto,tvCity:tv.city}})})}
@@ -130,9 +138,25 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
    if(p==="/admin/user/devices-clear"){await DB.prepare("DELETE FROM dev WHERE uid=?").bind(id).run();return out(env,{ok:true})}
    if(p==="/admin/user/logout"){await DB.prepare("DELETE FROM sess WHERE uid=?").bind(id).run();return out(env,{ok:true})}
    if(p==="/admin/user/verify"){await DB.prepare("UPDATE users SET verified=1 WHERE id=?").bind(id).run();return out(env,{ok:true})}}
+  if(p==="/admin/log"){const rs=await DB.prepare("SELECT t,a,d FROM log ORDER BY id DESC LIMIT 100").all();return out(env,{ok:true,rows:rs.results||[]})}
+  if(p==="/admin/fin"&&req.method==="GET"){const f=await DB.prepare("SELECT f.id,f.t,f.kind,f.amt,f.cur,f.cat,f.note,f.uid,u.username FROM fin f LEFT JOIN users u ON u.id=f.uid ORDER BY f.t DESC LIMIT 1000").all(),s=await DB.prepare("SELECT s.uid,s.plan,s.exp,s.ut,s.note,u.name,u.username,u.email FROM subs s LEFT JOIN users u ON u.id=s.uid ORDER BY s.exp DESC LIMIT 500").all();return out(env,{ok:true,now,fin:f.results||[],subs:s.results||[]})}
+  if(p==="/admin/fin/add"&&req.method==="POST"){const k=b.kind==="out"?"out":"in",a=Math.round((+b.amt||0)*100)/100;if(!(a>0)||a>1e7)return out(env,{error:"bad"},400);await DB.prepare("INSERT INTO fin(t,kind,amt,cur,cat,note,uid) VALUES(?,?,?,?,?,?,?)").bind(+b.t||now,k,a,String(b.cur||"USD").slice(0,4).toUpperCase(),String(b.cat||"").slice(0,30),String(b.note||"").slice(0,150),+b.uid||null).run();return out(env,{ok:true})}
+  if(p==="/admin/fin/del"&&req.method==="POST"){await DB.prepare("DELETE FROM fin WHERE id=?").bind(+b.fid).run();return out(env,{ok:true})}
+  if(p==="/admin/sub/grant"&&req.method==="POST"){const q=String(b.u||"").trim().toLowerCase(),r=await DB.prepare("SELECT id FROM users WHERE username=?1 OR email=?1").bind(q).first();if(!r)return out(env,{error:"nouser"},404);
+   const days=b.plan==="y"?365:b.plan==="m"?30:Math.max(1,Math.min(3650,+b.days||0));if(!days)return out(env,{error:"bad"},400);const cur=await DB.prepare("SELECT exp FROM subs WHERE uid=?").bind(r.id).first(),base=cur&&cur.exp>now?cur.exp:now,exp=base+days*864e5;
+   await DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(r.id,b.plan==="y"?"y":"m",exp,now,String(b.note||"").slice(0,100)).run();
+   const a=Math.round((+b.amt||0)*100)/100;if(a>0)await DB.prepare("INSERT INTO fin(t,kind,amt,cur,cat,note,uid) VALUES(?,?,?,?,?,?,?)").bind(now,"in",a,String(b.cur||"USD").slice(0,4).toUpperCase(),"اشتراك",String(b.note||"").slice(0,150),r.id).run();
+   return out(env,{ok:true,exp})}
+  if(p==="/admin/sub/revoke"&&req.method==="POST"){await DB.prepare("DELETE FROM subs WHERE uid=?").bind(+b.uid).run();return out(env,{ok:true})}
+  if(p==="/admin/sched"&&req.method==="GET"){const rs=await DB.prepare("SELECT id,at,title,body,rep,done FROM sch WHERE done=0 ORDER BY at LIMIT 100").all();return out(env,{ok:true,now,rows:rs.results||[]})}
+  if(p==="/admin/sched/add"&&req.method==="POST"){const at=+b.at,t=String(b.title||"").slice(0,80).trim(),m=String(b.body||"").slice(0,300).trim();if(!(at>now-6e4)||(!t&&!m))return out(env,{error:"bad"},400);await DB.prepare("INSERT INTO sch(at,title,body,rep) VALUES(?,?,?,?)").bind(at,t,m,b.rep==="d"||b.rep==="w"?b.rep:"").run();return out(env,{ok:true})}
+  if(p==="/admin/sched/del"&&req.method==="POST"){await DB.prepare("DELETE FROM sch WHERE id=?").bind(+b.sid).run();return out(env,{ok:true})}
+  if(p==="/admin/user/block"&&req.method==="POST"){const id=+b.uid;if(!id)return out(env,{error:"bad"},400);if(b.on){await DB.batch([DB.prepare("INSERT OR IGNORE INTO blk(uid) VALUES(?)").bind(id),DB.prepare("DELETE FROM sess WHERE uid=?").bind(id)])}else await DB.prepare("DELETE FROM blk WHERE uid=?").bind(id).run();return out(env,{ok:true})}
+  if(p==="/admin/user/msg"&&req.method==="POST"){const t=String(b.title||"").slice(0,80),m=String(b.body||"").slice(0,300);if(!t&&!m)return out(env,{error:"bad"},400);await DB.prepare("UPDATE dev SET cmd=? WHERE uid=?").bind(JSON.stringify({a:"msg",title:t,body:m,t:now}),+b.uid).run();return out(env,{ok:true})}
+  if(p==="/admin/blocked"){const rs=await DB.prepare("SELECT b.uid,u.username,u.name FROM blk b LEFT JOIN users u ON u.id=b.uid").all();return out(env,{ok:true,rows:rs.results||[]})}
   if(p==="/admin/content"&&req.method==="GET"){const r=await DB.prepare("SELECT v FROM cfg WHERE k='content'").first();let c={};try{c=JSON.parse((r&&r.v)||"{}")}catch(e){}return out(env,{ok:true,content:c})}
   if(p==="/admin/content"&&req.method==="PUT"){const c=b.content;if(!c||typeof c!=="object")return out(env,{error:"bad"},400);const T=(v,n)=>String(v==null?"":v).slice(0,n),H=v=>/^https:\/\/[^\s"'<>]+$/.test(String(v||""))?String(v).slice(0,400):"";
-   const o={r:[],a:[],z:[],e:[]};const D=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))?String(v):"";(Array.isArray(c.e)?c.e:[]).slice(0,80).forEach(x=>{const k=T(x.c,2).toUpperCase();if(!/^[A-Z]{2}$/.test(k))return;const e={c:k,ram:D(x.ram),fit:D(x.fit),adha:D(x.adha),src:T(x.src,80).trim()};if(e.ram||e.fit||e.adha)o.e.push(e)});(Array.isArray(c.r)?c.r:[]).slice(0,100).forEach(x=>{const s=H(x.s);if(!s||!T(x.n,80).trim())return;o.r.push({id:+x.id||0,n:T(x.n,80).trim(),s:s,m:T(x.m,60).trim(),l:T(x.l,700).replace(/[^0-9,]/g,"")})});
+   const o={r:[],a:[],z:[],e:[],v:[],ad:H(c.ad),of:(Array.isArray(c.of)?c.of:[]).slice(0,5).map(x=>Math.max(-30,Math.min(30,Math.round(+x||0))))};(Array.isArray(c.v)?c.v:[]).slice(0,400).forEach(x=>{if(T(x.t,400).trim())o.v.push({t:T(x.t,400).trim(),s:T(x.s,80).trim()})});const D=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))?String(v):"";(Array.isArray(c.e)?c.e:[]).slice(0,80).forEach(x=>{const k=T(x.c,2).toUpperCase();if(!/^[A-Z]{2}$/.test(k))return;const e={c:k,ram:D(x.ram),fit:D(x.fit),adha:D(x.adha),src:T(x.src,80).trim()};if(e.ram||e.fit||e.adha)o.e.push(e)});(Array.isArray(c.r)?c.r:[]).slice(0,100).forEach(x=>{const s=H(x.s);if(!s||!T(x.n,80).trim())return;o.r.push({id:+x.id||0,n:T(x.n,80).trim(),s:s,m:T(x.m,60).trim(),l:T(x.l,700).replace(/[^0-9,]/g,"")})});
    (Array.isArray(c.a)?c.a:[]).slice(0,200).forEach(x=>{const u=H(x.u);if(!u||!T(x.t,100).trim())return;o.a.push({id:+x.id||0,t:T(x.t,100).trim(),u:u,k:x.k==="p"?"p":"s",d:T(x.d,150).trim()})});
    (Array.isArray(c.z)?c.z:[]).slice(0,200).forEach(x=>{if(!T(x.t,100).trim())return;o.z.push({id:+x.id||0,c:Math.max(0,Math.min(8,+x.c||0)),t:T(x.t,100).trim(),x:T(x.x,1500).trim(),n:T(x.n,60).trim()})});
    if(JSON.stringify(o).length>90000)return out(env,{error:"bad"},400);await setc("content",o);return out(env,{ok:true,content:o})}
@@ -173,6 +197,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
   const r=await env.DB.prepare("SELECT * FROM users WHERE email=? OR username=?").bind(id,id).first();
   const salt=r?r.salt:rnd(16),h=await pbk(pw,salt);
   if(!r||!same(h,r.hash))return out(env,{error:"login"},401);
+  if(await env.DB.prepare("SELECT 1 FROM blk WHERE uid=?").bind(r.id).first())return out(env,{error:"blocked"},403);
   if(!r.verified){await sendCode(env,r,"v");return out(env,{error:"unverified",email:r.email},403)}
   return out(env,{ok:true,token:await newSess(env,r.id),user:pub(r)})}
  if(p==="/forgot"&&req.method==="POST"){
@@ -187,7 +212,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
   const salt=rnd(16);await env.DB.batch([env.DB.prepare("UPDATE users SET salt=?,hash=? WHERE id=?").bind(salt,await pbk(pw,salt),r.id),env.DB.prepare("DELETE FROM sess WHERE uid=?").bind(r.id)]);return out(env,{ok:true})}
  const me=await auth(env,req);
  if(!me)return out(env,{error:"auth"},401);
- if(p==="/me"&&req.method==="GET")return out(env,{ok:true,user:pub(me)});
+ if(p==="/me"&&req.method==="GET")return out(env,{ok:true,user:pub(me),pro:await proOf(env,me.id)});
  if(p==="/logout"&&req.method==="POST"){if(b.all){await env.DB.prepare("DELETE FROM sess WHERE uid=?").bind(me.id).run();return out(env,{ok:true})}await env.DB.prepare("DELETE FROM sess WHERE th=?").bind(await sha(req.headers.get("Authorization").slice(7))).run();return out(env,{ok:true})}
  if(p==="/data"&&req.method==="GET"){const r=await env.DB.prepare("SELECT j,ut FROM dat WHERE uid=?").bind(me.id).first();return out(env,{ok:true,j:r?r.j:null,ut:r?r.ut:0})}
  if(p==="/data"&&req.method==="PUT"){
@@ -206,7 +231,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
   const did=new URL(req.url).searchParams.get("did")||"",now=Date.now();
   const q=await env.DB.prepare("SELECT did,nm,kd,j,ut,cmd FROM dev WHERE uid=? AND ut>?").bind(me.id,now-864e5).all(),L=q.results||[],mine=L.find(x=>x.did===did);let cmd=null;
   if(mine&&mine.cmd){cmd=mine.cmd;await env.DB.prepare("UPDATE dev SET cmd=NULL WHERE uid=? AND did=?").bind(me.id,did).run()}
-  return out(env,{ok:true,now,cmd,devs:L.filter(x=>x.did!==did).map(x=>({did:x.did,nm:x.nm,kd:x.kd,j:x.j,ut:x.ut}))})}
+  return out(env,{ok:true,now,cmd,pro:await proOf(env,me.id),devs:L.filter(x=>x.did!==did).map(x=>({did:x.did,nm:x.nm,kd:x.kd,j:x.j,ut:x.ut}))})}
  if(p==="/dev/cmd"&&req.method==="POST"){
   if(!await limit(env,"dc:"+me.id,300,36e5))return out(env,{error:"rate"},429);
   const to=String(b.to||"").slice(0,40),c=typeof b.c==="string"?b.c.slice(0,3000):"";
@@ -224,5 +249,5 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
 const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
- scheduled(ev,env,ctx){return PUSH.scheduled(ev,env,ctx)}
+ scheduled(ev,env,ctx){ctx.waitUntil(ACC.tick(env).catch(()=>{}));return PUSH.scheduled(ev,env,ctx)}
 };
