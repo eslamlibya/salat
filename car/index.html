@@ -1487,7 +1487,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795214820";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795215657";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1613,16 +1613,19 @@ var _dvp=DV_PLAY;DV_PLAY=function(s){if(s.k=="r"){try{acClose()}catch(e){}try{do
 var _dvq=DV_PAUSE;DV_PAUSE=function(){_dvq();try{PD.A.pause()}catch(e){}}}catch(e){}
 PD.A.preload="none";
 var PDC=[["إذاعة القرآن · ليبيا","__radio"],["قصص الأنبياء","قصص الأنبياء"],["قصص الصحابة","قصص الصحابة"],["السيرة النبوية","السيرة النبوية"],["قصص القرآن","قصص القرآن"],["محاضرات","محاضرات إسلامية"],["بودكاست","بودكاست إسلامي"]];
+var PDC0=PDC.slice();
+function pdCfg(){try{var ph=CTX.ph||[],l=PDC0.filter(function(c){return ph.indexOf("c|"+c[0])<0});(CTX.pc||[]).forEach(function(x){l.push([x.n,x.q])});if((CTX.a||[]).length)l.push(["من الإدارة","__adm"]);PDC=l;try{pdDraw()}catch(e){}}catch(e){}}
+try{var _cax=ctApply;ctApply=function(ct){_cax(ct);pdCfg()}}catch(e){}
 function pdFetch(u){return mpTO(fetch(u).then(function(r){return r.json()}),12000)}
 function pdSearch(q,cat){PD.q=q;PD.cat=cat||"";PD.st="load";PD.ep=null;PD.items=[];pdDraw();
  var u="https://archive.org/advancedsearch.php?q="+encodeURIComponent("("+q+") AND mediatype:audio")+"&fl[]=identifier&fl[]=title&fl[]=creator&rows=30&sort[]="+encodeURIComponent("downloads desc")+"&output=json";
- pdFetch(u).then(function(j){PD.items=((j.response||{}).docs||[]).map(function(x){return{id:x.identifier,t:x.title||x.identifier,c:Array.isArray(x.creator)?x.creator[0]:x.creator||""}});PD.st=PD.items.length?"ok":"empty";pdDraw()}).catch(function(){PD.st="err";pdDraw()})}
+ pdFetch(u).then(function(j){PD.items=((j.response||{}).docs||[]).filter(function(x){return(CTX.ph||[]).indexOf("i|"+x.identifier)<0}).map(function(x){return{id:x.identifier,t:x.title||x.identifier,c:Array.isArray(x.creator)?x.creator[0]:x.creator||""}});PD.st=PD.items.length?"ok":"empty";pdDraw()}).catch(function(){PD.st="err";pdDraw()})}
 function pdRadio(){PD.q="";PD.cat=PDC[0][0];PD.st="load";PD.ep=null;PD.items=[];PD.radio=1;pdDraw();
  var H=["https://de1.api.radio-browser.info","https://nl1.api.radio-browser.info","https://at1.api.radio-browser.info"];
  function q(p){return mpGet(H.map(function(b){return function(){return fetch(b+"/json/stations/"+p).then(function(r){return r.json()})}}),700).catch(function(){return[]})}
  Promise.all([q("search?countrycode=LY&name=quran&hidebroken=true&order=votes&reverse=true&limit=15"),q("search?countrycode=LY&tag=quran&hidebroken=true&limit=15"),q("search?name=libya%20quran&hidebroken=true&limit=10"),q("search?tag=quran&hidebroken=true&order=votes&reverse=true&limit=30")]).then(function(a){var seen={},ly=[],ot=[];
-  a.forEach(function(l,k){(Array.isArray(l)?l:[]).forEach(function(x){var u=String(x.url_resolved||x.url||"").replace(/^http:/,"https:");if(!/^https:/.test(u)||seen[u])return;seen[u]=1;var o={id:"r"+u,t:String(x.name||"إذاعة").trim(),c:(x.country||"")+(x.bitrate?" · "+x.bitrate+"k":""),u:u};(k<3||x.countrycode=="LY"?ly:ot).push(o)})});
-  PD.items=[{id:"qrl",t:"إذاعة القرآن الكريم ليبيا — الموقع الرسمي",c:"qrl.ly · بث مباشر",web:"https://qrl.ly/"}].concat(ly,ot);PD.st=PD.items.length?"ok":"empty";if(!ly.length)PD.msg="هذه إذاعات قرآن أخرى من الدليل المفتوح";else PD.msg="";pdDraw()}).catch(function(){PD.st="err";pdDraw()})}
+  a.forEach(function(l,k){(Array.isArray(l)?l:[]).forEach(function(x){var u=String(x.url_resolved||x.url||"").replace(/^http:/,"https:");if(!/^https:/.test(u)||seen[u]||(CTX.ph||[]).indexOf("r|"+u)>=0)return;seen[u]=1;var o={id:"r"+u,t:String(x.name||"إذاعة").trim(),c:(x.country||"")+(x.bitrate?" · "+x.bitrate+"k":""),u:u};(k<3||x.countrycode=="LY"?ly:ot).push(o)})});
+  PD.items=((CTX.ph||[]).indexOf("i|qrl")<0?[{id:"qrl",t:"إذاعة القرآن الكريم ليبيا — الموقع الرسمي",c:"qrl.ly · بث مباشر",web:"https://qrl.ly/"}]:[]).concat((CTX.ra||[]).map(function(x){return{id:"a"+x.u,t:x.t,c:x.c||"إذاعة",u:x.u}}),ly,ot);PD.st=PD.items.length?"ok":"empty";if(!ly.length)PD.msg="هذه إذاعات قرآن أخرى من الدليل المفتوح";else PD.msg="";pdDraw()}).catch(function(){PD.st="err";pdDraw()})}
 function pdOpen(i){var it=PD.items[i];if(!it)return;if(it.web){try{AUD.pause();PD.A.pause()}catch(e){}PD.webu=it.web;PD.st="web";pdDraw();return}if(it.u){PD.title=it.t;PD.eps=[{n:it.t,u:it.u,live:1}];PD.full=1;pdPlay(0);return}PD.st="load";PD.title=it.t;PD.ep=it;pdDraw();
  pdFetch("https://archive.org/metadata/"+encodeURIComponent(it.id)).then(function(j){var fs=(j.files||[]).filter(function(f){return/\.mp3$/i.test(f.name)&&f.source!=="derivative"||/\.mp3$/i.test(f.name)});var seen={};PD.eps=fs.filter(function(f){var k=f.title||f.name;if(seen[k])return false;seen[k]=1;return true}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),undefined,{numeric:true})}).slice(0,150).map(function(f){return{n:f.title||f.name.replace(/\.mp3$/i,""),u:"https://archive.org/download/"+encodeURIComponent(it.id)+"/"+f.name.split("/").map(encodeURIComponent).join("/")}});PD.st=PD.eps.length?"eps":"empty";pdDraw()}).catch(function(){PD.st="err";pdDraw()})}
 function pdPlay(i){var e=PD.eps[i];if(!e)return;PD.cur=i;PD.live=!!e.live;try{AUD.pause()}catch(x){}PD.A.src=e.u;PD.A.playbackRate=PD.sp||1;var p=PD.A.play();if(p&&p.catch)p.catch(function(){});pdDraw()}
@@ -1649,14 +1652,14 @@ function pdDraw(){var v=$("pd");if(!v)return;var h='<div class="pdh"><div class=
  var g=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  if($("pdi")){g("pdg",function(){var q=$("pdi").value.trim();if(q){PD.radio=0;pdSearch(q,"")}});$("pdi").onkeydown=function(e){if(e.key=="Enter"){var q=this.value.trim();if(q){PD.radio=0;pdSearch(q,"")}}}}
  g("pdnt",function(){PD.full=1;pdDraw()});g("pdfc",function(){PD.full=0;pdDraw()});g("pdb1",function(){PD.A.currentTime=Math.max(0,PD.A.currentTime-15)});g("pdf1",function(){PD.A.currentTime=PD.A.currentTime+15});g("pdsp",function(){var L=[.75,1,1.25,1.5,2];PD.sp=L[(L.indexOf(PD.sp||1)+1)%5];PD.A.playbackRate=PD.sp;pdDraw()});
- [].forEach.call(v.querySelectorAll(".pdc button"),function(b){b.onclick=function(){var c=PDC[+b.dataset.c];if(c[1]=="__radio")pdRadio();else{PD.radio=0;pdSearch(c[1],c[0])}}});
+ [].forEach.call(v.querySelectorAll(".pdc button"),function(b){b.onclick=function(){var c=PDC[+b.dataset.c];if(c[1]=="__radio")pdRadio();else if(c[1]=="__adm"){PD.radio=0;PD.cat=c[0];PD.q="";PD.ep=null;PD.items=(CTX.a||[]).map(function(x){return{id:"x"+x.id,t:x.t,c:x.d||(x.k=="p"?"بودكاست":"تلاوة"),u:x.u}});PD.st=PD.items.length?"ok":"empty";pdDraw()}else{PD.radio=0;pdSearch(c[1],c[0])}}});
  [].forEach.call(v.querySelectorAll("[data-i]"),function(b){b.onclick=function(){pdOpen(+b.dataset.i)}});
  [].forEach.call(v.querySelectorAll("[data-e]"),function(b){b.onclick=function(){pdPlay(+b.dataset.e)}});
  g("pdlst",function(){PD.full=0;pdDraw()});g("pdrt",function(){if(PD.radio)pdRadio();else pdSearch(PD.q||PDC[1][1],PD.cat||PDC[1][0])});g("pdbk",function(){PD.st="ok";PD.ep=null;pdDraw()});
  g("pdpp",function(){if(PD.A.paused){var p=PD.A.play();if(p&&p.catch)p.catch(function(){})}else PD.A.pause()});g("pdpv",function(){if(PD.cur>0)pdPlay(PD.cur-1)});g("pdnx",function(){if(PD.cur<PD.eps.length-1)pdPlay(PD.cur+1)});
  g("pdsk",function(e){var r=this.getBoundingClientRect(),x=1-(e.clientX-r.left)/r.width;if(PD.A.duration)PD.A.currentTime=Math.max(0,Math.min(1,x))*PD.A.duration});
  if(keep){var i=$("pdi");i.focus();i.setSelectionRange(i.value.length,i.value.length)}}
-function pdInit(){pdDraw();if(PD.st=="idle")pdSearch(PDC[1][1],PDC[1][0])}
+function pdInit(){pdCfg();pdDraw();if(PD.st=="idle"){var c=PDC.filter(function(x){return x[1]!="__radio"&&x[1]!="__adm"})[0];if(c)pdSearch(c[1],c[0])}}
 
 /* ===== الطقس (Open-Meteo) ===== */
 var WX={st:"idle",j:null,t:0};
@@ -1739,7 +1742,7 @@ function mapInit(){var v=$("mpv");if(!v)return;if(msty0().v&&!VM.load)vmLoad();i
 
 function csave(){try{localStorage.setItem("carset",JSON.stringify({s:SPD,r:RM}))}catch(e){}}
 try{var cs=JSON.parse(localStorage.getItem("carset")||"null");if(cs){SPD=cs.s||1;RM=cs.r||0;AUD.playbackRate=SPD}}catch(e){}
-var CARV=92;
+var CARV=93;
 function crForce(){var t=document.getElementById("crf"),say=function(x){if(window.CT_)window.CT_(x)};if(t)t.classList.add("spin");
  var clear=function(){var p=[];try{if(window.caches)p.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}))}catch(e){}try{if(navigator.serviceWorker)p.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}return Promise.all(p).catch(function(){})};
  var rl=function(){location.replace(location.pathname+"?b="+Date.now())};
@@ -1821,7 +1824,7 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  else if(CR.v=="su"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button>'+crav(CR.rec.name,8)+'<b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crsb"><span>'+mi("search",26)+'</span><input id="crq" type="search" placeholder="ابحث عن سورة بالاسم أو الرقم" autocomplete="off"></div><div class="crg c4" id="cgl">'+suTiles("")+'</div>'}
 
  h+='</div>';var DK=[["chm","home","الرئيسية",CR.v=="hm"],["cq","book","القرآن",CR.v=="np"||CR.v=="rc"||CR.v=="mo"||CR.v=="su"],["cmq","pin","الخريطة",CR.v=="mq"],["cpd","pod","صوتيات",CR.v=="pd"],["caz","star","الأذكار",0],["cst","gear","الإعدادات",CR.v=="st"||CR.v=="ct"]];
- d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v92</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
+ d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v93</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
 
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  var ch=$("crch");if(ch)ch.onclick=function(e){var b=e.target.closest("button");if(!b)return;var c=b.getAttribute("data-c");CR.rw=c=="rw"?b.getAttribute("data-k"):"";CR.lby=c=="lby"?1:0;ch.innerHTML=rcChips();var g=$("cgl"),q=$("crq");if(g)g.innerHTML=rcTiles(q?q.value:"")};var sq=$("crq");if(sq)sq.oninput=function(){var g=$("cgl");if(g)g.innerHTML=CR.v=="rc"?rcTiles(sq.value):suTiles(sq.value)};
