@@ -299,7 +299,7 @@ $("pq").oninput=function(){pkList(this.value)};
 function openSg(){$("sg").classList.add("on");sgDraw();setTimeout(function(){var b=$("sgb").querySelector("button");if(b)b.focus()},100)}
 function sgDraw(){var MT=MTH.filter(function(m){return m[2]!==undefined}),mi=MT.map(function(m){return m[0]}).indexOf(S.mth);
  var rows=[["المدينة",CT[S.city][0]+" ‹","city"],["طريقة الحساب",(MT[mi>=0?mi:0]||MT[0])[1],"mth"],["نظام الساعة",S.h12?"12 ساعة":"24 ساعة","h12"],["مدة الإقامة بعد الأذان",(S.tvq||15)+" دقيقة","q"],["تصحيح التاريخ الهجري",(S.hc>0?"+":"")+S.hc+" يوم","hc"],["نمط التاريخ",S.df==1?"ميلادي":"هجري","df"],["اللغة / Language",{ar:"العربية",en:"English",fr:"Français"}[S.lg||"ar"],"lg"]];
- $("sgb").innerHTML=rows.map(function(r){return'<div class="r"><span>'+r[0]+'</span><button data-k="'+r[2]+'">'+r[1]+'</button></div>'}).join("")+'<div class="r"><span></span><button id="sgx">إغلاق</button></div>';
+ $("sgb").innerHTML=rows.map(function(r){return'<div class="r"><span>'+r[0]+'</span><button data-k="'+r[2]+'">'+r[1]+'</button></div>'}).join("")+'<div class="r"><span id="sgut">تحديث التطبيق v'+APPV+'</span><button id="sgu">تحقق الآن</button></div><div class="r"><span></span><button id="sgx">إغلاق</button></div>';var ub=$("sgu");if(ub)ub.onclick=function(){$("sgut").textContent="جارٍ الفحص…";appUpd(true,function(m){var t=$("sgut");if(t)t.textContent=m})};
  [].forEach.call($("sgb").querySelectorAll("button[data-k]"),function(b){b.onclick=function(){var k=b.dataset.k;if(k=="city"){openPk();return}
   if(k=="mth"){var l=MTH.filter(function(m){return m[2]!==undefined}),i=l.map(function(m){return m[0]}).indexOf(S.mth);S.mth=l[(i+1)%l.length][0];var q=MTD();S.fa=q[0];S.ia=q[1];}
   else if(k=="h12")S.h12=S.h12?0:1;else if(k=="q"){S.tvq=(S.tvq||15)>=45?5:(S.tvq||15)+5}else if(k=="hc"){S.hc=S.hc>=1?-1:S.hc+1}else if(k=="df")S.df=S.df==1?0:1;else if(k=="lg"){lgSet({ar:"en",en:"fr",fr:"ar"}[S.lg||"ar"]);return}
@@ -705,6 +705,22 @@ function DV_S(){if(CUR&&CUR.mo){return{act:"listen",pl:!AUD.paused&&!AUD.ended,k
 function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
+/* ===== تحديث التطبيق ===== */
+var APPV=118,APU={busy:0,pend:0};
+function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
+function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
+ var go=function(){location.reload()};
+ fetch(location.pathname,{cache:"reload"}).catch(function(){}).then(function(){return window.caches?caches.keys().then(function(ks){return Promise.all(ks.filter(function(x){return x!="salat-sched"}).map(function(x){return caches.delete(x)}))}):0}).then(function(){return navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.update()}))}):0}).then(go,go)}
+function appUpd(manual,cb){cb=cb||function(){};if(APU.busy)return;APU.busy=1;
+ fetch("../sw.js?c="+Date.now(),{cache:"reload"}).then(function(r){return r.text()}).then(function(t){APU.busy=0;var m=t.match(/salat-v(\d+)/),v=m?+m[1]:0;
+  if(v>APPV){var tried="";try{tried=sessionStorage.getItem("updTry")||""}catch(e){}
+   if(!manual&&tried==String(v))return;
+   if(!manual&&appPlaying()){APU.pend=v;return}
+   cb("نسخة جديدة v"+v+" — جارٍ التحميل…");appApply(v)}
+  else cb("أنت على أحدث نسخة (v"+APPV+")")}).catch(function(){APU.busy=0;cb("تعذّر الفحص، تأكد من الاتصال")})}
+setTimeout(function(){appUpd(false)},5000);setInterval(function(){appUpd(false)},900000);
+setInterval(function(){if(APU.pend&&!appPlaying()){var v=APU.pend;APU.pend=0;appApply(v)}},60000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)setTimeout(function(){appUpd(false)},1500)});
 function acClose(){$("ac").classList.remove("on");var g=$("bac");if(g)g.focus()}
 function acDraw(){var A=acG(),h='<div class="acb'+(A?' acw':'')+'"><div class="acbt"><button id="acx" class="acbk">‹ رجوع</button><h1>ربط الحساب</h1><span></span></div>';
  if(A){var u=A.user;h+='<div class="acg"><div class="acL"><div class="acu"><i>'+String(u.name||u.username).charAt(0)+'</i><div><b>'+u.name+'</b><small dir="ltr">@'+u.username+'</small></div></div><p>إعدادات التلفاز تتزامن مع حسابك تلقائيًا.</p>'+(AC.msg?'<div class="acm '+(AC.ok?"ok":"er")+'">'+AC.msg+'</div>':'')+'<div class="acr"><button id="acs">مزامنة الآن</button><button id="aco">تسجيل الخروج</button></div></div><div class="acR"><div class="dvh">أجهزتي</div><div class="dvl">'+DVX.html()+'</div><div class="acr"><button id="dva">'+(DVX.auto()?"النقل التلقائي: مفعّل":"النقل التلقائي: متوقف")+'</button></div></div></div>'}
