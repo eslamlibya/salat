@@ -917,7 +917,7 @@ document.addEventListener("keydown",function(e){var o=$("ac");if(!o||!o.classLis
 /* إعدادات عن بُعد: إعلان وفرض تحديث (من لوحة التحكم) */
 var FOFF=[];function FO(k){return(window.FOFF||[]).indexOf(k)>-1}
 function supTok(){var t="";try{t=localStorage.getItem("tz_sup")||"";if(!t){var a=new Uint8Array(18);crypto.getRandomValues(a);t=[].map.call(a,function(b){return("0"+b.toString(16)).slice(-2)}).join("");localStorage.setItem("tz_sup",t)}}catch(e){t=window.__sup||(window.__sup=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+"0000")}return t}
-function supSend(body,nm,ct,cb){var a=typeof acG=="function"?acG():null;acReq("POST","/sup/send",{tok:supTok(),body:body,nm:nm||"",ct:ct||"",app:typeof DV_KIND=="function"?DV_KIND():"phone"},a&&a.tok).then(function(r){cb&&cb(!!(r&&r.ok),r)}).catch(function(){cb&&cb(false)})}
+function supSend(body,nm,ct,cb,att){var a=typeof acG=="function"?acG():null;acReq("POST","/sup/send",{tok:supTok(),body:body,nm:nm||"",ct:ct||"",att:att||undefined,app:typeof DV_KIND=="function"?DV_KIND():"phone"},a&&a.tok).then(function(r){cb&&cb(!!(r&&r.ok),r)}).catch(function(){cb&&cb(false)})}
 function supGet(cb){acReq("POST","/sup/get",{tok:supTok()}).then(function(r){cb&&cb(r&&r.ok?r:null)}).catch(function(){cb&&cb(null)})}
 function supCheck(){try{if(!localStorage.getItem("tz_sup"))return;supGet(function(r){if(!r||!r.msgs)return;var l=r.msgs.filter(function(m){return m.who=="a"}).pop();if(!l)return;var seen=+(localStorage.getItem("tz_sup_seen")||0);if(l.t>seen){localStorage.setItem("tz_sup_seen",String(l.t));if(seen||1)xmsg("رد من الدعم",l.body)}})}catch(e){}}
 setTimeout(supCheck,9000);setInterval(function(){if(!document.hidden)supCheck()},300000);
