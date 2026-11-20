@@ -1299,7 +1299,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r"){MOS[s.mid]=MOS[s.mid]||{id:s.mid,rec:s.rec,name:s.mo,server:s.server,list:s.list};var id="r:"+s.mid+":"+s.sura;AU[id]=AU[id]||{k:"r",mid:s.mid,sura:s.sura,t:"سورة "+sname(s.sura),artist:s.rec,mo:s.mo,d:0};QUE=String(s.list||"").split(",").filter(Boolean).map(function(x){return s.mid+":"+x});AC="";aplay(id,s.pos||0)}else if(s.k=="u"){AC="";AUD.src=s.u;var pp=AUD.play();if(pp&&pp.catch)pp.catch(function(){})}}
 DVX.cb=function(){acRe();try{home()}catch(e){}};
 /* ===== تحديث التطبيق ===== */
-var APPV=161,APU={busy:0,pend:0};
+var APPV=162,APU={busy:0,pend:0};
 function appPlaying(){try{var sb=document.getElementById("supb");if(sb&&(sb.value.trim()||(typeof SUPA!=="undefined"&&SUPA)||(typeof SUPR!=="undefined"&&SUPR)))return true;return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
