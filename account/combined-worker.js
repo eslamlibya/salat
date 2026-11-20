@@ -72,7 +72,8 @@ async function init(env){if(READY)return;const d=env.DB;
  d.prepare("CREATE TABLE IF NOT EXISTS rl(k TEXT PRIMARY KEY,n INTEGER NOT NULL,w INTEGER NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS cfg(k TEXT PRIMARY KEY,v TEXT NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)"),
- d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)")]);READY=true}
+ d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS dev(uid INTEGER NOT NULL,did TEXT NOT NULL,nm TEXT NOT NULL,kd TEXT NOT NULL,j TEXT NOT NULL,ut INTEGER NOT NULL,cmd TEXT,PRIMARY KEY(uid,did))")]);READY=true}
 const cors=env=>({"Access-Control-Allow-Origin":env.ALLOWED_ORIGIN||"https://eslamlibya.github.io","Access-Control-Allow-Methods":"GET,POST,PUT,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization","Vary":"Origin"});
 const out=(env,o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{...cors(env),"Content-Type":"application/json","Cache-Control":"no-store"}});
 async function limit(env,k,max,win){const now=Date.now(),r=await env.DB.prepare("SELECT n,w FROM rl WHERE k=?").bind(k).first();
@@ -184,6 +185,21 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
   const r=await env.DB.prepare("SELECT ut FROM dat WHERE uid=?").bind(me.id).first();
   if(r&&r.ut>ut)return out(env,{ok:false,newer:true,ut:r.ut},409);
   await env.DB.prepare("INSERT OR REPLACE INTO dat(uid,j,ut) VALUES(?,?,?)").bind(me.id,j,ut).run();return out(env,{ok:true,ut})}
+ if(p==="/dev"&&req.method==="POST"){
+  const did=String(b.did||"").slice(0,40),nm=String(b.nm||"").slice(0,40),kd=String(b.kd||"").slice(0,10),j=typeof b.j==="string"?b.j.slice(0,3000):"{}";
+  if(!did)return out(env,{error:"did"},400);
+  await env.DB.prepare("INSERT INTO dev(uid,did,nm,kd,j,ut) VALUES(?,?,?,?,?,?) ON CONFLICT(uid,did) DO UPDATE SET nm=excluded.nm,kd=excluded.kd,j=excluded.j,ut=excluded.ut").bind(me.id,did,nm,kd,j,Date.now()).run();
+  return out(env,{ok:true})}
+ if(p==="/dev"&&req.method==="GET"){
+  const did=new URL(req.url).searchParams.get("did")||"",now=Date.now();
+  const q=await env.DB.prepare("SELECT did,nm,kd,j,ut,cmd FROM dev WHERE uid=? AND ut>?").bind(me.id,now-864e5).all(),L=q.results||[],mine=L.find(x=>x.did===did);let cmd=null;
+  if(mine&&mine.cmd){cmd=mine.cmd;await env.DB.prepare("UPDATE dev SET cmd=NULL WHERE uid=? AND did=?").bind(me.id,did).run()}
+  return out(env,{ok:true,now,cmd,devs:L.filter(x=>x.did!==did).map(x=>({did:x.did,nm:x.nm,kd:x.kd,j:x.j,ut:x.ut}))})}
+ if(p==="/dev/cmd"&&req.method==="POST"){
+  if(!await limit(env,"dc:"+me.id,300,36e5))return out(env,{error:"rate"},429);
+  const to=String(b.to||"").slice(0,40),c=typeof b.c==="string"?b.c.slice(0,3000):"";
+  if(!to||!c)return out(env,{error:"bad"},400);
+  const r=await env.DB.prepare("UPDATE dev SET cmd=? WHERE uid=? AND did=?").bind(c,me.id,to).run();return out(env,{ok:true})}
  if(p==="/delete"&&req.method==="POST"){
   const r=await env.DB.prepare("SELECT salt,hash FROM users WHERE id=?").bind(me.id).first();
   if(!r||!same(await pbk(String(b.password||""),r.salt),r.hash))return out(env,{error:"login"},401);
@@ -193,7 +209,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
 }};
 })();
 
-const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){return PUSH.scheduled(ev,env,ctx)}
