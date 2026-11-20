@@ -652,6 +652,26 @@ function msTick(){if(!msOn())return msAlert(false);var tz=msNow(),n=tz.min,j,i,h
  if($("ms")&&$("ms").classList.contains("on")){if(MS.v=="d")msUpdate();else if(MS.built!="s")msDraw()}}
 setInterval(msTick,1000);
 
+/* عدّاد الإقامة + شاشة الآية */
+(function(){var AY=[["إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا","النساء ١٠٣"],["أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ","الرعد ٢٨"],["فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ","البقرة ١٥٢"],["وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ","الطلاق ٣"],["إِنَّ مَعَ الْعُسْرِ يُسْرًا","الشرح ٦"],["رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ","البقرة ٢٠١"],["وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ","البقرة ٤٥"],["وَقُل رَّبِّ زِدْنِي عِلْمًا","طه ١١٤"],["فَإِنِّي قَرِيبٌ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ","البقرة ١٨٦"],["وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ","الأعراف ١٥٦"],["اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ","البقرة ٢٥٥"],["وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ","الضحى ٥"]],
+IDL=Date.now(),AI=0,SS=null,st=document.createElement("style");
+st.textContent="#iqc{position:fixed;top:2vmin;left:50%;transform:translateX(-50%);z-index:80;display:none;padding:1.6vmin 4vmin;border-radius:5vmin;background:rgba(30,30,34,.85);backdrop-filter:blur(24px);color:#fff;font:600 3.6vmin Readex Pro,sans-serif;direction:rtl;white-space:nowrap}#iqc b{font-variant-numeric:tabular-nums;margin-inline-start:1.5vmin;color:#7fe3d4}#ssv{position:fixed;inset:0;z-index:950;display:none;background:#000;color:#f4efe0;align-items:center;justify-content:center;flex-direction:column;text-align:center;direction:rtl;padding:6vmin}#ssv.on{display:flex}#ssv p{font:400 7vmin Amiri,serif;line-height:1.9;margin:0;max-width:88vw;transition:opacity 1.2s}#ssv small{display:block;margin-top:3vmin;font:500 3vmin Readex Pro,sans-serif;opacity:.6}#ssv i{position:absolute;bottom:4vmin;font:600 5vmin Readex Pro,sans-serif;font-style:normal;opacity:.55;font-variant-numeric:tabular-nums}";document.head.appendChild(st);
+var q=document.createElement("div");q.id="iqc";document.body.appendChild(q);
+function ssHide(){if(SS&&SS.classList.contains("on"))SS.classList.remove("on");IDL=Date.now()}
+["pointerdown","keydown","touchstart","mousemove"].forEach(function(e){document.addEventListener(e,function(){ssHide()},true)});
+function ssShow(){if(!SS){SS=document.createElement("div");SS.id="ssv";SS.innerHTML="<p></p><small></small><i></i>";document.body.appendChild(SS)}SS.classList.add("on");ssNext()}
+function ssNext(){var a=AY[AI++%AY.length],p=SS.querySelector("p");p.style.opacity=0;setTimeout(function(){p.textContent="﴿ "+a[0]+" ﴾";SS.querySelector("small").textContent=a[1];p.style.opacity=1},900)}
+setInterval(function(){try{
+ var tz=msNow(),n=tz.min,j,i,hit=null;
+ if(msOn&&msOn())for(j=0;j<5;j++){i=NS[j];var iq=P[i][1]+msIq(i);if(n>=P[i][1]&&n<iq){hit={i:i,s:Math.round((iq-n)*60)}}}
+ if(hit&&!(window.MS&&MS.dis)){q.style.display="block";var m=Math.floor(hit.s/60),s=hit.s%60;q.innerHTML="الإقامة بعد صلاة "+P[hit.i][0]+"<b>"+m+":"+("0"+s).slice(-2)+"</b>"}else q.style.display="none";
+ var play=AUD&&!AUD.paused,drv=document.body.classList.contains("drv");
+ if(SS&&SS.classList.contains("on")){var d=new Date(),nx=nextPx();SS.querySelector("i").textContent=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);if(play||drv)ssHide()}
+ else if(!play&&!drv&&Date.now()-IDL>18e4)ssShow()}catch(e){}},1000);
+function nextPx(){return 0}
+setInterval(function(){if(SS&&SS.classList.contains("on"))ssNext()},20000);
+})();
+
 /* روابط تجريبية: ?demo=friday | phone | morning | evening (يمكن الجمع بفاصلة) */
 var DEMO=(location.search.match(/[?&]demo=([^&]+)/)||[])[1];DEMO=DEMO?decodeURIComponent(DEMO).split(","):null;
 if(DEMO){window.DEMOF=DEMO.indexOf("friday")>-1;S.msq=1;var DT0=Date.now(),DB=null,fr=window.DEMOF,pi=fr?2:3;
@@ -751,7 +771,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=125,APU={busy:0,pend:0};
+var APPV=126,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
