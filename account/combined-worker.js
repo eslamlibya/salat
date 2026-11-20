@@ -107,7 +107,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
  try{await init(env);
  let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>400000)return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}}
 
- if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0})}
+ if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0,ct:c.content||{}})}
  if(p.indexOf("/admin/")===0){
   if(!env.ADMIN_KEY)return out(env,{error:"no-admin-key"},503);
   const ak=(req.headers.get("Authorization")||"").slice(7);
@@ -130,6 +130,12 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async fetch(req,env
    if(p==="/admin/user/devices-clear"){await DB.prepare("DELETE FROM dev WHERE uid=?").bind(id).run();return out(env,{ok:true})}
    if(p==="/admin/user/logout"){await DB.prepare("DELETE FROM sess WHERE uid=?").bind(id).run();return out(env,{ok:true})}
    if(p==="/admin/user/verify"){await DB.prepare("UPDATE users SET verified=1 WHERE id=?").bind(id).run();return out(env,{ok:true})}}
+  if(p==="/admin/content"&&req.method==="GET"){const r=await DB.prepare("SELECT v FROM cfg WHERE k='content'").first();let c={};try{c=JSON.parse((r&&r.v)||"{}")}catch(e){}return out(env,{ok:true,content:c})}
+  if(p==="/admin/content"&&req.method==="PUT"){const c=b.content;if(!c||typeof c!=="object")return out(env,{error:"bad"},400);const T=(v,n)=>String(v==null?"":v).slice(0,n),H=v=>/^https:\/\/[^\s"'<>]+$/.test(String(v||""))?String(v).slice(0,400):"";
+   const o={r:[],a:[],z:[]};(Array.isArray(c.r)?c.r:[]).slice(0,100).forEach(x=>{const s=H(x.s);if(!s||!T(x.n,80).trim())return;o.r.push({id:+x.id||0,n:T(x.n,80).trim(),s:s,m:T(x.m,60).trim(),l:T(x.l,700).replace(/[^0-9,]/g,"")})});
+   (Array.isArray(c.a)?c.a:[]).slice(0,200).forEach(x=>{const u=H(x.u);if(!u||!T(x.t,100).trim())return;o.a.push({id:+x.id||0,t:T(x.t,100).trim(),u:u,k:x.k==="p"?"p":"s",d:T(x.d,150).trim()})});
+   (Array.isArray(c.z)?c.z:[]).slice(0,200).forEach(x=>{if(!T(x.t,100).trim())return;o.z.push({id:+x.id||0,c:Math.max(0,Math.min(8,+x.c||0)),t:T(x.t,100).trim(),x:T(x.x,1500).trim(),n:T(x.n,60).trim()})});
+   if(JSON.stringify(o).length>90000)return out(env,{error:"bad"},400);await setc("content",o);return out(env,{ok:true,content:o})}
   if(p==="/admin/flags"&&req.method==="PUT"){const f=b.flags;if(!f||typeof f!=="object"||JSON.stringify(f).length>5000)return out(env,{error:"bad"},400);await setc("flags",f);return out(env,{ok:true})}
   if(p==="/admin/broadcast"&&req.method==="POST"){const t=String(b.title||"").slice(0,80).trim(),m=String(b.body||"").slice(0,300).trim();if(!t&&!m)return out(env,{error:"empty"},400);
    await setc("bc",{id:now,t:now,title:t||"Taz",body:m,url:String(b.url||"").slice(0,200)});
