@@ -727,9 +727,11 @@ function box(t,s,ms){if(!ov){ov=document.createElement("div");ov.id="vco";docume
 function load(cb){if(AL.st=="ok")return cb();if(AL.st!="loading")loadLib();var n=0,iv=setInterval(function(){if(AL.st=="ok"){clearInterval(iv);cb()}else if(++n>50){clearInterval(iv);box("تعذّر تحميل القرّاء","تأكد من الإنترنت",4000)}},400)}
 function surahOf(q){var m=q.match(/(?:سوره|رقم)\s*(\d{1,3})/),best=0,bl=0,id;if(m&&+m[1]>=1&&+m[1]<=114)return+m[1];
  for(id in AL.SW){var n=nz(AL.SW[id]).replace(/^سوره\s+/,"").trim(),n2=n.replace(/^ال/,"");[n,n2].forEach(function(x){if(x.length>=3&&q.indexOf(x)>-1&&x.length>bl){bl=x.length;best=+id}})}return best}
-function recOf(q){var m=q.match(/(?:بصوت|للشيخ|لشيخ|قاري|القاري|بقراءه|عند|صوت)\s+(?:الشيخ\s+)?(.+)$/);if(!m)return null;var tk=m[1].replace(/^(ال)?شيخ\s+/,"").split(/\s+/).filter(function(x){return x.length>1&&x!="سوره"});if(!tk.length)return null;
- var l=AL.R.filter(function(r){var h=nz(r.name);return tk.every(function(t){return h.indexOf(t)>-1||h.indexOf(t.replace(/^ال/,""))>-1})});if(!l.length)l=AL.R.filter(function(r){var h=nz(r.name);return tk.some(function(t){return t.length>2&&h.indexOf(t.replace(/^ال/,""))>-1})});
- l.sort(function(a,c){return(isLiby(c)?1:0)-(isLiby(a)?1:0)});return l[0]||null}
+function ck(x){return nz(x).replace(/^ال/,"").replace(/[اويىءئؤ]/g,"")}
+function recOf(q){var m=q.match(/(?:بصوت|للشيخ|لشيخ|قاري|القاري|بقراءه|عند|صوت)\s+(?:الشيخ\s+)?(.+)$/);if(!m)return null;var tk=m[1].replace(/^(ال)?شيخ\s+/,"").split(/\s+/).filter(function(x){return x.length>1&&x!="سوره"&&x!="الشيخ"}).map(ck).filter(function(x){return x.length>=2});if(!tk.length)return null;
+ var RS=AL.R,W=RS.map(function(r){return nz(r.name).split(/\s+/).map(ck).filter(Boolean)}),cnt={};
+ tk.forEach(function(t){cnt[t]=W.filter(function(w){return w.some(function(x){return x==t||(t.length>=3&&x.length>=3&&(x.indexOf(t)>-1||t.indexOf(x)>-1))})}).length});
+ var best=null,bs=0;RS.forEach(function(r,i){var sc=0;tk.forEach(function(t){if(cnt[t]&&W[i].some(function(x){return x==t||(t.length>=3&&x.length>=3&&(x.indexOf(t)>-1||t.indexOf(x)>-1))}))sc+=1/cnt[t]});if(sc>0&&isLiby(r))sc+=.01;if(sc>bs){bs=sc;best=r}});return best}
 function moOf(rec,s){var ms=rec.moshaf||[],i;for(i=0;i<ms.length;i++){if(String(ms[i].surah_list||"").split(",").indexOf(String(s))>-1&&/حفص/.test(ms[i].name))return ms[i]}for(i=0;i<ms.length;i++){if(String(ms[i].surah_list||"").split(",").indexOf(String(s))>-1)return ms[i]}return null}
 function curRec(){var a=AU[AC];if(a&&a.k=="r"){var m=MOS[a.mid];return m?AL.R.filter(function(r){return r.id==m.rid})[0]:null}return null}
 function playS(rec,s){var mo=moOf(rec,s);if(!mo){box("هذا القارئ لا يملك هذه السورة","",4000);say("هذا القارئ لا يملك هذه السورة");return}var k=mo.id+":"+s,id="r:"+k;if(!MOS[mo.id])return box("جارٍ تجهيز البيانات… أعد المحاولة","",3000);
@@ -747,7 +749,7 @@ window.voiceCmd=function(raw){var q=nz(raw).replace(/[.,،؟?!]/g," ").replace(/
  if(/(شغل|اقرا|سمعني|سمع|ابي|اريد|ابغي|هات|افتح)/.test(q)||surahOf(q)){load(function(){var s=surahOf(q),rec=recOf(q);
    if(/(ايه|الايه|اية)/.test(q)&&!s){box("تشغيل آية بصوت قارئ","سيُضاف قريبًا — اختر الآية من المصحف ثم «تشغيل من هنا»",5000);return}
    if(!s){if(AC&&!rec){try{AUD.play()}catch(e){}return box("▶ استمرار","",2500)}s=1}
-   if(!rec)rec=curRec()||AL.R.filter(isLiby)[0]||AL.R[0];playS(rec,s)});return}
+   if(!rec&&/(بصوت|للشيخ|لشيخ|قاري|القاري|بقراءه)/.test(q)){box("لم أجد هذا القارئ","جرّب نطق الاسم الأخير فقط",4000);say("لم أجد هذا القارئ");return}if(!rec)rec=curRec()||AL.R.filter(isLiby)[0]||AL.R[0];playS(rec,s)});return}
  box("لم أفهم الأمر","جرّب: شغل سورة الكهف بصوت العفاسي · وقف · التالي · افتح الإعدادات",5000)};
 function stopR(){if(R){try{R.stop()}catch(e){}R=null}b.classList.remove("vl")}
 b.onclick=function(e){e.stopPropagation();if(R){stopR();return}
@@ -1283,7 +1285,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r"){MOS[s.mid]=MOS[s.mid]||{id:s.mid,rec:s.rec,name:s.mo,server:s.server,list:s.list};var id="r:"+s.mid+":"+s.sura;AU[id]=AU[id]||{k:"r",mid:s.mid,sura:s.sura,t:"سورة "+sname(s.sura),artist:s.rec,mo:s.mo,d:0};QUE=String(s.list||"").split(",").filter(Boolean).map(function(x){return s.mid+":"+x});AC="";aplay(id,s.pos||0)}else if(s.k=="u"){AC="";AUD.src=s.u;var pp=AUD.play();if(pp&&pp.catch)pp.catch(function(){})}}
 DVX.cb=function(){acRe();try{home()}catch(e){}};
 /* ===== تحديث التطبيق ===== */
-var APPV=138,APU={busy:0,pend:0};
+var APPV=139,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
