@@ -659,6 +659,8 @@ setInterval(msTick,1000);
  function stop(){if(A){try{A.pause()}catch(e){}A=null}bar(false)}
  function go(i){if(i>=U.length)return stop();var a=new Audio(base()+U[i]);a.volume=1;A=a;a.onended=stop;a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a)stop()});bar(true)}
  window.adhanPlay=function(){stop();go(0)};
+ var DE={};
+ setInterval(function(){try{if(S.adh===0||A||document.hidden||S.mode!="eid")return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,t=P[1][1]+(S.eidm||15),k=tz.d+"_eid";if(n>=t&&n<t+1&&!DE[k]){DE[k]=1;go(0)}}catch(e){}},5000);
  var PN={};
  function chime(){try{if(typeof msBeep==="function"){msBeep("p");return}var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.2;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.4)}catch(e){}}
  function pbar(t){var d=document.getElementById("preb");if(!d){d=document.createElement("div");d.id="preb";d.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:991;width:max-content;max-width:92vw;padding:12px 14px 12px 20px;border-radius:26px;background:rgba(28,32,30,.78);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 8px 30px rgba(0,0,0,.25);color:#fff;font:600 16px sans-serif;direction:rtl;white-space:nowrap;display:flex;gap:14px;align-items:center";document.body.appendChild(d)}
@@ -790,7 +792,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=132,APU={busy:0,pend:0};
+var APPV=133,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
