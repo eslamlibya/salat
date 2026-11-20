@@ -513,11 +513,17 @@ body.cwon #cr{visibility:hidden}
 #chud .hwi{font-size:4.4vmin}#chud b{font-size:4.6vmin;font-weight:800}#chud small{font-size:2.6vmin;opacity:.85}
 #chud .hds b{color:#8ff5d4;min-width:5.4vmin;text-align:center}
 /* ===== مشغّل مصغّر عام ===== */
-#cgm{position:fixed;left:50%;transform:translateX(-50%);bottom:2.6vmin;z-index:9050;display:none;align-items:center;gap:1.4vmin;padding:1vmin 1.2vmin 1vmin 1vmin;min-width:min(60vw,520px);max-width:84vw;border-radius:99px;background:rgba(10,18,32,.88);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px);box-shadow:0 1.4vmin 4vmin rgba(0,0,0,.5);direction:rtl}
-#cgm .gmo{flex:1;min-width:0;display:flex;align-items:center;gap:1.4vmin;background:none;border:0;color:#fff;font:inherit;text-align:right;cursor:pointer;padding:0}
-#cgm .gmi{flex:0 0 auto;width:7.4vmin;height:7.4vmin;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1f9d6b,#e0b45a);color:#06231a}
-#cgm .gmt{min-width:0;display:flex;flex-direction:column}#cgm .gmt b{font-size:3vmin;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#cgm .gmt small{font-size:2.2vmin;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#cgm .gmp{flex:0 0 auto;width:8.6vmin;height:8.6vmin;border-radius:50%;border:0;background:#f8d57e;color:#2b1f00;display:grid;place-items:center;cursor:pointer}
+#cgm{position:fixed;left:3vmin;bottom:2.4vmin;z-index:9050;display:none;align-items:center;gap:.8vmin;padding:.9vmin 1.2vmin .9vmin 1vmin;width:min(62vw,560px);border-radius:99px;background:rgba(10,18,32,.9);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);box-shadow:0 1.2vmin 3.6vmin rgba(0,0,0,.5);direction:rtl;overflow:hidden}
+#cgm .gmo{flex:1;min-width:0;display:flex;align-items:center;gap:1.2vmin;background:none;border:0;color:#fff;font:inherit;text-align:right;cursor:pointer;padding:0}
+#cgm .gmi{flex:0 0 auto;width:6.6vmin;height:6.6vmin;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1f9d6b,#e0b45a);color:#06231a}
+#cgm .gmt{min-width:0;display:flex;flex-direction:column}#cgm .gmt b{font-size:2.7vmin;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#cgm .gmt small{font-size:2vmin;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cgm .gmp{flex:0 0 auto;width:7.6vmin;height:7.6vmin;border-radius:50%;border:0;background:#f8d57e;color:#2b1f00;display:grid;place-items:center;cursor:pointer}
+#cgm .gms{flex:0 0 auto;width:6vmin;height:6vmin;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;cursor:pointer}
+#cgm .gmb{position:absolute;left:0;right:0;bottom:0;height:.7vmin;background:rgba(255,255,255,.1);direction:rtl}#cgm .gmb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3cc3b1,#f8d57e)}
+body.gmpd #mpm{display:none!important}
+body.gmon #cr .crmn,body.gmon #cr .crm{padding-bottom:13vmin!important}
+body.gmon #az{padding-bottom:13vmin!important}
+#chud{left:auto;right:auto}
 /* ===== مشغّل الصوتيات الكامل ===== */
 #cr .pd.pdF{gap:0}
 #cr .pdfp{flex:1;min-height:0;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"c c" "a i";align-items:center;gap:2vmin 5vmin;padding:2vmin 3vmin;border-radius:4.5vmin;position:relative;overflow:hidden;background:radial-gradient(90% 120% at 15% 50%,hsla(var(--ph),60%,38%,.55),transparent 70%),linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12)}
@@ -568,6 +574,27 @@ body.cwon #cr{visibility:hidden}
 #az .azd i.on{width:5vmin;background:linear-gradient(90deg,#f8d57e,#e0b45a)}
 #az .azf small{opacity:.7}
 #cr .pdweb{grid-column:1/-1;width:100%;height:56vh;min-height:200px;border:1px solid rgba(255,255,255,.14);border-radius:3vmin;background:#fff}#cr .pdext{grid-column:1/-1;text-align:center;color:#ffe29a;font-size:2.8vmin;padding:1vmin}
+
+/* ===== إشعارات بتصميم جديد ===== */
+#cr .ntt{display:flex;gap:1.2vmin;margin:.6vmin 0 1.4vmin;overflow:auto;scrollbar-width:none}
+#cr .ntt button{display:inline-flex;align-items:center;gap:1vmin;font:inherit;font-size:2.8vmin;color:#cdd8e8;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:1.2vmin 2.8vmin;cursor:pointer;white-space:nowrap}
+#cr .ntt button.on{background:linear-gradient(135deg,#f8d57e,#e0b45a);color:#2b1f00;border-color:transparent;font-weight:700}
+#cr .ntt svg{width:3.2vmin;height:3.2vmin}#cr .ntd{display:inline-block;width:1.4vmin;height:1.4vmin;border-radius:50%;background:#ff4d4d;margin-inline-start:.6vmin}
+#cr .nt{display:flex!important;flex-direction:column;gap:1.6vmin;overflow:auto;padding-bottom:2vmin}
+#cr .ntx{display:flex;align-items:center;gap:3vmin;padding:3vmin 3.4vmin;border-radius:4vmin;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12)}
+#cr .ntx.up{border-color:rgba(248,213,126,.7);background:linear-gradient(160deg,rgba(248,213,126,.18),rgba(255,255,255,.03))}
+#cr .nti{flex:0 0 auto;width:16vmin;height:16vmin;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1f9d6b,#e0b45a);color:#06231a}
+#cr .ntxb{flex:1;min-width:0;display:flex;flex-direction:column;gap:.8vmin}
+#cr .ntxb b{font-size:4vmin}#cr .ntxb p{margin:0;font-size:2.8vmin;color:#cbd5e1;line-height:1.55}#cr .ntxb small{font-size:2.4vmin;color:#9fe6d2}
+#cr .ntx .ntb{margin-top:1vmin}
+#cr .ntr{display:grid;grid-template-columns:repeat(auto-fit,minmax(42vmin,1fr));gap:1.4vmin}
+#cr .ntw{display:flex;align-items:center;justify-content:space-between;gap:2vmin;font:inherit;color:#fff;text-align:right;padding:2.2vmin 3vmin;border-radius:3.4vmin;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);cursor:pointer}
+#cr .ntwt{display:flex;flex-direction:column;gap:.4vmin;min-width:0}#cr .ntwt b{font-size:3vmin}#cr .ntwt small{font-size:2.2vmin;color:#9fb0c6}
+#cr .ntsw{flex:0 0 auto;width:11vmin;height:6vmin;border-radius:99px;background:rgba(255,255,255,.2);position:relative;transition:.2s}
+#cr .ntsw i{position:absolute;top:.7vmin;right:.7vmin;width:4.6vmin;height:4.6vmin;border-radius:50%;background:#fff;transition:.2s}
+#cr .ntw.on .ntsw{background:#1f9d6b}#cr .ntw.on .ntsw i{right:auto;left:.7vmin}
+#cr .ntl{padding:2vmin 3vmin;border-radius:3.4vmin;background:rgba(255,255,255,.05)}
+#cr .ntx,#cr .ntw,#cr .ntl{color:#fff}#cr .ntxb b{color:#fff}
 
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
@@ -1143,7 +1170,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795152553";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795153239";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1281,7 +1308,7 @@ function pdOpen(i){var it=PD.items[i];if(!it)return;if(it.web){try{AUD.pause();P
  pdFetch("https://archive.org/metadata/"+encodeURIComponent(it.id)).then(function(j){var fs=(j.files||[]).filter(function(f){return/\.mp3$/i.test(f.name)&&f.source!=="derivative"||/\.mp3$/i.test(f.name)});var seen={};PD.eps=fs.filter(function(f){var k=f.title||f.name;if(seen[k])return false;seen[k]=1;return true}).sort(function(a,b){return String(a.name).localeCompare(String(b.name),undefined,{numeric:true})}).slice(0,150).map(function(f){return{n:f.title||f.name.replace(/\.mp3$/i,""),u:"https://archive.org/download/"+encodeURIComponent(it.id)+"/"+f.name.split("/").map(encodeURIComponent).join("/")}});PD.st=PD.eps.length?"eps":"empty";pdDraw()}).catch(function(){PD.st="err";pdDraw()})}
 function pdPlay(i){var e=PD.eps[i];if(!e)return;PD.cur=i;PD.live=!!e.live;try{AUD.pause()}catch(x){}PD.A.src=e.u;PD.A.playbackRate=PD.sp||1;var p=PD.A.play();if(p&&p.catch)p.catch(function(){});pdDraw()}
 PD.A.addEventListener("ended",function(){if(PD.cur>=0&&PD.cur<PD.eps.length-1)pdPlay(PD.cur+1);else pdDraw()});
-PD.A.addEventListener("play",pdBar);PD.A.addEventListener("pause",pdBar);
+PD.A.addEventListener("play",pdBar);PD.A.addEventListener("play",function(){try{AUD.pause()}catch(e){}});PD.A.addEventListener("pause",pdBar);
 AUD.addEventListener("play",function(){if(!PD.A.paused)PD.A.pause()});
 function pdFull(){var e=PD.eps[PD.cur],lv=PD.live,hh=0,i,t=String(PD.title||e.n);for(i=0;i<t.length;i++)hh=(hh*31+t.charCodeAt(i))%360;var pl=!PD.A.paused;
  return'<div class="pdfp'+(pl?" pl":"")+(lv?" lv":"")+'" style="--ph:'+hh+'"><button id="pdfc" class="pdfc">'+ic("bk",26)+'<span>تصغير</span></button><div class="pdfa"><div class="pdart">'+lbRos(hh,"","pdros")+'<i>'+mi(lv?"pod":"book",44)+'</i></div></div><div class="pdfi"><div class="pdft">'+esc(e.n)+'</div><div class="pdfs">'+esc(lv?(PD.title&&PD.title!=e.n?PD.title:"بث مباشر"):PD.title)+'</div>'
@@ -1393,7 +1420,7 @@ function mapInit(){var v=$("mpv");if(!v)return;if(msty0().v&&!VM.load)vmLoad();i
 
 function csave(){try{localStorage.setItem("carset",JSON.stringify({s:SPD,r:RM}))}catch(e){}}
 try{var cs=JSON.parse(localStorage.getItem("carset")||"null");if(cs){SPD=cs.s||1;RM=cs.r||0;AUD.playbackRate=SPD}}catch(e){}
-var CARV=44;
+var CARV=45;
 function crForce(){var t=document.getElementById("crf"),say=function(x){if(window.CT_)window.CT_(x)};if(t)t.classList.add("spin");
  var clear=function(){var p=[];try{if(window.caches)p.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}))}catch(e){}try{if(navigator.serviceWorker)p.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}return Promise.all(p).catch(function(){})};
  var rl=function(){location.replace(location.pathname+"?b="+Date.now())};
@@ -1403,19 +1430,22 @@ function crForce(){var t=document.getElementById("crf"),say=function(x){if(windo
  }).catch(function(){say("تعذّر الاتصال — جارٍ مسح الذاكرة وإعادة التحميل");clear().then(rl)})}
 
 /* ===== الإشعارات والتحديثات ===== */
-var NT={bc:null,pub:0,st:"idle"},NTLOG=[["v44","إصلاح تبويب صوتيات (كان يبحث عن radio__)"],["v43","إذاعة القرآن الكريم ليبيا (qrl.ly) داخل الصوتيات"],["v42","صوتيات + إذاعة ليبيا + مشغل جديد، طقس وسرعة، مشغل مصغّر عام، أذكار بشكل جديد"],["v41","شاشة الموجة الصوتية بنمط التلفزيون فوق خلفية الطبيعة مع المؤثرات"],["v40","خلفية طبيعة متحركة لشاشة القرآن مثل التلفزيون"],["v39","خرائط Google داخل الخريطة (من زر الطبقات)"],["v38","زر «خرائط Google» للملاحة إلى المكان المحدد"],["v37","إعادة ترتيب لوحة المفاتيح وزر الحذف، وإصلاح الميكروفون"],["v36","إصلاح زر الميكروفون وتغيير أيقونته"],["v35","زر 🎤 يفتح لوحة النظام للإملاء الصوتي (إصلاح التعطل)"],["v34","بحث صوتي، أمازيغية (تيفيناغ)، إنجليزية، صف أرقام"],["v33","لوحة مفاتيح خاصة للبحث (عربي/English/أرقام)"],["v32","البحث عن «مسجد» يعرض المساجد والجوامع، وإصلاح البحث"],["v31","البحث بكلمة «مسجد» يعرض المساجد والجوامع؛ إصلاح البحث عن الأماكن والفئات (مساجد…) وترتيب النتائج"],["v30","التنبيه قبل الأذان صار 15 دقيقة افتراضياً"],["v29","تنبيه قبل الأذان وتنبيه عند وقت الإقامة"],["v28","زر الإشعارات والتحديثات (الجرس) ونقل زر التحديث"],["v27","إصلاح بطاقات القرّاء مع القوائم الطويلة"],["v26","تصميم القرآن بنمط التلفزيون: بطاقات القرّاء والمشغّل الكبير"],["v25","زر التحديث يخبرك إن كانت هناك نسخة أحدث"],["v24","الأذكار: سحب باللمس وأيقونات جديدة"],["v22","خريطة حديثة (MapLibre) مع ملاحة بمنظور ثلاثي الأبعاد"],["v21","أنماط الخريطة: شوارع، فاتحة، داكنة، قمر صناعي"],["v20","الطقس، وإكمال القرآن عند ضعف الإنترنت"],["—","الأذان الكامل عند دخول وقت الصلاة"]];
+var NT={bc:null,pub:0,st:"idle"},NTLOG=[["v45","تصميم جديد للإشعارات والمشغّل المصغّر، تشغيل الصوتيات في كل مكان، فرض الوضع الأفقي"],["v44","إصلاح تبويب صوتيات (كان يبحث عن radio__)"],["v43","إذاعة القرآن الكريم ليبيا (qrl.ly) داخل الصوتيات"],["v42","صوتيات + إذاعة ليبيا + مشغل جديد، طقس وسرعة، مشغل مصغّر عام، أذكار بشكل جديد"],["v41","شاشة الموجة الصوتية بنمط التلفزيون فوق خلفية الطبيعة مع المؤثرات"],["v40","خلفية طبيعة متحركة لشاشة القرآن مثل التلفزيون"],["v39","خرائط Google داخل الخريطة (من زر الطبقات)"],["v38","زر «خرائط Google» للملاحة إلى المكان المحدد"],["v37","إعادة ترتيب لوحة المفاتيح وزر الحذف، وإصلاح الميكروفون"],["v36","إصلاح زر الميكروفون وتغيير أيقونته"],["v35","زر 🎤 يفتح لوحة النظام للإملاء الصوتي (إصلاح التعطل)"],["v34","بحث صوتي، أمازيغية (تيفيناغ)، إنجليزية، صف أرقام"],["v33","لوحة مفاتيح خاصة للبحث (عربي/English/أرقام)"],["v32","البحث عن «مسجد» يعرض المساجد والجوامع، وإصلاح البحث"],["v31","البحث بكلمة «مسجد» يعرض المساجد والجوامع؛ إصلاح البحث عن الأماكن والفئات (مساجد…) وترتيب النتائج"],["v30","التنبيه قبل الأذان صار 15 دقيقة افتراضياً"],["v29","تنبيه قبل الأذان وتنبيه عند وقت الإقامة"],["v28","زر الإشعارات والتحديثات (الجرس) ونقل زر التحديث"],["v27","إصلاح بطاقات القرّاء مع القوائم الطويلة"],["v26","تصميم القرآن بنمط التلفزيون: بطاقات القرّاء والمشغّل الكبير"],["v25","زر التحديث يخبرك إن كانت هناك نسخة أحدث"],["v24","الأذكار: سحب باللمس وأيقونات جديدة"],["v22","خريطة حديثة (MapLibre) مع ملاحة بمنظور ثلاثي الأبعاد"],["v21","أنماط الخريطة: شوارع، فاتحة، داكنة، قمر صناعي"],["v20","الطقس، وإكمال القرآن عند ضعف الإنترنت"],["—","الأذان الكامل عند دخول وقت الصلاة"]];
 function ntSeen(){try{return localStorage.getItem("carbc")||""}catch(e){return""}}
 function ntHot(){return !!(NT.bc&&String(NT.bc.id)!==ntSeen())||NT.pub>CARV}
 function ntMark(){if(NT.bc)try{localStorage.setItem("carbc",String(NT.bc.id))}catch(e){}var b=$("cbl");if(b)b.classList.toggle("hot",ntHot())}
 function ntLoad(force){if(NT.st=="load")return;NT.st="load";var done=0,fin=function(){if(++done<2)return;NT.st="ok";var b=$("cbl");if(b)b.classList.toggle("hot",ntHot());if(CR.v=="nt")crDraw()};
  try{fetch(ACU+"/cfg",{cache:"no-store"}).then(function(r){return r.json()}).then(function(c){if(c&&c.ok)NT.bc=c.bc||null}).catch(function(){}).then(fin)}catch(e){fin()}
  fetch(location.pathname+"?c="+Date.now(),{cache:"reload"}).then(function(r){return r.text()}).then(function(h){var m=h.match(/var CARV=(\d+)/);if(m)NT.pub=+m[1]}).catch(function(){}).then(fin)}
-function ntView(){var b=NT.bc,upd=NT.pub>CARV,h='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>الإشعارات والتحديثات</b></div><div class="nt" id="ntv">';
- h+='<div class="ntc"><div class="nth">'+mi("bell",26)+'<b>آخر إشعار من Taz</b></div>'+(b?'<div class="ntm"><b>'+esc(b.title||"Taz")+'</b><p>'+esc(b.body||"")+'</p><small>'+new Date(+b.t||+b.id||Date.now()).toLocaleDateString("ar-LY",{day:"numeric",month:"long"})+'</small></div>':'<p class="nte">'+(NT.st=="load"?"جارٍ التحميل…":"لا توجد إشعارات جديدة")+'</p>')+'</div>';
- h+='<div class="ntc'+(upd?" up":"")+'"><div class="nth">'+mi("refresh",26)+'<b>التحديث</b></div><p class="nte">'+(upd?"نسخة جديدة متاحة: v"+NT.pub+" (نسختك v"+CARV+")":"أنت على أحدث نسخة (v"+CARV+")")+'</p><div class="ntb">'+(upd?'<button data-a="upd" class="pri">حدّث الآن</button>':'<button data-a="chk">'+(NT.st=="load"?"جارٍ الفحص…":"تحقق من التحديثات")+'</button><button data-a="upd">فرض التحديث</button>')+'</div></div>';
- h+='<div class="ntc"><div class="nth">'+mi("star",26)+'<b>تنبيهات الصلاة</b></div><div class="ntb"><button data-t="msq" class="'+(msOn()?"on":"")+'">تنبيهات المسجد (الإقامة والأذكار): '+(msOn()?"مفعّلة":"متوقفة")+'</button><button data-t="adh" class="'+(S.adh!==0?"on":"")+'">الأذان الكامل: '+(S.adh!==0?"مفعّل":"متوقف")+'</button><button data-t="pre" class="'+(preMin()?"on":"")+'">تنبيه قبل الأذان: '+(preMin()?preMin()+" دقائق":"متوقف")+'</button><button data-t="iqn" class="'+(S.iqn!==0?"on":"")+'">تنبيه الإقامة: '+(S.iqn!==0?"مفعّل":"متوقف")+'</button></div></div>';
- h+='<div class="ntc"><div class="nth">'+mi("list",26)+'<b>ما الجديد</b></div><ul class="ntl">'+NTLOG.map(function(x){return'<li><em>'+x[0]+'</em><span>'+esc(x[1])+'</span></li>'}).join("")+'</ul></div></div>';return h}
-function ntClick(e){var b=e.target.closest("button");if(!b)return;var a=b.getAttribute("data-a"),t=b.getAttribute("data-t");
+function ntView(){var b=NT.bc,upd=NT.pub>CARV,tab=NT.tab||(upd?"u":"n"),T=[["n","الإشعارات","bell"],["u","التحديث","refresh"],["a","التنبيهات","star"],["w","ما الجديد","list"]];
+ var h='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>الإشعارات والتحديثات</b></div><div class="ntt">'+T.map(function(x){return'<button data-n="'+x[0]+'" class="'+(tab==x[0]?"on":"")+'">'+mi(x[2],24)+'<span>'+x[1]+(x[0]=="u"&&upd?' <i class="ntd"></i>':'')+'</span></button>'}).join("")+'</div><div class="nt" id="ntv">';
+ if(tab=="n"){h+=b?'<div class="ntx"><div class="nti">'+mi("bell",56)+'</div><div class="ntxb"><small>'+new Date(+b.t||+b.id||Date.now()).toLocaleDateString("ar-LY",{day:"numeric",month:"long"})+'</small><b>'+esc(b.title||"Taz")+'</b><p>'+esc(b.body||"")+'</p></div></div>':'<div class="ntx emp"><div class="nti">'+mi("bell",56)+'</div><div class="ntxb"><b>'+(NT.st=="load"?"جارٍ التحميل…":"لا توجد إشعارات جديدة")+'</b><p>ستظهر هنا رسائل Taz والتنبيهات المهمة.</p></div></div>'}
+ else if(tab=="u"){h+='<div class="ntx'+(upd?" up":"")+'"><div class="nti">'+mi("refresh",56)+'</div><div class="ntxb"><small>نسختك الحالية v'+CARV+'</small><b>'+(upd?"نسخة جديدة متاحة: v"+NT.pub:"أنت على أحدث نسخة")+'</b><p>'+(upd?"اضغط للتحديث الآن، يستغرق ثوانٍ ويعيد تشغيل الصفحة.":"اضغط «تحقق» لفحص التحديثات، أو «فرض التحديث» لإعادة تحميل كل الملفات.")+'</p><div class="ntb">'+(upd?'<button data-a="upd" class="pri">حدّث الآن</button>':'<button data-a="chk" class="pri">'+(NT.st=="load"?"جارٍ الفحص…":"تحقق من التحديثات")+'</button><button data-a="upd">فرض التحديث</button>')+'</div></div></div>'}
+ else if(tab=="a"){var R=[["msq","تنبيهات المسجد","الإقامة والأذكار بعد الصلاة",msOn()],["adh","الأذان الكامل","تشغيل الأذان كاملًا عند دخول الوقت",S.adh!==0],["pre","قبل الأذان","تذكير قبل الأذان بـ "+(preMin()||"—")+(preMin()?" دقائق":""),!!preMin()],["iqn","الإقامة","تنبيه قبل الإقامة",S.iqn!==0]];
+  h+='<div class="ntr">'+R.map(function(r){return'<button class="ntw'+(r[3]?" on":"")+'" data-t="'+r[0]+'"><span class="ntwt"><b>'+r[1]+'</b><small>'+r[2]+'</small></span><span class="ntsw"><i></i></span></button>'}).join("")+'</div>'}
+ else{h+='<ul class="ntl">'+NTLOG.map(function(x){return'<li><em>'+x[0]+'</em><span>'+esc(x[1])+'</span></li>'}).join("")+'</ul>'}
+ return h+'</div>'}
+function ntClick(e){var b=e.target.closest("button");if(!b)return;var a=b.getAttribute("data-a"),t=b.getAttribute("data-t");if(b.getAttribute("data-n")){NT.tab=b.getAttribute("data-n");crDraw();return}
  if(a=="upd")crForce();else if(a=="chk")ntLoad(1);else if(t=="msq"){S.msq=msOn()?0:1;save();crDraw()}else if(t=="adh"){S.adh=S.adh===0?1:0;save();crDraw()}else if(t=="pre"){var Lp=[0,5,10,15,20];S.pre=Lp[(Lp.indexOf(preMin())+1)%Lp.length];save();crDraw()}else if(t=="iqn"){S.iqn=S.iqn===0?1:0;save();crDraw()}}
 setTimeout(function(){ntLoad()},4000);setInterval(function(){ntLoad()},18e5);
 
@@ -1458,7 +1488,7 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  else if(CR.v=="st"){var A=acG(),RMN=["بلا تكرار","تكرار السورة","تكرار كل السور"],SL=SLP?SLP+" دقيقة":"متوقف";h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button><b>الإعدادات</b></div><div class="crg c2" id="cgl">'
   +'<button class="crtile st" data-a="city">المدينة<small>'+esc(CT[S.city][0])+'</small></button>'
   +'<button class="crtile st" data-a="acct">تسجيل الدخول والمزامنة<small>'+(A?"@"+esc(A.user.username)+" — اضغط للمزامنة":"غير مسجّل — اضغط لتسجيل الدخول")+'</small></button>'
-  +'<button class="crtile st" data-a="upd">تحديث التطبيق<small>فرض تحميل أحدث نسخة · v23</small></button>'
+  +'<button class="crtile st" data-a="upd">تحديث التطبيق<small>فرض تحميل أحدث نسخة · v'+CARV+'</small></button>'
   +'<button class="crtile st" data-a="spd">سرعة القراءة<small>'+SPD+'×</small></button>'
   +'<button class="crtile st" data-a="rm">التكرار<small>'+RMN[RM]+'</small></button>'
   +'<button class="crtile st" data-a="slp">مؤقّت النوم<small>'+SL+'</small></button>'
@@ -1471,13 +1501,13 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  else if(CR.v=="su"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button>'+crav(CR.rec.name,8)+'<b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crsb"><span>'+mi("search",26)+'</span><input id="crq" type="search" placeholder="ابحث عن سورة بالاسم أو الرقم" autocomplete="off"></div><div class="crg c4" id="cgl">'+suTiles("")+'</div>'}
 
  h+='</div>';var DK=[["chm","home","الرئيسية",CR.v=="hm"],["cq","book","القرآن",CR.v=="np"||CR.v=="rc"||CR.v=="mo"||CR.v=="su"],["cmq","pin","الخريطة",CR.v=="mq"],["cpd","pod","صوتيات",CR.v=="pd"],["caz","star","الأذكار",0],["cst","gear","الإعدادات",CR.v=="st"||CR.v=="ct"]];
- d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v44</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
+ d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v45</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
 
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  var ch=$("crch");if(ch)ch.onclick=function(e){var b=e.target.closest("button");if(!b)return;var c=b.getAttribute("data-c");CR.rw=c=="rw"?b.getAttribute("data-k"):"";CR.lby=c=="lby"?1:0;ch.innerHTML=rcChips();var g=$("cgl"),q=$("crq");if(g)g.innerHTML=rcTiles(q?q.value:"")};var sq=$("crq");if(sq)sq.oninput=function(){var g=$("cgl");if(g)g.innerHTML=CR.v=="rc"?rcTiles(sq.value):suTiles(sq.value)};
  q("cpv",function(){nxt(-1);save();crDraw()});q("cb1",function(){AUD.currentTime=Math.max(0,AUD.currentTime-15)});q("cf1",function(){AUD.currentTime=AUD.currentTime+15});q("csp",function(){var Ls=[.75,1,1.25,1.5,2];SPD=Ls[(Ls.indexOf(SPD)+1)%Ls.length];AUD.playbackRate=SPD;csave();crDraw()});q("csl",function(){var Q=[0,15,30,60];SLP=Q[(Q.indexOf(SLP)+1)%4];clearTimeout(SLT);if(SLP)SLT=setTimeout(function(){AUD.pause();SLP=0;crDraw()},SLP*6e4);crDraw()});q("crp",function(){RM=(RM+1)%3;csave();crDraw()});q("cnx",function(){nxt(1);save();crDraw()});
  q("cpp",function(){if(AUD.paused){var p=AUD.play();if(p&&p.catch)p.catch(function(){})}else AUD.pause()});
- q("cbl",function(){CR.v="nt";ntMark();crDraw();ntLoad(1)});var nv=$("ntv");if(nv)nv.onclick=ntClick;q("cpk",function(){CR.v="rc";crDraw()});q("hw",function(){CR.v="wx";crDraw();wxLoad(1)});q("wxb",function(){CR.v="hm";crDraw()});q("wxr",function(){wxLoad(1,1)});q("cns",function(){if(CUR){CR.rec=CUR.rec;CR.mo=CUR.mo;CR.v="su";crDraw()}});q("cnr",function(){CR.v="rc";crDraw()});q("cnq",function(){CR.v="rc";crDraw();var i=$("crq");if(i)i.focus()});q("cpl",function(){CR.v="rc";crDraw()});q("cq",function(){CR.v="np";crDraw()});q("chm",function(){CR.v="hm";crDraw()});
+ q("cbl",function(){CR.v="nt";ntMark();crDraw();ntLoad(1)});var nv=$("ntv");if(nv)nv.onclick=ntClick;var ntt=document.querySelector("#cr .ntt");if(ntt)ntt.onclick=ntClick;q("cpk",function(){CR.v="rc";crDraw()});q("hw",function(){CR.v="wx";crDraw();wxLoad(1)});q("wxb",function(){CR.v="hm";crDraw()});q("wxr",function(){wxLoad(1,1)});q("cns",function(){if(CUR){CR.rec=CUR.rec;CR.mo=CUR.mo;CR.v="su";crDraw()}});q("cnr",function(){CR.v="rc";crDraw()});q("cnq",function(){CR.v="rc";crDraw();var i=$("crq");if(i)i.focus()});q("cpl",function(){CR.v="rc";crDraw()});q("cq",function(){CR.v="np";crDraw()});q("chm",function(){CR.v="hm";crDraw()});
  var hq=$("hq");if(hq)hq.onclick=function(e){if(e.target.closest("#hpp")){e.stopPropagation();if(CUR){if(AUD.paused){var p=AUD.play();if(p&&p.catch)p.catch(function(){})}else AUD.pause()}else{var l=last();if(l)go(l.rec,l.mo,l.s);return}setTimeout(crDraw,150);return}CR.v="np";crDraw()};
  var hmo=$("hmo");if(hmo)hmo.onclick=function(){CR.v="mq";crDraw()};var hch=$("hch");if(hch)hch.onclick=function(e){var b=e.target.closest("[data-hc]");if(!b)return;MP.pc=b.getAttribute("data-hc");CR.v="mq";crDraw()};var ha=$("ha");if(ha)ha.onclick=function(){azOpen()};
  q("clr",function(){var l=last();if(l)go(l.rec,l.mo,l.s)});var rr=d.querySelector(".crrec");if(rr)rr.onclick=function(e){var b=e.target.closest("[data-r]");if(!b)return;var x=LB.R.filter(function(y){return y.id==b.getAttribute("data-r")})[0];if(!x)return;CR.rec=x;if((x.moshaf||[]).length>1)CR.v="mo";else{CR.mo=x.moshaf[0];CR.v="su"}crDraw()};
@@ -1535,15 +1565,24 @@ function hudTick(){var on=(CR.v=="np"&&!!CUR)||document.body.classList.contains(
 setInterval(hudTick,1000);
 /* ===== مشغّل مصغّر عام (يظهر في كل التبويبات والأذكار) ===== */
 function gmTick(){var az=$("az"),azo=!!(az&&az.classList.contains("on")),v=CR.v,g=document.getElementById("cgm");
- var hide=document.body.classList.contains("cwon")||(!azo&&(v=="np"||v=="mq"||v=="hm"||v=="pd"));
  var st=null;if(!PD.A.paused&&PD.eps[PD.cur])st={k:"pd",t:PD.eps[PD.cur].n,s:PD.title,pl:1};else if(CUR)st={k:"q",t:sname(CUR.s),s:CUR.rec.name,pl:!AUD.paused};else if(PD.cur>=0&&PD.eps[PD.cur])st={k:"pd",t:PD.eps[PD.cur].n,s:PD.title,pl:0};
- if(hide||!st){if(g)g.style.display="none";return}
+ var hide=document.body.classList.contains("cwon")||(!azo&&(v=="np"||v=="hm"||v=="pd"||(v=="mq"&&!(st&&st.k=="pd"&&st.pl))));
+ var vis=!hide&&!!st;document.body.classList.toggle("gmon",vis);document.body.classList.toggle("gmpd",!!(vis&&v=="mq"&&!azo));
+ if(!vis){if(g)g.style.display="none";return}
  if(!g){g=document.createElement("div");g.id="cgm";document.body.appendChild(g)}g.style.display="flex";
- var key=st.k+"|"+st.t+"|"+st.pl;if(g._k===key)return;g._k=key;
- g.innerHTML='<button class="gmo" id="gmo"><span class="gmi">'+mi(st.k=="q"?"book":"pod",26)+'</span><span class="gmt"><b>'+esc(st.t)+'</b><small>'+esc(st.s||"")+'</small></span></button><button class="gmp" id="gmp">'+ic(st.pl?"pa":"pl",34)+'</button>';
- $("gmo").onclick=function(){var a=$("az");if(a)a.classList.remove("on");if(st.k=="q")CR.v="np";else{CR.v="pd";PD.full=1}crDraw()};
- $("gmp").onclick=function(e){e.stopPropagation();if(st.k=="pd"){if(PD.A.paused){var p=PD.A.play();if(p&&p.catch)p.catch(function(){})}else PD.A.pause()}else{if(AUD.paused){var p2=AUD.play();if(p2&&p2.catch)p2.catch(function(){})}else AUD.pause()}g._k="";setTimeout(gmTick,200)}}
+ var key=st.k+"|"+st.t+"|"+st.pl+"|"+(PD.eps.length>1);
+ if(g._k!==key){g._k=key;
+  g.innerHTML='<button class="gmo" id="gmo"><span class="gmi">'+mi(st.k=="q"?"book":"pod",22)+'</span><span class="gmt"><b>'+esc(st.t)+'</b><small>'+esc(st.s||"")+'</small></span></button><button class="gms" id="gmv" aria-label="السابق">'+ic("pv",26)+'</button><button class="gmp" id="gmp">'+ic(st.pl?"pa":"pl",30)+'</button><button class="gms" id="gmn" aria-label="التالي">'+ic("nx",26)+'</button><i class="gmb"><i id="gmf"></i></i>';
+  $("gmo").onclick=function(){var a=$("az");if(a)a.classList.remove("on");if(st.k=="q")CR.v="np";else{CR.v="pd";PD.full=1}crDraw()};
+  $("gmp").onclick=function(e){e.stopPropagation();if(st.k=="pd"){if(PD.A.paused){var p=PD.A.play();if(p&&p.catch)p.catch(function(){})}else PD.A.pause()}else{if(AUD.paused){var p2=AUD.play();if(p2&&p2.catch)p2.catch(function(){})}else AUD.pause()}g._k="";setTimeout(gmTick,200)};
+  $("gmv").onclick=function(e){e.stopPropagation();if(st.k=="pd"){if(PD.cur>0)pdPlay(PD.cur-1)}else{nxt(-1);save()}g._k="";setTimeout(gmTick,300)};
+  $("gmn").onclick=function(e){e.stopPropagation();if(st.k=="pd"){if(PD.cur<PD.eps.length-1)pdPlay(PD.cur+1)}else{nxt(1);save()}g._k="";setTimeout(gmTick,300)}}
+ var A=st.k=="pd"?PD.A:AUD,f=document.getElementById("gmf");if(f&&A.duration&&isFinite(A.duration))f.style.width=Math.min(100,A.currentTime/A.duration*100)+"%"}
 setInterval(gmTick,600);
+/* ===== فرض الوضع الأفقي وملء الشاشة ===== */
+function lndGo(){try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock("landscape").catch(function(){})}catch(e){}}
+function fsGo(){try{var d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen){var p=d.requestFullscreen({navigationUI:"hide"});if(p&&p.then)p.then(lndGo,function(){})}else lndGo()}catch(e){}}
+lndGo();setTimeout(lndGo,1500);["pointerdown","touchstart","click","keydown"].forEach(function(ev){addEventListener(ev,function(){fsGo()},{capture:true,once:true})});
 var _ld=lbDraw;lbDraw=function(){try{_ld.apply(this,arguments)}catch(e){}if(typeof crDraw=="function"&&(CR.v=="np"||CR.v=="hm")&&!CUR)crDraw()};
 setInterval(function(){try{crTop()}catch(e){}},500);
 try{lbLoad()}catch(e){}crDraw();
