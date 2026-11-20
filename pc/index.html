@@ -716,8 +716,12 @@ document.addEventListener("click",function(e){var b=e.target.closest&&e.target.c
 /* ===== الأوامر الصوتية (تلفزيون/سيارة) ===== */
 (function(){function nz(t){return String(t||"").toLowerCase().replace(/[ً-ْـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}function isLiby(r){var n=nz(r.name);return LIBY.some(function(w){return n.indexOf(nz(w))>-1})}
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition,R=null,ov=null,tm=0,st=document.createElement("style");
-st.textContent="#vmc{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:85;width:52px;height:52px;border-radius:50%;border:0;background:rgba(20,40,32,.82);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);color:#fff;font-size:24px;padding:0;display:flex;align-items:center;justify-content:center}#vmc svg{width:48%;height:48%}#vmc.on{background:#e0453a;animation:vpl 1s infinite}@keyframes vpl{50%{transform:scale(1.12)}}#vco{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:995;display:none;width:max-content;max-width:92vw;padding:14px 22px;border-radius:24px;background:rgba(28,32,30,.88);-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px);color:#fff;text-align:center;direction:rtl;font:600 16px sans-serif}#vco small{display:block;margin-top:6px;font-size:12px;opacity:.7}";document.head.appendChild(st);
-var b=document.createElement("button");b.id="vmc";b.setAttribute("aria-label","أمر صوتي");b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg>';document.body.appendChild(b);
+st.textContent="#vmc svg{width:24px;height:24px;display:block;margin:auto}#vmc.vl{color:#e0453a;animation:vpl 1s infinite}@keyframes vpl{50%{opacity:.45}}#vco{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:995;display:none;width:max-content;max-width:92vw;padding:14px 22px;border-radius:24px;background:rgba(28,32,30,.88);-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px);color:#fff;text-align:center;direction:rtl;font:600 16px sans-serif}#vco small{display:block;margin-top:6px;font-size:12px;opacity:.7}";document.head.appendChild(st);
+var b=document.createElement("button");b.id="vmc";b.setAttribute("aria-label","أمر صوتي");b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg>'+("");
+function mount(){var c=document.getElementById("nav")||document.querySelector(".crdk")||document.querySelector(".tvg");if(!c){if(!b.parentNode)document.body.appendChild(b);return}
+ if(b.parentNode!==c||c.lastElementChild!==b&&!c.querySelector(".crv")){var f=c.querySelector("button:not(#vmc)");if(f){b.className=(f.className||"").replace(/\bon\b/g,"").trim()+(b.classList.contains("vl")?" vl":"")}
+  var cv=c.querySelector(".crv");if(cv)c.insertBefore(b,cv);else c.appendChild(b)}}
+setInterval(mount,700);mount();
 function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="ar-SA";speechSynthesis.speak(u)}catch(e){}}
 function box(t,s,ms){if(!ov){ov=document.createElement("div");ov.id="vco";document.body.appendChild(ov)}ov.innerHTML=t+(s?"<small>"+s+"</small>":"");ov.style.display="block";clearTimeout(tm);if(ms)tm=setTimeout(function(){ov.style.display="none"},ms)}
 function load(cb){if(AL.st=="ok")return cb();if(AL.st!="loading")loadLib();var n=0,iv=setInterval(function(){if(AL.st=="ok"){clearInterval(iv);cb()}else if(++n>50){clearInterval(iv);box("تعذّر تحميل القرّاء","تأكد من الإنترنت",4000)}},400)}
@@ -745,12 +749,12 @@ window.voiceCmd=function(raw){var q=nz(raw).replace(/[.,،؟?!]/g," ").replace(/
    if(!s){if(AC&&!rec){try{AUD.play()}catch(e){}return box("▶ استمرار","",2500)}s=1}
    if(!rec)rec=curRec()||AL.R.filter(isLiby)[0]||AL.R[0];playS(rec,s)});return}
  box("لم أفهم الأمر","جرّب: شغل سورة الكهف بصوت العفاسي · وقف · التالي · افتح الإعدادات",5000)};
-function stopR(){if(R){try{R.stop()}catch(e){}R=null}b.classList.remove("on")}
+function stopR(){if(R){try{R.stop()}catch(e){}R=null}b.classList.remove("vl")}
 b.onclick=function(e){e.stopPropagation();if(R){stopR();return}
  if(!SR){box("المتصفح لا يدعم التعرّف على الصوت","جرّب Chrome أو Safari",4000);return}
  try{R=new SR();R.lang="ar-SA";R.interimResults=true;R.continuous=false;var fin="";R.onresult=function(ev){var t="",f=0,i;for(i=0;i<ev.results.length;i++){t+=ev.results[i][0].transcript;if(ev.results[i].isFinal)f=1}fin=t;box(t,"",0);if(f){stopR();voiceCmd(t)}};
   R.onerror=function(ev){stopR();box("تعذّر الاستماع","اسمح باستخدام الميكروفون من المتصفح",4000)};R.onend=function(){var t=fin;fin="";if(R){stopR();if(t)voiceCmd(t);else box("لم أسمع شيئًا","",2500)}};
-  R.start();b.classList.add("on");box("تكلّم الآن…","مثال: شغل سورة الكهف بصوت العفاسي",0)}catch(x){stopR();box("تعذّر تشغيل الميكروفون","",3000)}};
+  R.start();b.classList.add("vl");box("تكلّم الآن…","مثال: شغل سورة الكهف بصوت العفاسي",0)}catch(x){stopR();box("تعذّر تشغيل الميكروفون","",3000)}};
 })();
 function qact(D){var a=D.qa;if(a=="mem"){if(S.qsel){MEM.tog(S.qsel);quran()}return}if(a=="fs+"||a=="fs-")S.qfs=Math.max(18,Math.min(44,S.qfs+(a=="fs+"?2:-2)));else if(a=="bm"&&S.qsel){var i=S.qbm.indexOf(S.qsel);if(i>-1)S.qbm.splice(i,1);else S.qbm.push(S.qsel)}else if(a=="last"&&S.qsel)S.qlast=S.qsel;else if(a=="x")S.qsel="";sv();quran()}
 document.addEventListener("click",function(e){var v=e.target.closest&&e.target.closest(".v");if(v){S.qsel=v.dataset.v;sv();quran()}});
@@ -1279,7 +1283,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r"){MOS[s.mid]=MOS[s.mid]||{id:s.mid,rec:s.rec,name:s.mo,server:s.server,list:s.list};var id="r:"+s.mid+":"+s.sura;AU[id]=AU[id]||{k:"r",mid:s.mid,sura:s.sura,t:"سورة "+sname(s.sura),artist:s.rec,mo:s.mo,d:0};QUE=String(s.list||"").split(",").filter(Boolean).map(function(x){return s.mid+":"+x});AC="";aplay(id,s.pos||0)}else if(s.k=="u"){AC="";AUD.src=s.u;var pp=AUD.play();if(pp&&pp.catch)pp.catch(function(){})}}
 DVX.cb=function(){acRe();try{home()}catch(e){}};
 /* ===== تحديث التطبيق ===== */
-var APPV=137,APU={busy:0,pend:0};
+var APPV=138,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
