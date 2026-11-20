@@ -368,7 +368,7 @@ AUD.addEventListener("error",function(){if(!CUR||RT>=4)return;RT++;var t=AUD.cur
 AUD.addEventListener("playing",function(){RT=0;npDraw()});AUD.addEventListener("pause",npDraw);AUD.addEventListener("play",npDraw);
 var STL=0;setInterval(function(){if(CUR&&!AUD.paused&&!AUD.ended&&AUD.readyState<3){if(++STL>9&&RT<4){STL=0;RT++;var t=AUD.currentTime||0;play(CUR.rec,CUR.mo,CUR.s,t,true)}}else STL=0},1000);
 function fm(x){x=Math.max(0,Math.floor(x||0));var h=Math.floor(x/3600),m=Math.floor(x%3600/60),s=x%60,p=function(v){return("0"+v).slice(-2)};return(h?h+":"+p(m):m)+":"+p(s)}
-function msMeta(){try{if(!("mediaSession" in navigator)||!CUR)return;navigator.mediaSession.metadata=new MediaMetadata({title:"سورة "+(LB.SW[CUR.s]||CUR.s),artist:CUR.rec.name,album:rwn(CUR.mo.name)});navigator.mediaSession.setActionHandler("play",function(){AUD.play()});navigator.mediaSession.setActionHandler("pause",function(){AUD.pause()});navigator.mediaSession.setActionHandler("nexttrack",function(){nxt(1)});navigator.mediaSession.setActionHandler("previoustrack",function(){nxt(-1)})}catch(e){}}
+function msMeta(){try{if(!("mediaSession" in navigator)||!CUR)return;navigator.mediaSession.metadata=new MediaMetadata({title:"سورة "+(LB.SW[CUR.s]||CUR.s),artist:CUR.rec.name,album:rwn(CUR.mo.name),artwork:[96,192,256,512].map(function(z){var b=location.href.replace(/[?#].*$/,"").replace(/(tv|car)\/(index\.html)?$/,"").replace(/[^\/]*$/,"");return{src:b+(z>192?"icon-art-512.png":"icon-art.png"),sizes:z+"x"+z,type:"image/png"}})});navigator.mediaSession.setActionHandler("play",function(){AUD.play()});navigator.mediaSession.setActionHandler("pause",function(){AUD.pause()});navigator.mediaSession.setActionHandler("nexttrack",function(){nxt(1)});navigator.mediaSession.setActionHandler("previoustrack",function(){nxt(-1)})}catch(e){}}
 function miniDraw(){var m=$("mini");if(!m)return;var hide=!CUR||$("np").classList.contains("on")||$("lb").classList.contains("on")||$("wo").classList.contains("on")||$("sg").classList.contains("on")||$("pk").classList.contains("on");
  if(hide){m.classList.remove("on");return}
  if(!m._b){m._b=1;m.innerHTML='<button id="mpp" aria-label="تشغيل/إيقاف"></button><div class="mmt"><b id="mmt"></b><small id="mms"></small><div class="mmb"><i id="mmi"></i></div></div><button id="mop" aria-label="فتح المشغّل">'+ico("list",24)+'</button><button id="mxx" aria-label="إغلاق">'+ico("x",24)+'</button>';
@@ -790,7 +790,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=129,APU={busy:0,pend:0};
+var APPV=130,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
@@ -799,9 +799,12 @@ function appUpd(manual,cb){cb=cb||function(){};if(APU.busy)return;APU.busy=1;
  fetch("../sw.js?c="+Date.now(),{cache:"reload"}).then(function(r){return r.text()}).then(function(t){APU.busy=0;var m=t.match(/salat-v(\d+)/),v=m?+m[1]:0;
   if(v>APPV){var tried="";try{tried=sessionStorage.getItem("updTry")||""}catch(e){}
    if(!manual&&tried==String(v))return;
-   if(!manual&&appPlaying()){APU.pend=v;return}
+   if(!manual&&appPlaying()){APU.pend=v;appWarm();return}
    cb("نسخة جديدة v"+v+" — جارٍ التحميل…");appApply(v)}
   else cb("أنت على أحدث نسخة (v"+APPV+")")}).catch(function(){APU.busy=0;cb("تعذّر الفحص، تأكد من الاتصال")})}
+function appWarm(){try{fetch(location.pathname,{cache:"reload"}).catch(function(){});if(navigator.serviceWorker)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.update()})})}catch(e){}}
+window.addEventListener("online",function(){setTimeout(function(){appUpd(false)},1500)});
+["pause","ended"].forEach(function(e){document.addEventListener(e,function(){setTimeout(function(){if(APU.pend&&!appPlaying()){var v=APU.pend;APU.pend=0;appApply(v)}},3000)},true)});
 setTimeout(function(){appUpd(false)},5000);setInterval(function(){appUpd(false)},900000);
 setInterval(function(){if(APU.pend&&!appPlaying()){var v=APU.pend;APU.pend=0;appApply(v)}},60000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden)setTimeout(function(){appUpd(false)},1500)});

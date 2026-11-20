@@ -519,7 +519,7 @@ function puPlan(){var out=[],c=CT[S.city],q=MTD(),L=S.lang=="en"?"en":"ar",now=D
   var tz=tzo(c[4],d),mid=d.getTime()-tz.min*60000,fr=new Date(Date.UTC(tz.y,tz.m-1,tz.d)).getUTCDay()==5;
   for(i=0;i<6;i++){if(a[i]===null||!S.pt[i])continue;var t=Math.round(mid+(a[i]+mo(i)+S.adj[i])*60000),nm=(i==2&&fr)?(L=="en"?"Jumu'ah":"الجمعة"):PNM[L][i],ct=L=="en"?c[1]:c[0],pr=(i==1||L=="en")?"":"صلاة ";
    if(t>now-60000)out.push({t:t,title:L=="en"?"Time for "+nm:"حان وقت "+pr+nm,body:ct});
-   var b=S.pb[i]|0;if(b>0&&t-b*60000>now)out.push({t:t-b*60000,title:L=="en"?nm+" in "+b+" min":"بعد "+b+" دقيقة: "+pr+nm,body:ct});if(i==2&&fr&&t>0){[["h3",180,"3 ساعات"],["h2",120,"ساعتين"],["h1",60,"ساعة"]].forEach(function(z){if(S[z[0]]&&t-z[1]*60000>now)out.push({t:t-z[1]*60000,title:L=="en"?"Jumu'ah in "+z[1]/60+"h":"الجمعة بعد "+z[2],body:ct})});if(S.iq&&t+S.iqm*60000>now)out.push({t:t+S.iqm*60000,title:L=="en"?"Iqama — Jumu'ah":"إقامة صلاة الجمعة",body:ct})}}}
+   var b=S.pb[i]|0;if(b>0&&t-b*60000>now)out.push({t:t-b*60000,title:L=="en"?nm+" in "+b+" min":"بعد "+b+" دقيقة: "+pr+nm,body:ct});if((i==0||(i==2&&fr))&&b!=30&&t-30*60000>now)out.push({t:t-30*60000,title:L=="en"?nm+" in 30 min":"بعد نصف ساعة: "+pr+nm,body:ct});if(i==2&&fr&&t>0){[["h3",180,"3 ساعات"],["h2",120,"ساعتين"],["h1",60,"ساعة"]].forEach(function(z){if(S[z[0]]&&t-z[1]*60000>now)out.push({t:t-z[1]*60000,title:L=="en"?"Jumu'ah in "+z[1]/60+"h":"الجمعة بعد "+z[2],body:ct})});if(S.iq&&t+S.iqm*60000>now)out.push({t:t+S.iqm*60000,title:L=="en"?"Iqama — Jumu'ah":"إقامة صلاة الجمعة",body:ct})}}}
  out.sort(function(x,y){return x.t-y.t});return out.slice(0,200)}
 async function puCfg(){if(PU.cfg)return PU.cfg;var r=await fetch("../config.json",{cache:"no-store"});PU.cfg=await r.json();return PU.cfg}
 async function puPost(path,body){var cfg=await puCfg();return fetch(cfg.push.replace(/\/$/,"")+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})}
@@ -1238,7 +1238,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r"){MOS[s.mid]=MOS[s.mid]||{id:s.mid,rec:s.rec,name:s.mo,server:s.server,list:s.list};var id="r:"+s.mid+":"+s.sura;AU[id]=AU[id]||{k:"r",mid:s.mid,sura:s.sura,t:"سورة "+sname(s.sura),artist:s.rec,mo:s.mo,d:0};QUE=String(s.list||"").split(",").filter(Boolean).map(function(x){return s.mid+":"+x});AC="";aplay(id,s.pos||0)}else if(s.k=="u"){AC="";AUD.src=s.u;var pp=AUD.play();if(pp&&pp.catch)pp.catch(function(){})}}
 DVX.cb=function(){acRe();try{home()}catch(e){}};
 /* ===== تحديث التطبيق ===== */
-var APPV=129,APU={busy:0,pend:0};
+var APPV=130,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
@@ -1247,9 +1247,12 @@ function appUpd(manual,cb){cb=cb||function(){};if(APU.busy)return;APU.busy=1;
  fetch("../sw.js?c="+Date.now(),{cache:"reload"}).then(function(r){return r.text()}).then(function(t){APU.busy=0;var m=t.match(/salat-v(\d+)/),v=m?+m[1]:0;
   if(v>APPV){var tried="";try{tried=sessionStorage.getItem("updTry")||""}catch(e){}
    if(!manual&&tried==String(v))return;
-   if(!manual&&appPlaying()){APU.pend=v;return}
+   if(!manual&&appPlaying()){APU.pend=v;appWarm();return}
    cb("نسخة جديدة v"+v+" — جارٍ التحميل…");appApply(v)}
   else cb("أنت على أحدث نسخة (v"+APPV+")")}).catch(function(){APU.busy=0;cb("تعذّر الفحص، تأكد من الاتصال")})}
+function appWarm(){try{fetch(location.pathname,{cache:"reload"}).catch(function(){});if(navigator.serviceWorker)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.update()})})}catch(e){}}
+window.addEventListener("online",function(){setTimeout(function(){appUpd(false)},1500)});
+["pause","ended"].forEach(function(e){document.addEventListener(e,function(){setTimeout(function(){if(APU.pend&&!appPlaying()){var v=APU.pend;APU.pend=0;appApply(v)}},3000)},true)});
 setTimeout(function(){appUpd(false)},5000);setInterval(function(){appUpd(false)},900000);
 setInterval(function(){if(APU.pend&&!appPlaying()){var v=APU.pend;APU.pend=0;appApply(v)}},60000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden)setTimeout(function(){appUpd(false)},1500)});
@@ -1596,7 +1599,7 @@ setInterval(function(){var el=$("wxl2");if(!el)return;if(!el.querySelector("#wxf
 /* ===== CarPlay / شاشة القفل: Media Session كاملة ===== */
 function amBase(){return location.href.replace(/[?#].*$/,"").replace(/pc\/(index\.html)?$/,"").replace(/[^\/]*$/,"")}
 function ams(){if(!("mediaSession" in navigator)||!AC||!window.MediaMetadata)return;var a=AU[AC];if(!a)return;
- try{var art=[{src:amBase()+"icon-art.png",sizes:"192x192",type:"image/png"}];
+ try{var art=[{src:amBase()+"icon-art.png",sizes:"96x96",type:"image/png"},{src:amBase()+"icon-art.png",sizes:"192x192",type:"image/png"},{src:amBase()+"icon-art-512.png",sizes:"256x256",type:"image/png"},{src:amBase()+"icon-art-512.png",sizes:"512x512",type:"image/png"}];
   navigator.mediaSession.metadata=new MediaMetadata({title:a.k=="r"?a.t:atitle(AC),artist:a.artist||"",album:a.k=="q"||a.k=="r"?"القرآن الكريم":(a.mo||"الصلاة"),artwork:art});
   navigator.mediaSession.playbackState=AUD.paused?"paused":"playing";
   var h={play:function(){if(AUD.paused)aact({aq:"pp"})},pause:function(){if(!AUD.paused)aact({aq:"pp"})},stop:function(){aact({aq:"x"})},previoustrack:function(){aact({aq:"pv"})},nexttrack:function(){aact({aq:"nx"})},seekbackward:function(e){AUD.currentTime=Math.max(0,AUD.currentTime-((e&&e.seekOffset)||15))},seekforward:function(e){AUD.currentTime=AUD.currentTime+((e&&e.seekOffset)||15)},seekto:function(e){AUD.currentTime=e.seekTime}};
