@@ -652,6 +652,19 @@ function msTick(){if(!msOn())return msAlert(false);var tz=msNow(),n=tz.min,j,i,h
  if($("ms")&&$("ms").classList.contains("on")){if(MS.v=="d")msUpdate();else if(MS.built!="s")msDraw()}}
 setInterval(msTick,1000);
 
+/* الأذان الصوتي عند دخول الوقت (والتطبيق مفتوح) */
+(function(){var U=["adhan-libya.mp3","adhan-oman.mp3"],A=null,AB="";
+ function base(){return/\/(pc|tv|car)\/$/.test(location.pathname)?"../":""}
+ function bar(on){var d=document.getElementById("adhb");if(!on){if(d)d.remove();return}if(d)return;d=document.createElement("div");d.id="adhb";d.style.cssText="position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:990;display:flex;gap:12px;align-items:center;padding:10px 18px;border-radius:30px;background:rgba(20,30,26,.9);color:#fff;font:600 15px sans-serif;direction:rtl";d.innerHTML='<span>🕌 الأذان</span><button style="border:0;border-radius:20px;padding:6px 14px;font:inherit">إيقاف</button>';d.querySelector("button").onclick=stop;document.body.appendChild(d)}
+ function stop(){if(A){try{A.pause()}catch(e){}A=null}bar(false)}
+ function go(i){if(i>=U.length)return stop();var a=new Audio(base()+U[i]);a.volume=1;A=a;a.onended=stop;a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a)stop()});bar(true)}
+ window.adhanPlay=function(){stop();go(0)};
+ var DN={};
+ var _mb=msBeep;msBeep=function(k){if(k=="a"&&S.adh!==0&&S.msq!==0){if(!A){var w=!AUD.paused;if(w)try{AUD.pause()}catch(e){}window.adhanPlay()}return}_mb(k)};
+ if(0)setInterval(function(){try{if(S.adh===0||A||document.hidden)return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,j,i;
+  for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;var k=tz.d+"_"+i;if(n>=P[i][1]&&n<P[i][1]+1&&!DN[k]){DN[k]=1;go(0);break}}}catch(e){}},5000);
+})();
+
 /* عدّاد الإقامة + شاشة الآية */
 (function(){var AY=[["إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا","النساء ١٠٣"],["أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ","الرعد ٢٨"],["فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ","البقرة ١٥٢"],["وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ","الطلاق ٣"],["إِنَّ مَعَ الْعُسْرِ يُسْرًا","الشرح ٦"],["رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ","البقرة ٢٠١"],["وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ","البقرة ٤٥"],["وَقُل رَّبِّ زِدْنِي عِلْمًا","طه ١١٤"],["فَإِنِّي قَرِيبٌ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ","البقرة ١٨٦"],["وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ","الأعراف ١٥٦"],["اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ","البقرة ٢٥٥"],["وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ","الضحى ٥"]],
 IDL=Date.now(),AI=0,SS=null,st=document.createElement("style");
@@ -771,7 +784,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=127,APU={busy:0,pend:0};
+var APPV=128,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};

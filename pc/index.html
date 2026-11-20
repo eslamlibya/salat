@@ -698,6 +698,18 @@ function tfShow(k){if(!k)return;var s=k.split(":"),o=MEM.ov('<h3>تفسير ال
 document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-kh],[data-qg]");if(!b)return;
  if(b.dataset.qg){S.qp=+b.dataset.qg;S.qt="r";QDIR=0;sv();go("quran");quran();return}
  var a=b.dataset.kh;if(a=="rev")MEM.rev();else KH.act(a)});
+
+/* الأذان الصوتي عند دخول الوقت (والتطبيق مفتوح) */
+(function(){var U=["adhan-libya.mp3","adhan-oman.mp3"],A=null,AB="";
+ function base(){return/\/(pc|tv|car)\/$/.test(location.pathname)?"../":""}
+ function bar(on){var d=document.getElementById("adhb");if(!on){if(d)d.remove();return}if(d)return;d=document.createElement("div");d.id="adhb";d.style.cssText="position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:990;display:flex;gap:12px;align-items:center;padding:10px 18px;border-radius:30px;background:rgba(20,30,26,.9);color:#fff;font:600 15px sans-serif;direction:rtl";d.innerHTML='<span>🕌 الأذان</span><button style="border:0;border-radius:20px;padding:6px 14px;font:inherit">إيقاف</button>';d.querySelector("button").onclick=stop;document.body.appendChild(d)}
+ function stop(){if(A){try{A.pause()}catch(e){}A=null}bar(false)}
+ function go(i){if(i>=U.length)return stop();var a=new Audio(base()+U[i]);a.volume=1;A=a;a.onended=stop;a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a)stop()});bar(true)}
+ window.adhanPlay=function(){stop();go(0)};
+ var DN={};
+ setInterval(function(){try{if(S.adh===0||A||document.hidden)return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,j,i;
+  for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;var k=tz.d+"_"+i;if(n>=P[i][1]&&n<P[i][1]+1&&!DN[k]){DN[k]=1;go(0);break}}}catch(e){}},5000);
+})();
 function qact(D){var a=D.qa;if(a=="tf"){tfShow(S.qsel);return}if(a=="mem"){if(S.qsel){MEM.tog(S.qsel);quran()}return}if(a=="fs+"||a=="fs-")S.qfs=Math.max(18,Math.min(44,S.qfs+(a=="fs+"?2:-2)));else if(a=="bm"&&S.qsel){var i=S.qbm.indexOf(S.qsel);if(i>-1)S.qbm.splice(i,1);else S.qbm.push(S.qsel)}else if(a=="last"&&S.qsel)S.qlast=S.qsel;else if(a=="x")S.qsel="";sv();quran()}
 document.addEventListener("click",function(e){var v=e.target.closest&&e.target.closest(".v");if(v){S.qsel=v.dataset.v;sv();quran()}});
 document.addEventListener("change",function(e){if(e.target.id=="qsl"){QDIR=+e.target.value>S.qp?1:-1;S.qp=+e.target.value;sv();quran()}});
@@ -1225,7 +1237,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r"){MOS[s.mid]=MOS[s.mid]||{id:s.mid,rec:s.rec,name:s.mo,server:s.server,list:s.list};var id="r:"+s.mid+":"+s.sura;AU[id]=AU[id]||{k:"r",mid:s.mid,sura:s.sura,t:"سورة "+sname(s.sura),artist:s.rec,mo:s.mo,d:0};QUE=String(s.list||"").split(",").filter(Boolean).map(function(x){return s.mid+":"+x});AC="";aplay(id,s.pos||0)}else if(s.k=="u"){AC="";AUD.src=s.u;var pp=AUD.play();if(pp&&pp.catch)pp.catch(function(){})}}
 DVX.cb=function(){acRe();try{home()}catch(e){}};
 /* ===== تحديث التطبيق ===== */
-var APPV=127,APU={busy:0,pend:0};
+var APPV=128,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
