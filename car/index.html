@@ -469,7 +469,7 @@ html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 #ckb{position:fixed;left:50%;transform:translateX(-50%);width:min(100%,640px);border-radius:16px 16px 0 0;bottom:0;z-index:99999;display:none;flex-direction:column;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(14,18,26,.97);border-top:1px solid rgba(255,255,255,.12);backdrop-filter:blur(14px);direction:rtl;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 #ckb.on{display:flex}
 #ckb .kbr{display:flex;gap:6px;justify-content:center}
-#ckb .kk{flex:1 1 0;max-width:84px;min-height:clamp(28px,7.6vh,50px);display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,.09);color:#fff;font:600 clamp(16px,4.2vh,24px) system-ui,sans-serif;cursor:pointer}
+#ckb .kk{flex:1 1 0;max-width:84px;min-height:clamp(26px,6.6vh,46px);display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,.09);color:#fff;font:600 clamp(16px,4.2vh,24px) system-ui,sans-serif;cursor:pointer}
 #ckb .kk:active{background:rgba(255,255,255,.28);transform:scale(.96)}
 #ckb .kw{flex:1.5 1 0;max-width:120px;background:rgba(255,255,255,.16);font-size:clamp(14px,3.4vh,20px)}
 #ckb .ksp{flex:6 1 0;max-width:none;font-size:clamp(14px,3.4vh,20px)}
@@ -477,6 +477,10 @@ html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 #ckb .kbt{align-items:center}
 #ckb .kbv{flex:1;min-height:34px;line-height:34px;padding:0 12px;border-radius:10px;background:rgba(0,0,0,.35);color:#fff;font-size:clamp(16px,4vh,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ckb .kx{flex:0 0 auto;min-width:64px;min-height:34px;font-size:15px}
+#ckb .kn .kk{min-height:clamp(24px,6vh,38px)}
+#ckb .kon{background:#2f6fe0}
+#ckb .kmic{min-width:54px}#ckb .kmic.rec{background:#d33;animation:kbp 1s infinite}
+@keyframes kbp{50%{opacity:.5}}
 
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
@@ -1052,7 +1056,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795145655";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795145978";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1284,7 +1288,7 @@ function mapInit(){var v=$("mpv");if(!v)return;if(msty0().v&&!VM.load)vmLoad();i
 
 function csave(){try{localStorage.setItem("carset",JSON.stringify({s:SPD,r:RM}))}catch(e){}}
 try{var cs=JSON.parse(localStorage.getItem("carset")||"null");if(cs){SPD=cs.s||1;RM=cs.r||0;AUD.playbackRate=SPD}}catch(e){}
-var CARV=33;
+var CARV=34;
 function crForce(){var t=document.getElementById("crf"),say=function(x){if(window.CT_)window.CT_(x)};if(t)t.classList.add("spin");
  var clear=function(){var p=[];try{if(window.caches)p.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}))}catch(e){}try{if(navigator.serviceWorker)p.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}return Promise.all(p).catch(function(){})};
  var rl=function(){location.replace(location.pathname+"?b="+Date.now())};
@@ -1294,7 +1298,7 @@ function crForce(){var t=document.getElementById("crf"),say=function(x){if(windo
  }).catch(function(){say("تعذّر الاتصال — جارٍ مسح الذاكرة وإعادة التحميل");clear().then(rl)})}
 
 /* ===== الإشعارات والتحديثات ===== */
-var NT={bc:null,pub:0,st:"idle"},NTLOG=[["v33","لوحة مفاتيح خاصة للبحث (عربي/English/أرقام)"],["v32","البحث عن «مسجد» يعرض المساجد والجوامع، وإصلاح البحث"],["v31","البحث بكلمة «مسجد» يعرض المساجد والجوامع؛ إصلاح البحث عن الأماكن والفئات (مساجد…) وترتيب النتائج"],["v30","التنبيه قبل الأذان صار 15 دقيقة افتراضياً"],["v29","تنبيه قبل الأذان وتنبيه عند وقت الإقامة"],["v28","زر الإشعارات والتحديثات (الجرس) ونقل زر التحديث"],["v27","إصلاح بطاقات القرّاء مع القوائم الطويلة"],["v26","تصميم القرآن بنمط التلفزيون: بطاقات القرّاء والمشغّل الكبير"],["v25","زر التحديث يخبرك إن كانت هناك نسخة أحدث"],["v24","الأذكار: سحب باللمس وأيقونات جديدة"],["v22","خريطة حديثة (MapLibre) مع ملاحة بمنظور ثلاثي الأبعاد"],["v21","أنماط الخريطة: شوارع، فاتحة، داكنة، قمر صناعي"],["v20","الطقس، وإكمال القرآن عند ضعف الإنترنت"],["—","الأذان الكامل عند دخول وقت الصلاة"]];
+var NT={bc:null,pub:0,st:"idle"},NTLOG=[["v34","بحث صوتي، أمازيغية (تيفيناغ)، إنجليزية، صف أرقام"],["v33","لوحة مفاتيح خاصة للبحث (عربي/English/أرقام)"],["v32","البحث عن «مسجد» يعرض المساجد والجوامع، وإصلاح البحث"],["v31","البحث بكلمة «مسجد» يعرض المساجد والجوامع؛ إصلاح البحث عن الأماكن والفئات (مساجد…) وترتيب النتائج"],["v30","التنبيه قبل الأذان صار 15 دقيقة افتراضياً"],["v29","تنبيه قبل الأذان وتنبيه عند وقت الإقامة"],["v28","زر الإشعارات والتحديثات (الجرس) ونقل زر التحديث"],["v27","إصلاح بطاقات القرّاء مع القوائم الطويلة"],["v26","تصميم القرآن بنمط التلفزيون: بطاقات القرّاء والمشغّل الكبير"],["v25","زر التحديث يخبرك إن كانت هناك نسخة أحدث"],["v24","الأذكار: سحب باللمس وأيقونات جديدة"],["v22","خريطة حديثة (MapLibre) مع ملاحة بمنظور ثلاثي الأبعاد"],["v21","أنماط الخريطة: شوارع، فاتحة، داكنة، قمر صناعي"],["v20","الطقس، وإكمال القرآن عند ضعف الإنترنت"],["—","الأذان الكامل عند دخول وقت الصلاة"]];
 function ntSeen(){try{return localStorage.getItem("carbc")||""}catch(e){return""}}
 function ntHot(){return !!(NT.bc&&String(NT.bc.id)!==ntSeen())||NT.pub>CARV}
 function ntMark(){if(NT.bc)try{localStorage.setItem("carbc",String(NT.bc.id))}catch(e){}var b=$("cbl");if(b)b.classList.toggle("hot",ntHot())}
@@ -1362,7 +1366,7 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  else if(CR.v=="su"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button>'+crav(CR.rec.name,8)+'<b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crsb"><span>'+mi("search",26)+'</span><input id="crq" type="search" placeholder="ابحث عن سورة بالاسم أو الرقم" autocomplete="off"></div><div class="crg c4" id="cgl">'+suTiles("")+'</div>'}
 
  h+='</div>';var DK=[["chm","home","الرئيسية",CR.v=="hm"],["cq","book","القرآن",CR.v=="np"||CR.v=="rc"||CR.v=="mo"||CR.v=="su"],["cmq","pin","الخريطة",CR.v=="mq"],["cpd","pod","القصص",CR.v=="pd"],["caz","star","الأذكار",0],["cst","gear","الإعدادات",CR.v=="st"||CR.v=="ct"]];
- d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v33</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
+ d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v34</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();if(CR.v=="hm"&&!WX.j&&WX.st!="load")wxLoad(0);
 
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  var ch=$("crch");if(ch)ch.onclick=function(e){var b=e.target.closest("button");if(!b)return;var c=b.getAttribute("data-c");CR.rw=c=="rw"?b.getAttribute("data-k"):"";CR.lby=c=="lby"?1:0;ch.innerHTML=rcChips();var g=$("cgl"),q=$("crq");if(g)g.innerHTML=rcTiles(q?q.value:"")};var sq=$("crq");if(sq)sq.oninput=function(){var g=$("cgl");if(g)g.innerHTML=CR.v=="rc"?rcTiles(sq.value):suTiles(sq.value)};
@@ -1462,20 +1466,36 @@ azIcon=function(k){return'<svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 var x0=0,y0=0;document.addEventListener("touchstart",function(e){if(e.touches.length==1){x0=e.touches[0].clientX;y0=e.touches[0].clientY}},{passive:true});
 document.addEventListener("touchend",function(e){var z=document.getElementById("az");if(!z||!z.classList.contains("on")||!e.changedTouches.length)return;if(e.target.closest&&e.target.closest(".azs"))return;var dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){try{AZLT=Date.now()}catch(x){}azGo(dx<0?1:-1)}},{passive:true})})();
 /* ===== لوحة مفاتيح السيارة ===== */
-(function(){var L={ar:[["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج","د"],["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],["ئ","ء","ؤ","ر","لا","ى","ة","و","ز","ظ","ذ"]],en:[["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["z","x","c","v","b","n","m"]],nm:[["1","2","3","4","5","6","7","8","9","0"],["-","/",":","،",".","(",")","؟","!"],["@","#","&","+","*","=","_","\""]]};
-var mode="ar",T=null;
+(function(){var NR=["1","2","3","4","5","6","7","8","9","0"];
+var L={ar:[["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج","د"],["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],["ئ","ء","ؤ","ر","لا","ى","ة","و","ز","ظ","ذ"]],en:[["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["z","x","c","v","b","n","m"]],tf:[["ⴰ","ⴱ","ⴳ","ⴷ","ⴹ","ⴻ","ⴼ","ⴽ","ⵀ","ⵃ","ⵄ","ⵅ"],["ⵇ","ⵉ","ⵊ","ⵍ","ⵎ","ⵏ","ⵓ","ⵔ","ⵕ","ⵖ"],["ⵙ","ⵚ","ⵛ","ⵜ","ⵟ","ⵡ","ⵢ","ⵣ","ⵥ","ⵯ"]],nm:[["-","/",":","،",".","(",")","؟","!"],["@","#","&","+","*","=","_","\"","'"]]};
+var NAME={ar:"ع",en:"EN",tf:"ⵣ"},ORD=["ar","en","tf"],VL={ar:"ar-LY",en:"en-US",tf:"ar-LY"};
+var mode="ar",last="ar",sh=0,T=null,REC=null;
 function el(){return document.getElementById("ckb")}
-function build(){var k=el();if(!k)return;var h='<div class="kbr kbt"><b class="kk kx" data-a="close">✕</b><span class="kbv">'+esc2(T&&T.value||"")+'</span><b class="kk kx" data-a="clr">مسح</b></div>';
- L[mode].forEach(function(r,i){h+='<div class="kbr">';r.forEach(function(c){h+='<b class="kk" data-k="'+c+'">'+c+'</b>'});if(i==2)h+='<b class="kk kw" data-a="bs">⌫</b>';h+='</div>'});
- h+='<div class="kbr"><b class="kk kw" data-a="m">'+(mode=="nm"?"أب":"123")+'</b><b class="kk kw" data-a="l">'+(mode=="en"?"ع":"EN")+'</b><b class="kk ksp" data-a="sp">مسافة</b><b class="kk kw kgo" data-a="go">بحث</b></div>';k.innerHTML=h}
 function esc2(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function cs(c){return mode=="en"&&sh?c.toUpperCase():c}
+function build(){var k=el();if(!k)return;var h='<div class="kbr kbt"><b class="kk kx" data-a="close">✕</b><b class="kk kx kmic'+(REC?' rec':'')+'" data-a="mic">🎤</b><span class="kbv">'+esc2(T&&T.value||"")+'</span><b class="kk kx" data-a="clr">مسح</b></div>';
+ if(mode!="nm"){h+='<div class="kbr kn">';NR.forEach(function(c){h+='<b class="kk" data-k="'+c+'">'+c+'</b>'});h+='</div>'}
+ L[mode].forEach(function(r,i){h+='<div class="kbr">';if(i==2&&mode=="en")h+='<b class="kk kw'+(sh?' kon':'')+'" data-a="sh">⇧</b>';r.forEach(function(c){c=cs(c);h+='<b class="kk" data-k="'+c+'">'+c+'</b>'});if(i==2)h+='<b class="kk kw" data-a="bs">⌫</b>';h+='</div>'});
+ if(mode=="nm"){h+='<div class="kbr">';NR.forEach(function(c){h+='<b class="kk" data-k="'+c+'">'+c+'</b>'});h+='<b class="kk kw" data-a="bs">⌫</b></div>'}
+ var nx=ORD[(ORD.indexOf(mode=="nm"?last:mode)+1)%ORD.length];
+ h+='<div class="kbr"><b class="kk kw" data-a="m">'+(mode=="nm"?"أب":"123")+'</b><b class="kk kw" data-a="l">'+NAME[nx]+'</b><b class="kk ksp" data-a="sp">مسافة</b><b class="kk kw kgo" data-a="go">بحث</b></div>';k.innerHTML=h}
 function show(i){T=i;var k=el();if(!k){k=document.createElement("div");k.id="ckb";(document.getElementById("cr")||document.body).appendChild(k)}k.className="on";document.body.classList.add("kbo");build();setTimeout(function(){try{i.scrollIntoView({block:"start",behavior:"smooth"})}catch(e){}},50)}
-function hide(){var k=el();if(k)k.className="";document.body.classList.remove("kbo");if(T)T.blur();T=null}
-function ins(t){if(!T)return;var s=T.selectionStart,e=T.selectionEnd;if(s==null){T.value+=t}else{T.setRangeText(t,s,e,"end")}T.dispatchEvent(new Event("input",{bubbles:true}));upd()}
-function bs(){if(!T)return;var s=T.selectionStart,e=T.selectionEnd;if(s==null||s==e&&s==0&&!T.value){return}if(s==e){if(s==0)return;T.setRangeText("",s-1,e,"end")}else T.setRangeText("",s,e,"end");T.dispatchEvent(new Event("input",{bubbles:true}));upd()}
+function hide(){var k=el();if(k)k.className="";document.body.classList.remove("kbo");stopRec();if(T)T.blur();T=null}
+function fire(){T.dispatchEvent(new Event("input",{bubbles:true}));upd()}
+function ins(t){if(!T)return;var s=T.selectionStart,e=T.selectionEnd;if(s==null){T.value+=t}else{T.setRangeText(t,s,e,"end")}fire();if(sh&&mode=="en"){sh=0;build()}}
+function bs(){if(!T)return;var s=T.selectionStart,e=T.selectionEnd;if(s==null){T.value=T.value.slice(0,-1)}else if(s==e){if(s==0)return;T.setRangeText("",s-1,e,"end")}else T.setRangeText("",s,e,"end");fire()}
 function upd(){var v=document.querySelector("#ckb .kbv");if(v)v.textContent=T?T.value:""}
+function stopRec(){if(REC){try{REC.stop()}catch(e){}REC=null;var m=document.querySelector("#ckb .kmic");if(m)m.classList.remove("rec")}}
+function go(){var t=T;hide();if(t)t.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))}
+function mic(){if(REC){stopRec();return}var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){if(window.CT_)CT_("البحث الصوتي غير مدعوم في هذا المتصفح");return}
+ var r=new SR();r.lang=VL[mode=="nm"?last:mode];r.interimResults=true;r.maxAlternatives=1;REC=r;var fin="";
+ r.onresult=function(e){var t="";for(var i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;fin=t;if(T){T.value=t;fire()}if(e.results[e.results.length-1].isFinal){REC=null;if(T)go()}};
+ r.onerror=function(e){REC=null;build();if(window.CT_)CT_(e&&e.error=="not-allowed"?"اسمح باستخدام الميكروفون":"تعذّر التعرف على الصوت")};
+ r.onend=function(){if(REC){REC=null;build();if(fin&&T)go()}};
+ try{r.start();build()}catch(e){REC=null}}
 document.addEventListener("focusin",function(e){var t=e.target;if(t&&t.tagName=="INPUT"&&(t.id=="mpi"||t.id=="crq"||t.id=="pdi")){t.setAttribute("inputmode","none");show(t)}},true);
-document.addEventListener("pointerdown",function(e){var b=e.target.closest&&e.target.closest("#ckb .kk");if(b){e.preventDefault();var a=b.getAttribute("data-a"),c=b.getAttribute("data-k");if(c)return ins(c);if(a=="sp")ins(" ");else if(a=="bs")bs();else if(a=="clr"){if(T){T.value="";T.dispatchEvent(new Event("input",{bubbles:true}));upd()}}else if(a=="m"){mode=mode=="nm"?"ar":"nm";build()}else if(a=="l"){mode=mode=="en"?"ar":"en";build()}else if(a=="close")hide();else if(a=="go"){var t=T;hide();if(t)t.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))}return}
+document.addEventListener("pointerdown",function(e){var b=e.target.closest&&e.target.closest("#ckb .kk");if(b){e.preventDefault();var a=b.getAttribute("data-a"),c=b.getAttribute("data-k");if(c)return ins(c);
+ if(a=="sp")ins(" ");else if(a=="bs")bs();else if(a=="clr"){if(T){T.value="";fire()}}else if(a=="sh"){sh=!sh;build()}else if(a=="m"){if(mode=="nm")mode=last;else{last=mode;mode="nm"}build()}else if(a=="l"){var b0=mode=="nm"?last:mode;mode=last=ORD[(ORD.indexOf(b0)+1)%ORD.length];sh=0;build()}else if(a=="mic")mic();else if(a=="close")hide();else if(a=="go")go();return}
  if(el()&&el().className=="on"&&!(e.target.closest&&(e.target.closest("#ckb")||(e.target.tagName=="INPUT")))){hide()}},true);
 })();
 </script></body></html>
