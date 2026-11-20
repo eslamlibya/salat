@@ -658,7 +658,7 @@ setInterval(msTick,1000);
  function bar(on){var d=document.getElementById("adhb");if(!on){if(d)d.remove();return}if(d)return;d=document.createElement("div");d.id="adhb";d.style.cssText="position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:990;display:flex;gap:12px;align-items:center;padding:10px 18px;border-radius:30px;background:rgba(20,30,26,.9);color:#fff;font:600 15px sans-serif;direction:rtl";d.innerHTML='<span>🕌 الأذان</span><button style="border:0;border-radius:20px;padding:6px 14px;font:inherit">إيقاف</button>';d.querySelector("button").onclick=stop;document.body.appendChild(d)}
  function stop(){if(A){try{A.pause()}catch(e){}A=null}bar(false)}
  function go(i){if(i>=U.length)return stop();var a=new Audio(base()+U[i]);a.volume=1;A=a;a.onended=stop;a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a)stop()});bar(true)}
- window.adhanPlay=function(){stop();go(0)};
+ window.adhanPlay=function(){if(FO("adh2"))return;stop();go(0)};
 
  function nearP(){try{var tz=tzo(CT[S.city][4],new Date()),n=tz.min,j,i;for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;if(n>=P[i][1]&&n<P[i][1]+5)return 1}}catch(e){}return 0}
  function tap(){var d=document.getElementById("adht");if(d)return;d=document.createElement("div");d.id="adht";d.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:992;width:max-content;max-width:92vw;padding:12px 14px 12px 20px;border-radius:26px;background:rgba(28,32,30,.85);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);color:#fff;font:600 16px sans-serif;direction:rtl;white-space:nowrap;display:flex;gap:14px;align-items:center";d.innerHTML='<span>🕌 حان وقت الصلاة</span><button style="border:0;border-radius:18px;padding:7px 16px;font:inherit;background:#fff;color:#111">تشغيل الأذان</button>';d.querySelector("button").onclick=function(){d.remove();window.adhanPlay()};document.body.appendChild(d);setTimeout(function(){d.remove()},45000)}
@@ -668,14 +668,14 @@ setInterval(msTick,1000);
  var DE={};
  setInterval(function(){try{if(S.adh===0||A||document.hidden||S.mode!="eid")return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,t=P[1][1]+(S.eidm||15),k=tz.d+"_eid";if(n>=t&&n<t+1&&!DE[k]){DE[k]=1;go(0)}}catch(e){}},5000);
  var PN={};
- function chime(){try{if(typeof msBeep==="function"){msBeep("p");return}var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.2;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.4)}catch(e){}}
- function pbar(t){var d=document.getElementById("preb");if(!d){d=document.createElement("div");d.id="preb";d.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:991;width:max-content;max-width:92vw;padding:12px 14px 12px 20px;border-radius:26px;background:rgba(28,32,30,.78);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 8px 30px rgba(0,0,0,.25);color:#fff;font:600 16px sans-serif;direction:rtl;white-space:nowrap;display:flex;gap:14px;align-items:center";document.body.appendChild(d)}
+ function chime(){try{if(FO("pre"))return;if(typeof msBeep==="function"){msBeep("p");return}var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.2;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.4)}catch(e){}}
+ function pbar(t){if(FO("pre"))return;var d=document.getElementById("preb");if(!d){d=document.createElement("div");d.id="preb";d.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:991;width:max-content;max-width:92vw;padding:12px 14px 12px 20px;border-radius:26px;background:rgba(28,32,30,.78);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 8px 30px rgba(0,0,0,.25);color:#fff;font:600 16px sans-serif;direction:rtl;white-space:nowrap;display:flex;gap:14px;align-items:center";document.body.appendChild(d)}
   d.innerHTML='<span>⏰ '+t+'</span><button style="border:0;border-radius:18px;padding:7px 16px;font:inherit;background:#fff;color:#111">حسنًا</button>';d.style.display="flex";d.querySelector("button").onclick=function(){d.style.display="none"};clearTimeout(d._t);d._t=setTimeout(function(){d.style.display="none"},60000)}
  setInterval(function(){try{var tz=tzo(CT[S.city][4],new Date()),n=tz.min,fr=new Date().getDay()==5,j,i;
   for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;var tg=i==0||(i==2&&fr);if(!tg)continue;var k=tz.d+"_"+i;if(n>=P[i][1]-30&&n<P[i][1]-29&&!PN[k]){PN[k]=1;chime();pbar("بعد نصف ساعة: "+(i==0?"صلاة الفجر":"صلاة الجمعة"))}}}catch(e){}},5000);
  var DN={};
  var _mb=msBeep;msBeep=function(k){if(k=="a"&&S.adh!==0&&S.msq!==0){if(!A){var w=!AUD.paused;if(w)try{AUD.pause()}catch(e){}window.adhanPlay()}return}_mb(k)};
- if(0)setInterval(function(){try{if(S.adh===0||A||document.hidden)return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,j,i;
+ if(0)setInterval(function(){try{if(FO("adh2")||S.adh===0||A||document.hidden)return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,j,i;
   for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;var k=tz.d+"_"+i;if(n>=P[i][1]&&n<P[i][1]+1&&!DN[k]){DN[k]=1;go(0);break}}}catch(e){}},5000);
 })();
 
@@ -713,7 +713,7 @@ if(DEMO){window.DEMOF=DEMO.indexOf("friday")>-1;S.msq=1;var DT0=Date.now(),DB=nu
 (function(){var SR=window.SpeechRecognition||window.webkitSpeechRecognition,R=null,ov=null,tm=0,st=document.createElement("style");
 st.textContent="#vmc svg{width:22px;height:22px;display:inline-block;vertical-align:middle}#vmc.vl{color:#ff6b5e;animation:vpl 1s infinite}@keyframes vpl{50%{opacity:.5}}.crdk #vmc svg{width:34px;height:34px;display:block;margin:0 auto}#vco{position:fixed;left:50%;top:6vmin;transform:translateX(-50%);z-index:995;display:none;min-width:40vw;max-width:88vw;padding:3vmin 5vmin;border-radius:5vmin;background:rgba(28,32,30,.88);-webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px);color:#fff;text-align:center;direction:rtl;font:600 4vmin Readex Pro,sans-serif}#vco small{display:block;margin-top:1.2vmin;font-size:2.8vmin;opacity:.65}";document.head.appendChild(st);
 var b=document.createElement("button");b.id="vmc";b.setAttribute("aria-label","أمر صوتي");b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg>'+("<span>صوت</span>");
-function mount(){var c=document.getElementById("nav")||document.querySelector(".crdk")||document.querySelector(".tvg");if(!c){if(!b.parentNode)document.body.appendChild(b);return}
+function mount(){if(FO("vc")){if(b.parentNode)b.remove();return}var c=document.getElementById("nav")||document.querySelector(".crdk")||document.querySelector(".tvg");if(!c){if(!b.parentNode)document.body.appendChild(b);return}
  if(b.parentNode!==c||c.lastElementChild!==b&&!c.querySelector(".crv")){var f=c.querySelector("button:not(#vmc)");if(f){b.className=(f.className||"").replace(/\bon\b/g,"").trim()+(b.classList.contains("vl")?" vl":"")}
   var cv=c.querySelector(".crv");if(cv)c.insertBefore(b,cv);else c.appendChild(b)}}
 setInterval(mount,700);mount();
@@ -852,7 +852,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=142,APU={busy:0,pend:0};
+var APPV=143,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
@@ -913,7 +913,8 @@ document.addEventListener("keydown",function(e){var o=$("ac");if(!o||!o.classLis
  else if(k=="ArrowUp"||c==38){e.preventDefault();e.stopPropagation();(L[Math.max(0,i-1)]||L[0]).focus()}
  else if((k=="ArrowLeft"||k=="ArrowRight"||c==37||c==39)&&document.activeElement.tagName=="BUTTON"){e.preventDefault();e.stopPropagation();var d=(k=="ArrowLeft"||c==37)?1:-1,B=L.filter(function(x){return x.tagName=="BUTTON"}),j=B.indexOf(document.activeElement);(B[(j+d+B.length)%B.length]||B[0]).focus()}},true);
 /* إعدادات عن بُعد: إعلان وفرض تحديث (من لوحة التحكم) */
-function cfgApply(c){try{var t=c.flags&&c.flags.banner,b=document.getElementById("cfgb");if(t){if(!b){b=document.createElement("div");b.id="cfgb";b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:#ffd36b;color:#1a2a22;padding:1.2vmin 2vmin;font:700 2.8vmin/1.4 system-ui,sans-serif;text-align:center";document.body.appendChild(b)}b.textContent=t}else if(b)b.remove();
+var FOFF=[];function FO(k){return(window.FOFF||[]).indexOf(k)>-1}
+function cfgApply(c){try{FOFF=(c.flags&&c.flags.off)||[];var t=c.flags&&c.flags.banner,b=document.getElementById("cfgb");if(t){if(!b){b=document.createElement("div");b.id="cfgb";b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:#ffd36b;color:#1a2a22;padding:1.2vmin 2vmin;font:700 2.8vmin/1.4 system-ui,sans-serif;text-align:center";document.body.appendChild(b)}b.textContent=t}else if(b)b.remove();
  var v=+(c.ver||0),o=+(localStorage.getItem("tvver")||0);if(v&&!o)localStorage.setItem("tvver",v);else if(v>o){localStorage.setItem("tvver",v);location.reload()}}catch(e){}}
 function cfgGo(){fetch(ACU+"/cfg",{cache:"no-store"}).then(function(r){return r.json()}).then(function(c){if(c&&c.ok)cfgApply(c)}).catch(function(){})}
 setTimeout(cfgGo,2500);setInterval(cfgGo,6e5);
