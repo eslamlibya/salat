@@ -730,7 +730,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=122,APU={busy:0,pend:0};
+var APPV=123,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
@@ -755,6 +755,7 @@ function gpsGo(){if(window.__car)return;if(!S.gpsM){S.gps=1;S.gpsM=1;save()}if(!
  if(!navigator.geolocation){fb();return}
  navigator.geolocation.getCurrentPosition(function(p){var b=gpsPick(p.coords.latitude,p.coords.longitude);if(b!=S.city){S.city=b;S.set=1;save();try{recalc();build()}catch(e){}}},fb,{timeout:15000,maximumAge:6e5})}
 setTimeout(gpsGo,3000);setInterval(gpsGo,6e5);
+(function(){var N="الفاتحة,البقرة,آل عمران,النساء,المائدة,الأنعام,الأعراف,الأنفال,التوبة,يونس,هود,يوسف,الرعد,إبراهيم,الحجر,النحل,الإسراء,الكهف,مريم,طه,الأنبياء,الحج,المؤمنون,النور,الفرقان,الشعراء,النمل,القصص,العنكبوت,الروم,لقمان,السجدة,الأحزاب,سبأ,فاطر,يس,الصافات,ص,الزمر,غافر,فصلت,الشورى,الزخرف,الدخان,الجاثية,الأحقاف,محمد,الفتح,الحجرات,ق,الذاريات,الطور,النجم,القمر,الرحمن,الواقعة,الحديد,المجادلة,الحشر,الممتحنة,الصف,الجمعة,المنافقون,التغابن,الطلاق,التحريم,الملك,القلم,الحاقة,المعارج,نوح,الجن,المزمل,المدثر,القيامة,الإنسان,المرسلات,النبأ,النازعات,عبس,التكوير,الانفطار,المطففين,الانشقاق,البروج,الطارق,الأعلى,الغاشية,الفجر,البلد,الشمس,الليل,الضحى,الشرح,التين,العلق,القدر,البينة,الزلزلة,العاديات,القارعة,التكاثر,العصر,الهمزة,الفيل,قريش,الماعون,الكوثر,الكافرون,النصر,المسد,الإخلاص,الفلق,الناس".split(",");try{N.forEach(function(n,i){if(!LB.SW[i+1])LB.SW[i+1]=n})}catch(e){}})();
 function acClose(){$("ac").classList.remove("on");var g=$("bac");if(g)g.focus()}
 function acDraw(){var A=acG(),h='<div class="acb'+(A?' acw':'')+'"><div class="acbt"><button id="acx" class="acbk">‹ رجوع</button><h1>ربط الحساب</h1><span></span></div>';
  if(A){var u=A.user;h+='<div class="acg"><div class="acL"><div class="acu"><i>'+String(u.name||u.username).charAt(0)+'</i><div><b>'+u.name+'</b><small dir="ltr">@'+u.username+'</small></div></div><p>إعدادات التلفاز تتزامن مع حسابك تلقائيًا.</p>'+(AC.msg?'<div class="acm '+(AC.ok?"ok":"er")+'">'+AC.msg+'</div>':'')+'<div class="acr"><button id="acs">مزامنة الآن</button><button id="aco">تسجيل الخروج</button></div></div><div class="acR"><div class="dvh">أجهزتي</div><div class="dvl">'+DVX.html()+'</div><div class="acr"><button id="dva">'+(DVX.auto()?"النقل التلقائي: مفعّل":"النقل التلقائي: متوقف")+'</button></div></div></div>'}
