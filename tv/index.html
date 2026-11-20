@@ -659,6 +659,12 @@ setInterval(msTick,1000);
  function stop(){if(A){try{A.pause()}catch(e){}A=null}bar(false)}
  function go(i){if(i>=U.length)return stop();var a=new Audio(base()+U[i]);a.volume=1;A=a;a.onended=stop;a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a)stop()});bar(true)}
  window.adhanPlay=function(){stop();go(0)};
+ var PN={};
+ function chime(){try{if(typeof msBeep==="function"){msBeep("p");return}var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.2;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.4)}catch(e){}}
+ function pbar(t){var d=document.getElementById("preb");if(!d){d=document.createElement("div");d.id="preb";d.style.cssText="position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:991;max-width:90vw;padding:14px 22px;border-radius:28px;background:rgba(20,30,26,.92);color:#fff;font:600 17px sans-serif;direction:rtl;text-align:center;display:flex;gap:12px;align-items:center";document.body.appendChild(d)}
+  d.innerHTML='<span>⏰ '+t+'</span><button style="border:0;border-radius:20px;padding:6px 14px;font:inherit">حسنًا</button>';d.style.display="flex";d.querySelector("button").onclick=function(){d.style.display="none"};clearTimeout(d._t);d._t=setTimeout(function(){d.style.display="none"},60000)}
+ setInterval(function(){try{var tz=tzo(CT[S.city][4],new Date()),n=tz.min,fr=new Date().getDay()==5,j,i;
+  for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;var tg=i==0||(i==2&&fr);if(!tg)continue;var k=tz.d+"_"+i;if(n>=P[i][1]-30&&n<P[i][1]-29&&!PN[k]){PN[k]=1;chime();pbar("بعد نصف ساعة: "+(i==0?"صلاة الفجر":"صلاة الجمعة"))}}}catch(e){}},5000);
  var DN={};
  var _mb=msBeep;msBeep=function(k){if(k=="a"&&S.adh!==0&&S.msq!==0){if(!A){var w=!AUD.paused;if(w)try{AUD.pause()}catch(e){}window.adhanPlay()}return}_mb(k)};
  if(0)setInterval(function(){try{if(S.adh===0||A||document.hidden)return;var tz=tzo(CT[S.city][4],new Date()),n=tz.min,j,i;
@@ -784,7 +790,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=128,APU={busy:0,pend:0};
+var APPV=129,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
