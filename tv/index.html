@@ -674,9 +674,10 @@ D.snap=snap;
 D.auto=function(){try{var v=localStorage.getItem("taz_dauto");return v==null?(kind()=="tv"||kind()=="car"):v=="1"}catch(e){return false}};
 D.setAuto=function(on){try{localStorage.setItem("taz_dauto",on?"1":"0")}catch(e){}};
 D.send=function(to,c){var a=A();if(!a)return Promise.resolve();return acReq("POST","/dev/cmd",{to:to,c:JSON.stringify(c)},a.tok)};
-D.push=function(to){var s=snap();if(!s.k)return;D.send(to,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)};
-D.pull=function(from){D.send(from,{a:"give",f:D.id})};
-D.run=function(c){if(!c)return;if(c.a=="play"&&c.s){try{DV_PLAY(c.s)}catch(e){}setTimeout(D.tick,800)}
+D.push=function(to){var s=snap();if(!s.k){D.say("لا يوجد تشغيل قابل للنقل (تلاوة مضمّنة أو ملف محمّل).",0);return}D.say("أُرسل التشغيل.",1);D.send(to,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)};
+D.say=function(m,ok){try{if(kind()=="phone"||kind()=="pc"){ACS.msg=m;ACS.ok=ok?1:0;acRe()}else acMsg(m,ok)}catch(e){}};
+D.pull=function(from){D.say("جارٍ طلب التشغيل من الجهاز الآخر…",1);D.send(from,{a:"give",f:D.id}).then(function(r){if(!r||r.error)D.say("تعذّر إرسال الطلب ("+((r&&r.error)||"net")+").",0);else{D.say("أُرسل الطلب، بانتظار الجهاز الآخر…",1);setTimeout(function(){var o=D.devs.filter(function(d){return d.did==from})[0];if(!snap().pl)D.say("لم يستجب الجهاز الآخر. تأكد أن التطبيق مفتوح عليه ومحدَّث، وأن فيه تشغيلًا.",0)},15000)}})};
+D.run=function(c){if(!c)return;if(c.a=="play"&&c.s){try{DV_PLAY(c.s);D.say("تم استلام التشغيل.",1)}catch(e){D.say("فشل التشغيل: "+e.message,0)}setTimeout(D.tick,800)}
  else if(c.a=="give"){var s=snap();if(s.k){D.send(c.f,{a:"play",s:s});try{DV_PAUSE()}catch(e){}setTimeout(D.tick,600)}}};
 D.txt=function(d){var j=d.j||{},on=D.now-d.ut<45000;if(!on)return"غير متصل";
  var t=j.t||"";if(j.act=="listen")return(j.pl?"يستمع الآن: ":"متوقف: ")+t+(j.rec?" — "+j.rec:"");
@@ -697,7 +698,7 @@ D.html=function(){var me=snap(),h="";if(!D.devs.length)return'<div class="dvn">�
   if(on&&j.k)b+='<button class="dvb" data-xz="ac_dvx_pull_'+d.did+'" id="dvp_'+d.did+'">اسحب التشغيل إلى هنا</button>';
   if(on&&me.k&&me.pl)b+='<button class="dvb s" data-xz="ac_dvx_push_'+d.did+'" id="dvs_'+d.did+'">أرسل التشغيل إليه</button>';
   h+='<div class="dvd'+(on?" on":"")+'"><i></i><div><b>'+(ND[d.kd]||d.nm)+'</b><span>'+D.txt(d)+'</span></div>'+(b?'<div class="dvq">'+b+'</div>':'')+'</div>'});return h};
-setInterval(D.tick,4000);setTimeout(D.tick,1500);
+setInterval(D.tick,3000);setTimeout(D.tick,1500);
 return D})();
 function DV_KIND(){return typeof CARV!=="undefined"?"car":"tv"}
 function DV_S(){if(CUR&&CUR.mo){return{act:"listen",pl:!AUD.paused&&!AUD.ended,k:"r",t:"سورة "+(LB.SW[CUR.s]||CUR.s),rec:CUR.rec&&CUR.rec.name||"",mid:CUR.mo.id,mo:CUR.mo.name,server:CUR.mo.server,list:CUR.mo.surah_list,sura:CUR.s,pos:Math.floor(AUD.currentTime||0)}}return{act:"idle"}}
