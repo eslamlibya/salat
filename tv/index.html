@@ -728,7 +728,7 @@ window.voiceCmd=function(raw){var q=nz(raw).replace(/[.,،؟?!]/g," ").replace(/
  if(/(اخفض|نزل|وطي|قلل).*(الصوت)|(الصوت).*(اخفض|نزل|وطي|قلل)/.test(q)){AUD.volume=Math.max(.05,AUD.volume-.25);return box("🔉 خفض الصوت","",2000)}
  if(/(^| )(افتح|روح|اذهب|ارجع|اعدادات|الاعدادات|خريطه|الخريطه|الرئيسيه)( |$)/.test(q)&&!/(شغل|اقرا|سمعني)/.test(q)){if(nav(q.replace(/^(اعدادات)$/,"الاعدادات")))return;if(/اعدادات/.test(q)&&nav("الاعدادات"))return}
  if(/(شغل|اقرا|سمعني|سمع|ابي|اريد|ابغي|هات|افتح)/.test(q)||surahOf(q)){load(function(){var s=surahOf(q),rec=recOf(q);
-   if(/(ايه|الايه|اية)/.test(q)&&!s){box("تشغيل آية بصوت قارئ","متاح الآن في الهاتف والحاسوب",4000);return}
+   if(/(ايه|الايه|اية)/.test(q)&&!s){box("تشغيل آية بصوت قارئ","غير متاح بعد",3000);return}
    if(!s){if(CUR&&!rec){try{AUD.play()}catch(e){}return box("▶ استمرار","",2500)}s=1}
    if(!rec)rec=CUR?CUR.rec:(LB.R.filter(isLiby)[0]||LB.R[0]);playS(rec,s)});return}
  box("لم أفهم الأمر","جرّب: شغل سورة الكهف بصوت العفاسي · وقف · التالي · افتح الإعدادات",5000)};
@@ -828,7 +828,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=134,APU={busy:0,pend:0};
+var APPV=135,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
