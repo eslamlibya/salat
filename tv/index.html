@@ -733,6 +733,12 @@ function nav(q){var w=q.replace(/(افتح|روح|اذهب|ارجع|الى|إل�
  if(!bs.length)return false;bs[0].click();box("↗ "+bs[0].textContent.trim().slice(0,30),"",2500);return true}
 window.voiceCmd=function(raw){var q=nz(raw).replace(/[.,،؟?!]/g," ").replace(/\s+/g," ").trim();if(!q)return;box("«"+raw+"»","",0);
 
+
+ var KDN={tv:/(التلفزيون|التلفاز|الشاشه|تلفزيون)/,car:/(السياره|سياره|العربيه)/,phone:/(الهاتف|الجوال|التلفون|الموبايل|هاتف)/,pc:/(الحاسوب|الكمبيوتر|اللابتوب|الحاسب|حاسوب)/};
+ var dk=null;for(var kk in KDN)if(KDN[kk].test(q)){dk=kk;break}
+ if(/(حول|انقل|ارسل|وجه|حوّل|شغل.*على|ارسله)/.test(q)&&dk&&/(الى|ل|علي|على|لل)/.test(q)||(/(حول|انقل|ارسل)/.test(q)&&dk)){if(!acG())return box("سجّل الدخول أولًا","قل: افتح الحساب",4000);DVX.tick();return setTimeout(function(){var l=DVX.devs.filter(function(x){return x.kd==dk&&x.did!=DVX.id&&DVX.fresh(x.did,60000)});if(!l.length)return box("لا يوجد جهاز نشط من هذا النوع","افتح Taz عليه ثم أعد المحاولة",5000);DVX.push(l[0].did);box("↗ جارٍ التحويل إلى "+(l[0].nm||dk),"",3000)},900)}
+ if(/(اسحب|هات|جيب|كمل من|اكمل من|خذ من|استمر من)/.test(q)&&dk){if(!acG())return box("سجّل الدخول أولًا","قل: افتح الحساب",4000);DVX.tick();return setTimeout(function(){var l=DVX.devs.filter(function(x){return x.kd==dk&&x.did!=DVX.id&&DVX.fresh(x.did,60000)});if(!l.length)return box("لا يوجد جهاز نشط من هذا النوع","افتح Taz عليه ثم أعد المحاولة",5000);DVX.pull(l[0].did);box("↙ جارٍ السحب من "+(l[0].nm||dk),"",3000)},900)}
+ if(/(الحساب|حسابي|تسجيل الدخول|سجل دخول|سجل الدخول|دخول|اجهزتي|ربط|اربط|الاجهزه|الاجهزة)/.test(q)&&!/(شغل سوره)/.test(q)){try{acOpen()}catch(e){nav("الحساب")};return box(acG()?"👤 حسابي وأجهزتي":"👤 سجّل الدخول","",2500)}
  if(/(وضع النوم|مؤقت النوم|نوم بعد|نمني|انيمني|الغ.*النوم|الغاء.*النوم|الغي.*النوم)/.test(q)||(/(^| )نوم( |$)/.test(q)&&/(شغل|فعل|بعد|الغ)/.test(q))){var n=SLM(q);if(SLP!==undefined){SLP=n;clearTimeout(SLT);if(n)SLT=setTimeout(function(){AUD.pause();SLP=0;try{npDraw()}catch(e){}},n*6e4);try{npDraw()}catch(e){}};var n2=SLM(q);return box(n2?"😴 سيتوقف الصوت بعد "+n2+" دقيقة":"أُلغي مؤقت النوم","",3500)}
  if(/(غير|بدل|غيّر|تغيير|بدّل).*(الخلفيه|الخلفية|الثيم|السمه)/.test(q)||/(الخلفيه|الثيم).*(التاليه|غيرها)/.test(q)){var e=document.getElementById("nvth")||document.getElementById("nvt");if(e&&e.offsetParent){e.click();return box("🌄 تغيّرت الخلفية","",2500)}return box("افتح شاشة التشغيل أولًا","ثم قل: غيّر الخلفية",4000)}
  if(/(بودكاست|اذاعه|راديو|قصص|محاضره|محاضرات|برنامج|حلقه|ذكر)/.test(q)&&/(شغل|افتح|ابي|اريد|سمعني|هات)/.test(q)){var rest=q.replace(/(شغل|افتح|ابي|اريد|سمعني|هات|لي|بودكاست|اذاعه|راديو|قصص|محاضره|محاضرات|برنامج|حلقه)/g," ").trim();var tab=nav("صوتيات")||nav("المكتبه")||nav("المكتبة");setTimeout(function(){var e=rest?clickMatch(rest):null;if(e){e.click();box("▶ "+e.textContent.trim().slice(0,40),"",3500)}else box(rest?"لم أجد «"+rest+"»":"فتحت الصوتيات","اختر من القائمة",4000)},700);return}
@@ -846,7 +852,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=141,APU={busy:0,pend:0};
+var APPV=142,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
