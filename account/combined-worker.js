@@ -184,6 +184,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
   return out(env,{error:"route"},404)}
 
 
+ if(p==="/live"&&req.method==="GET"){const now=Date.now();if(globalThis.__lv&&now-globalThis.__lv.t<240000)return out(env,{ok:true,u:globalThis.__lv.u});try{const r=await fetch("https://aloula.faulio.com/api/v1.1/channels/7/player",{headers:{"Origin":"https://aloula.sba.sa","Referer":"https://aloula.sba.sa/","Accept":"application/json"}});const t=await r.text();const m=t.replace(/\\\//g,"/").match(/https?:\/\/[^"'\s\\<>]+\.m3u8[^"'\s\\<>]*/);if(!m)return out(env,{error:"nolink",st:r.status,len:t.length},502);globalThis.__lv={t:now,u:m[0]};return out(env,{ok:true,u:m[0]})}catch(e){return out(env,{error:"live"},502)}}
  if(p==="/ping"&&req.method==="POST"){
   if(!await limit(env,"pg:"+ip,120,36e5))return out(env,{ok:true});
   const id=String(b.id||""),kd=String(b.kd||""),v=Math.max(0,Math.min(99999,+b.v||0)),cc=String((req.cf&&req.cf.country)||"").slice(0,2).toUpperCase(),now=Date.now();
@@ -289,7 +290,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
 }};
 })();
 
-const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){ctx.waitUntil(ACC.tick(env).catch(()=>{}));return PUSH.scheduled(ev,env,ctx)}
