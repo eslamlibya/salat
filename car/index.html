@@ -361,6 +361,9 @@ html,body{touch-action:pan-x pan-y;overscroll-behavior:none}
 #cr .crac{display:flex;gap:1.4vmin;justify-content:center;margin-top:1.2vmin}
 #cr .crac button{display:flex;align-items:center;gap:1vmin;font:inherit;font-size:2.6vmin;font-weight:600;color:#dbe6f5;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:1vmin 2.4vmin}
 #cr .crac svg{width:3vmin;height:3vmin;color:#ffd36b}
+#cr .crv{text-align:center;font-size:1.6vmin;opacity:.45;color:#9fb0c6;line-height:1;padding-top:.4vmin}
+#ctoast{position:fixed;bottom:5vmin;left:50%;transform:translateX(-50%) translateY(3vmin);z-index:9600;max-width:80vw;background:rgba(14,22,40,.95);border:1px solid rgba(255,211,107,.5);color:#ffe29a;font-size:2.8vmin;font-weight:600;padding:1.4vmin 3vmin;border-radius:99px;opacity:0;pointer-events:none;transition:.3s;text-align:center}
+#ctoast.on{opacity:1;transform:translateX(-50%)}
 
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #tv .tvg button,.ov button{min-height:11vmin;font-size:3.4vmin;padding-inline:3.4vmin}
@@ -936,7 +939,7 @@ document.addEventListener("click",function(e){var t=e.target.closest&&e.target.c
 lgApply();trNode(document.body);
 try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type=="characterData"){var v=m.target.nodeValue,w=tl(v,m.target.parentNode&&m.target.parentNode.tagName=="SMALL");if(w!==v)m.target.nodeValue=w}else m.addedNodes.forEach(trNode)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
-</script><script>window.CAR_BUILD="1795139986";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
+</script><script>window.CAR_BUILD="1795140176";</script><script>/* ===== واجهة السيارة: أزرار كبيرة للمس، صوت القرآن أولاً ===== */
 (function(){
 var CR={v:"hm",rec:null,mo:null,q:""},esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})},p2=function(v){return("0"+v).slice(-2)};
 var IC={pl:'<path d="M8 5v14l11-7z" fill="currentColor"/>',pa:'<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>',nx:'<path d="M6 5v14l9-7zM17 5h2v14h-2z" fill="currentColor"/>',pv:'<path d="M18 5v14l-9-7zM5 5h2v14H5z" fill="currentColor"/>',bk:'<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'};
@@ -1138,7 +1141,7 @@ function crDraw(){var h='<div class="crt"><div class="crl"><b>'+esc(CT[S.city][0
  else if(CR.v=="su"){h+='<div class="crh"><button class="crbk" id="cbk">'+ic("bk",40)+'</button>'+crav(CR.rec.name,8)+'<b>'+esc(CR.rec.name)+' · '+esc(rwn(CR.mo.name))+'</b></div><div class="crsb"><span>'+mi("search",26)+'</span><input id="crq" type="search" placeholder="ابحث عن سورة بالاسم أو الرقم" autocomplete="off"></div><div class="crg c4" id="cgl">'+suTiles("")+'</div>'}
 
  h+='</div>';var DK=[["chm","home","الرئيسية",CR.v=="hm"],["cq","book","القرآن",CR.v=="np"||CR.v=="rc"||CR.v=="mo"||CR.v=="su"],["cmq","pin","الخريطة",CR.v=="mq"],["cpd","pod","القصص",CR.v=="pd"],["caz","star","الأذكار",0],["cst","gear","الإعدادات",CR.v=="st"||CR.v=="ct"]];
- d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'</div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();
+ d.innerHTML='<div class="crdk">'+DK.map(function(k){return'<button id="'+k[0]+'" class="'+(k[3]?"on":"")+'">'+mi(k[1],34)+'<span>'+k[2]+'</span></button>'}).join("")+'<small class="crv">v18</small></div><div class="crmn">'+h+'</div>';d.classList.toggle("mfs",CR.v=="mq"&&!!MP.fs);crTop();if(CR.v=="mq")mapInit();if(CR.v=="pd")pdInit();
 
  var q=function(i,fn){var e=$(i);if(e)e.onclick=fn};
  var sq=$("crq");if(sq)sq.oninput=function(){var g=$("cgl");if(g)g.innerHTML=CR.v=="rc"?rcTiles(sq.value):suTiles(sq.value)};
@@ -1205,4 +1208,8 @@ function bar(on){var d=document.getElementById("adh");if(!on){if(d)d.remove();re
 function stop(r){if(A){try{A.pause()}catch(e){}A=null}bar(false);if(was&&r!==false){was=false;try{var p=AUD.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}else was=false}
 function go(i){if(i>=U.length){stop(false);return ob("a")}var a=new Audio(U[i]);a.volume=1;A=a;a.onended=function(){stop(true)};a.onerror=function(){if(A===a)go(i+1)};var p=a.play();if(p&&p.catch)p.catch(function(){if(A===a){stop(false);ob("a")}});bar(true)}
 msBeep=function(k){if(k!=="a")return ob(k);if(A)return;was=!!(typeof AUD!=="undefined"&&AUD&&!AUD.paused);if(was)try{AUD.pause()}catch(e){}go(0)}})();
+
+/* car: unplayable surah → message + auto-skip */
+(function(){var busy=0;function toast(t){var d=document.getElementById("ctoast");if(!d){d=document.createElement("div");d.id="ctoast";document.body.appendChild(d)}d.textContent=t;d.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){d.classList.remove("on")},4000)}
+AUD.addEventListener("error",function(){if(!CUR||RT<4||busy)return;busy=1;var nm=LB.SW[CUR.s]||CUR.s;toast("تعذّر تشغيل سورة "+nm+" لهذا القارئ — جارٍ الانتقال للتالية");setTimeout(function(){busy=0;if(CUR&&AUD.error)try{nxt(1)}catch(e){}},1800)})})();
 </script></body></html>
