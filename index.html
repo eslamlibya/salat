@@ -1137,7 +1137,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){if(s.k=="r"){MOS[s.mid]=MOS[s.mid]||{id:s.mid,rec:s.rec,name:s.mo,server:s.server,list:s.list};var id="r:"+s.mid+":"+s.sura;AU[id]=AU[id]||{k:"r",mid:s.mid,sura:s.sura,t:"سورة "+sname(s.sura),artist:s.rec,mo:s.mo,d:0};QUE=String(s.list||"").split(",").filter(Boolean).map(function(x){return s.mid+":"+x});AC="";aplay(id,s.pos||0)}else if(s.k=="u"){AC="";AUD.src=s.u;var pp=AUD.play();if(pp&&pp.catch)pp.catch(function(){})}}
 DVX.cb=function(){acRe()};
 /* ===== تحديث التطبيق ===== */
-var APPV=119,APU={busy:0,pend:0};
+var APPV=120,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
@@ -1508,10 +1508,14 @@ function ams(){if(!("mediaSession" in navigator)||!AC||!window.MediaMetadata)ret
   try{if(isFinite(AUD.duration)&&AUD.duration>0)navigator.mediaSession.setPositionState({duration:AUD.duration,position:Math.min(AUD.currentTime,AUD.duration),playbackRate:AUD.playbackRate||1})}catch(e){}})})();
 /* GPS تلقائي: يغيّر المدينة إلى الأقرب عند تفعيل «تحديد تلقائي» */
 var GPSM="";
-function gpsGo(){if(!S.auto)return;if(!navigator.geolocation){GPSM="غير مدعوم";return}
+function gpsPick(la,lo){var b=-1,bd=1e9;CT.forEach(function(c,i){if(c[0]=="موقعي"||typeof c[2]!="number")return;var dx=(c[2]-la)*111,dy=(c[3]-lo)*111*Math.cos(la*Math.PI/180),d=Math.sqrt(dx*dx+dy*dy);if(d<bd){bd=d;b=i}});
+ if(b>=0&&bd<250)return b;
+ var tz="Africa/Tripoli";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||tz}catch(e){}
+ var e=["موقعي","My location",+la.toFixed(4),+lo.toFixed(4),tz,0,"GPS"];S.cc=S.cc||[];S.cc=S.cc.filter(function(c){return c[0]!="موقعي"});S.cc.push(e);
+ var k=-1;CT.forEach(function(c,i){if(c[0]=="موقعي")k=i});if(k>=0)CT[k]=e;else{CT.push(e);k=CT.length-1}return k}
+function gpsGo(){if(!S.gpsM){S.auto=1;S.gpsM=1;sv()}if(!S.auto)return;if(!navigator.geolocation){GPSM="غير مدعوم";return}
  navigator.geolocation.getCurrentPosition(function(p){var la=p.coords.latitude,lo=p.coords.longitude,b=-1,bd=1e9;
-  CT.forEach(function(c,i){if(typeof c[2]!="number")return;var dx=(c[2]-la)*111,dy=(c[3]-lo)*111*Math.cos(la*Math.PI/180),d=Math.sqrt(dx*dx+dy*dy);if(d<bd){bd=d;b=i}});
-  if(b>=0&&bd<250&&b!=S.city){S.city=b;sv();try{all()}catch(e){}}},function(){},{timeout:15000,maximumAge:6e5})}
+  b=gpsPick(la,lo);if(b!=S.city){S.city=b;sv();try{all()}catch(e){}}},function(){},{timeout:15000,maximumAge:6e5})}
 document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest('[data-k="auto"]');if(t)setTimeout(gpsGo,300)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden)gpsGo()});
 setTimeout(gpsGo,2500);setInterval(gpsGo,6e5);
