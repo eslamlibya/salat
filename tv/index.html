@@ -661,8 +661,8 @@ setInterval(msTick,1000);
  window.adhanPlay=function(){stop();go(0)};
  var PN={};
  function chime(){try{if(typeof msBeep==="function"){msBeep("p");return}var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.2;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.4)}catch(e){}}
- function pbar(t){var d=document.getElementById("preb");if(!d){d=document.createElement("div");d.id="preb";d.style.cssText="position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:991;max-width:90vw;padding:14px 22px;border-radius:28px;background:rgba(20,30,26,.92);color:#fff;font:600 17px sans-serif;direction:rtl;text-align:center;display:flex;gap:12px;align-items:center";document.body.appendChild(d)}
-  d.innerHTML='<span>⏰ '+t+'</span><button style="border:0;border-radius:20px;padding:6px 14px;font:inherit">حسنًا</button>';d.style.display="flex";d.querySelector("button").onclick=function(){d.style.display="none"};clearTimeout(d._t);d._t=setTimeout(function(){d.style.display="none"},60000)}
+ function pbar(t){var d=document.getElementById("preb");if(!d){d=document.createElement("div");d.id="preb";d.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:991;width:max-content;max-width:92vw;padding:12px 14px 12px 20px;border-radius:26px;background:rgba(28,32,30,.78);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);box-shadow:0 8px 30px rgba(0,0,0,.25);color:#fff;font:600 16px sans-serif;direction:rtl;white-space:nowrap;display:flex;gap:14px;align-items:center";document.body.appendChild(d)}
+  d.innerHTML='<span>⏰ '+t+'</span><button style="border:0;border-radius:18px;padding:7px 16px;font:inherit;background:#fff;color:#111">حسنًا</button>';d.style.display="flex";d.querySelector("button").onclick=function(){d.style.display="none"};clearTimeout(d._t);d._t=setTimeout(function(){d.style.display="none"},60000)}
  setInterval(function(){try{var tz=tzo(CT[S.city][4],new Date()),n=tz.min,fr=new Date().getDay()==5,j,i;
   for(j=0;j<NS.length;j++){i=NS[j];if(i==1)continue;var tg=i==0||(i==2&&fr);if(!tg)continue;var k=tz.d+"_"+i;if(n>=P[i][1]-30&&n<P[i][1]-29&&!PN[k]){PN[k]=1;chime();pbar("بعد نصف ساعة: "+(i==0?"صلاة الفجر":"صلاة الجمعة"))}}}catch(e){}},5000);
  var DN={};
@@ -790,7 +790,7 @@ function DV_PAUSE(){try{AUD.pause()}catch(e){}}
 function DV_PLAY(s){try{if(s.sura&&s.t&&LB&&LB.SW&&!LB.SW[s.sura])LB.SW[s.sura]=String(s.t).replace(/^سورة\s*/,"")}catch(e){}if(s.k=="r"){try{acClose()}catch(e){}["az","wo","ms"].forEach(function(x){var e=$(x);if(e)e.classList.remove("on")})}if(s.k=="r")play({name:s.rec},{id:s.mid,name:s.mo,server:s.server,surah_list:s.list},s.sura,s.pos||0,false)}
 DVX.cb=function(){var e=document.getElementById("ac");if(e&&e.classList.contains("on"))acMsg(AC.msg,AC.ok)};
 /* ===== تحديث التطبيق ===== */
-var APPV=130,APU={busy:0,pend:0};
+var APPV=131,APU={busy:0,pend:0};
 function appPlaying(){try{return typeof AUD!=="undefined"&&AUD&&!AUD.paused&&!AUD.ended}catch(e){return false}}
 function appApply(v){try{sessionStorage.setItem("updTry",String(v))}catch(e){}
  var go=function(){location.reload()};
