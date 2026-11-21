@@ -74,6 +74,7 @@ async function init(env){if(READY)return;const d=env.DB;
  d.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)"),
  d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS pcode(code TEXT PRIMARY KEY,plan TEXT NOT NULL,t INTEGER NOT NULL,ub TEXT,ut INTEGER,note TEXT)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS ez(o TEXT PRIMARY KEY,s TEXT NOT NULL,uid INTEGER,nm TEXT,ph TEXT,cur TEXT,link TEXT,st TEXT NOT NULL DEFAULT 'new',code TEXT,tid TEXT,t INTEGER NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS pay(id INTEGER PRIMARY KEY AUTOINCREMENT,uid INTEGER,nm TEXT,ph TEXT,em TEXT,plan TEXT,k TEXT,mime TEXT,fn TEXT,d TEXT,t INTEGER,st TEXT NOT NULL DEFAULT 'new',code TEXT,note TEXT)"),
  d.prepare("CREATE TABLE IF NOT EXISTS subs(uid INTEGER PRIMARY KEY,plan TEXT NOT NULL,exp INTEGER NOT NULL,ut INTEGER NOT NULL,note TEXT)"),
  d.prepare("CREATE TABLE IF NOT EXISTS fin(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,kind TEXT NOT NULL,amt REAL NOT NULL,cur TEXT NOT NULL,cat TEXT,note TEXT,uid INTEGER)"),
@@ -120,7 +121,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
  const u=new URL(req.url),p=u.pathname,ip=req.headers.get("CF-Connecting-IP")||"x";
  if(req.method==="GET"&&p==="/")return out(env,{ok:true,name:"salat-account"});
  try{await init(env);
- let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>((p==="/sup/send"||p==="/pay/send")?1100000:400000))return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}}
+ let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>((p==="/sup/send"||p==="/pay/send")?1100000:400000))return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}if(b&&typeof b==="object"&&p==="/pay/ezone/hook")Object.defineProperty(b,"__raw",{value:tx,enumerable:false});}
 
  if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0,ct:c.content||{},gid:String(env.GOOGLE_CLIENT_ID||"")})}
  if(p.indexOf("/admin/")===0){
@@ -207,6 +208,32 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
   let exp=now+days*864e5;
   if(me){const cur=await env.DB.prepare("SELECT exp FROM subs WHERE uid=?").bind(me.id).first(),base=cur&&cur.exp>now?cur.exp:now;exp=base+days*864e5;await env.DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(me.id,row.plan,exp,now,"code").run()}
   return out(env,{ok:true,pro:{plan:row.plan,exp},acc:!!me})}
+ if(p==="/pay/ezone"&&req.method==="POST"){
+  if(!env.EZONE_KEY)return out(env,{error:"noez"},503);
+  if(!await limit(env,"ez:"+ip,8,36e5))return out(env,{error:"rate"},429);
+  const me=await auth(env,req),nm=String(b.nm||(me?me.name:"")||"").trim().slice(0,60),ph=String(b.ph||"").replace(/[^\d+]/g,"").slice(0,20),usd=b.cur!=="lyd";
+  if(nm.length<2||ph.length<7)return out(env,{error:"need"},400);
+  const R=n=>Array.from(crypto.getRandomValues(new Uint8Array(n)),x=>"abcdefghijkmnpqrstuvwxyz23456789"[x%32]).join(""),o="TZ"+R(10).toUpperCase(),sk=R(24),pt=nm.split(/\s+/),fn=pt[0],ln=pt.slice(1).join(" ")||pt[0];
+  let r,j;try{r=await fetch((env.EZONE_BASE||"https://test.ezonepay.ly").replace(/\/+$/,"")+"/payment-link/new",{method:"POST",headers:{"X-API-Key":env.EZONE_KEY,"Content-Type":"application/json"},body:JSON.stringify({Title:"Taz Pro",OrderReference:o,IsUniqueOrderReference:true,Amount:usd?12.49:80,Currency:usd?2:1,Note:"Taz Pro lifetime",MaxUsageCount:1,Customer:{FirstName:fn,LastName:ln,PhoneNumber:ph},RedirectUrl:"https://eslamlibya.github.io/salat/"})});j=await r.json().catch(()=>null)}catch(e){return out(env,{error:"ez"},502)}
+  const fl=(x,d)=>{if(!x||typeof x!=="object"||d>3)return"";for(const k of Object.keys(x)){const v=x[k];if(typeof v==="string"&&/^https:\/\//.test(v)&&/link|url/i.test(k))return v}for(const k of Object.keys(x)){const v=fl(x[k],d+1);if(v)return v}return""},link=fl(j,0);
+  if(!r.ok||!link)return out(env,{error:"ez",d:String(r.status)},502);
+  await env.DB.prepare("INSERT INTO ez(o,s,uid,nm,ph,cur,link,t) VALUES(?,?,?,?,?,?,?,?)").bind(o,sk,me?me.id:null,nm,ph,usd?"usd":"lyd",link,Date.now()).run();
+  return out(env,{ok:true,o,s:sk,link})}
+ if(p==="/pay/ezone/st"&&req.method==="POST"){
+  if(!await limit(env,"ezs:"+ip,120,36e5))return out(env,{error:"rate"},429);
+  const r=await env.DB.prepare("SELECT s,st,code FROM ez WHERE o=?").bind(String(b.o||"").slice(0,20)).first();if(!r||!same(await sha(String(b.s||"")),await sha(r.s)))return out(env,{error:"bad"},404);
+  return out(env,{ok:true,st:r.st,code:r.st==="paid"?r.code:""})}
+ if(p==="/pay/ezone/hook"&&req.method==="POST"){
+  if(!env.EZONE_WH)return out(env,{error:"nowh"},503);
+  const raw=JSON.stringify(b),sig=req.headers.get("X-Signature")||"";
+  const hm=async t=>{const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(env.EZONE_WH),{name:"HMAC",hash:"SHA-256"},false,["sign"]),g=await crypto.subtle.sign("HMAC",k,new TextEncoder().encode(t));return btoa(String.fromCharCode(...new Uint8Array(g)))};
+  if(!(sig&&(same(await sha(sig),await sha(await hm(raw)))||same(await sha(sig),await sha(await hm(b.__raw||""))))))return out(env,{error:"sig"},401);
+  if(+b.event!==2||!b.orderReference)return out(env,{ok:true});
+  const r=await env.DB.prepare("SELECT o,uid,st FROM ez WHERE o=?").bind(String(b.orderReference)).first();if(!r||r.st==="paid")return out(env,{ok:true});
+  const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",g=()=>Array.from(crypto.getRandomValues(new Uint8Array(5)),x=>A[x%A.length]).join(""),code="TZ-"+g()+"-"+g(),now=Date.now();
+  const u=await env.DB.prepare("UPDATE ez SET st='paid',code=?,tid=? WHERE o=? AND st<>'paid'").bind(code,String(b.transactionId||""),r.o).run();if(!u||!u.meta||u.meta.changes!==1)return out(env,{ok:true});
+  await env.DB.prepare("INSERT INTO pcode(code,plan,t,note) VALUES(?,?,?,?)").bind(code,"l",now,"ezone#"+r.o).run();
+  return out(env,{ok:true})}
  if(p==="/pay/send"&&req.method==="POST"){
   if(!await limit(env,"py:"+ip,10,36e5))return out(env,{error:"rate"},429);
   const me=await auth(env,req),at=b.att&&typeof b.att==="object"?b.att:null,nm=String(b.nm||(me?me.name:"")||"").trim().slice(0,60),ph=String(b.ph||"").replace(/[^\d+]/g,"").slice(0,20),em=String(b.em||(me?me.email:"")||"").trim().slice(0,100),plan=b.plan==="l"?"l":b.plan==="y"?"y":"m";
@@ -333,7 +360,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
 }};
 })();
 
-const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem","/pay/send","/login/google"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem","/pay/send","/pay/ezone","/pay/ezone/st","/pay/ezone/hook","/login/google"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){ctx.waitUntil(ACC.tick(env).catch(()=>{}));return PUSH.scheduled(ev,env,ctx)}
