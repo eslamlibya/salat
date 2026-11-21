@@ -74,6 +74,7 @@ async function init(env){if(READY)return;const d=env.DB;
  d.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)"),
  d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS pcode(code TEXT PRIMARY KEY,plan TEXT NOT NULL,t INTEGER NOT NULL,ub TEXT,ut INTEGER,note TEXT)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS pay(id INTEGER PRIMARY KEY AUTOINCREMENT,uid INTEGER,nm TEXT,ph TEXT,em TEXT,plan TEXT,k TEXT,mime TEXT,fn TEXT,d TEXT,t INTEGER,st TEXT NOT NULL DEFAULT 'new',code TEXT,note TEXT)"),
  d.prepare("CREATE TABLE IF NOT EXISTS subs(uid INTEGER PRIMARY KEY,plan TEXT NOT NULL,exp INTEGER NOT NULL,ut INTEGER NOT NULL,note TEXT)"),
  d.prepare("CREATE TABLE IF NOT EXISTS fin(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,kind TEXT NOT NULL,amt REAL NOT NULL,cur TEXT NOT NULL,cat TEXT,note TEXT,uid INTEGER)"),
  d.prepare("CREATE TABLE IF NOT EXISTS log(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,a TEXT NOT NULL,d TEXT)"),
@@ -119,7 +120,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
  const u=new URL(req.url),p=u.pathname,ip=req.headers.get("CF-Connecting-IP")||"x";
  if(req.method==="GET"&&p==="/")return out(env,{ok:true,name:"salat-account"});
  try{await init(env);
- let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>(p==="/sup/send"?1100000:400000))return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}}
+ let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>((p==="/sup/send"||p==="/pay/send")?1100000:400000))return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}}
 
  if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0,ct:c.content||{}})}
  if(p.indexOf("/admin/")===0){
@@ -154,6 +155,14 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
    await DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(r.id,b.plan==="y"?"y":"m",exp,now,String(b.note||"").slice(0,100)).run();
    const a=Math.round((+b.amt||0)*100)/100;if(a>0)await DB.prepare("INSERT INTO fin(t,kind,amt,cur,cat,note,uid) VALUES(?,?,?,?,?,?,?)").bind(now,"in",a,String(b.cur||"USD").slice(0,4).toUpperCase(),"اشتراك",String(b.note||"").slice(0,150),r.id).run();
    return out(env,{ok:true,exp})}
+  if(p==="/admin/pay"&&req.method==="GET"){const r=await DB.prepare("SELECT id,uid,nm,ph,em,plan,k,mime,fn,t,st,code,note FROM pay ORDER BY t DESC LIMIT 200").all();return out(env,{ok:true,rows:r.results||[]})}
+  if(p==="/admin/pay/att"&&req.method==="GET"){const r=await DB.prepare("SELECT mime,d,fn FROM pay WHERE id=?").bind(+u.searchParams.get("id")).first();return r?out(env,{ok:true,mime:r.mime,d:r.d,fn:r.fn||""}):out(env,{error:"route"},404)}
+  if(p==="/admin/pay/approve"&&req.method==="POST"){const r=await DB.prepare("SELECT id,uid,plan,st,code FROM pay WHERE id=?").bind(+b.id).first();if(!r)return out(env,{error:"route"},404);if(r.st==="ok")return out(env,{ok:true,code:r.code||"",granted:!r.code});const days=r.plan==="y"?365:30;let code="",granted=false;
+   if(r.uid){const cur=await DB.prepare("SELECT exp FROM subs WHERE uid=?").bind(r.uid).first(),base=cur&&cur.exp>now?cur.exp:now;await DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(r.uid,r.plan,base+days*864e5,now,"pay#"+r.id).run();granted=true}
+   else if(r.code){code=r.code}else{const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",g=()=>Array.from(crypto.getRandomValues(new Uint8Array(5)),x=>A[x%A.length]).join("");code="TZ-"+g()+"-"+g();await DB.prepare("INSERT INTO pcode(code,plan,t,note) VALUES(?,?,?,?)").bind(code,r.plan,now,"pay#"+r.id).run()}
+   await DB.prepare("UPDATE pay SET st='ok',code=? WHERE id=?").bind(code,r.id).run();return out(env,{ok:true,code,granted})}
+  if(p==="/admin/pay/reject"&&req.method==="POST"){await DB.prepare("UPDATE pay SET st='no',note=? WHERE id=? AND st='new'").bind(String(b.note||"").slice(0,100),+b.id).run();return out(env,{ok:true})}
+  if(p==="/admin/pay/del"&&req.method==="POST"){await DB.prepare("DELETE FROM pay WHERE id=?").bind(+b.id).run();return out(env,{ok:true})}
   if(p==="/admin/pcode/new"&&req.method==="POST"){const n=Math.max(1,Math.min(20,+b.n||1)),pl=b.plan==="y"?"y":"m",A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",g=()=>{const a=crypto.getRandomValues(new Uint8Array(5));return Array.from(a,x=>A[x%A.length]).join("")},L=[];for(let i=0;i<n;i++){const c="TZ-"+g()+"-"+g();await DB.prepare("INSERT INTO pcode(code,plan,t,note) VALUES(?,?,?,?)").bind(c,pl,now,String(b.note||"").slice(0,60)).run();L.push(c)}return out(env,{ok:true,codes:L,plan:pl})}
   if(p==="/admin/pcode"&&req.method==="GET"){const r=await DB.prepare("SELECT code,plan,t,ub,ut,note FROM pcode ORDER BY t DESC LIMIT 100").all();return out(env,{ok:true,rows:r.results||[]})}
   if(p==="/admin/pcode/del"&&req.method==="POST"){await DB.prepare("DELETE FROM pcode WHERE code=? AND ub IS NULL").bind(String(b.code||"")).run();return out(env,{ok:true})}
@@ -198,6 +207,15 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
   let exp=now+days*864e5;
   if(me){const cur=await env.DB.prepare("SELECT exp FROM subs WHERE uid=?").bind(me.id).first(),base=cur&&cur.exp>now?cur.exp:now;exp=base+days*864e5;await env.DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(me.id,row.plan,exp,now,"code").run()}
   return out(env,{ok:true,pro:{plan:row.plan,exp},acc:!!me})}
+ if(p==="/pay/send"&&req.method==="POST"){
+  if(!await limit(env,"py:"+ip,10,36e5))return out(env,{error:"rate"},429);
+  const me=await auth(env,req),at=b.att&&typeof b.att==="object"?b.att:null,nm=String(b.nm||(me?me.name:"")||"").trim().slice(0,60),ph=String(b.ph||"").replace(/[^\d+]/g,"").slice(0,20),em=String(b.em||(me?me.email:"")||"").trim().slice(0,100),plan=b.plan==="y"?"y":"m";
+  if(nm.length<2)return out(env,{error:"name"},400);if(ph.replace(/\D/g,"").length<9)return out(env,{error:"phone"},400);if(em&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))return out(env,{error:"email"},400);
+  if(!at)return out(env,{error:"att"},400);
+  const am=String(at.mime||"").split(";")[0].toLowerCase(),ad=String(at.d||""),ak=at.k==="f"?"f":"i",okm=ak==="i"?["image/jpeg","image/png","image/webp"]:["application/pdf"];
+  if(!okm.includes(am)||!ad||ad.length>(ak==="f"?960000:330000)||!/^[A-Za-z0-9+\/=]+$/.test(ad))return out(env,{error:"att"},400);
+  const fn=String(at.name||"receipt").replace(/[^\w.\- \u0600-\u06FF]/g,"").slice(0,60)||"receipt",r=await env.DB.prepare("INSERT INTO pay(uid,nm,ph,em,plan,k,mime,fn,d,t) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(me?me.id:null,nm,ph,em,plan,ak,am,fn,ad,Date.now()).run();
+  return out(env,{ok:true,id:r.meta.last_row_id})}
  if(p==="/ping"&&req.method==="POST"){
   if(!await limit(env,"pg:"+ip,120,36e5))return out(env,{ok:true});
   const id=String(b.id||""),kd=String(b.kd||""),v=Math.max(0,Math.min(99999,+b.v||0)),cc=String((req.cf&&req.cf.country)||"").slice(0,2).toUpperCase(),now=Date.now();
@@ -303,7 +321,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
 }};
 })();
 
-const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem","/pay/send"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){ctx.waitUntil(ACC.tick(env).catch(()=>{}));return PUSH.scheduled(ev,env,ctx)}
