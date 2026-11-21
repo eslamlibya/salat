@@ -122,7 +122,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
  try{await init(env);
  let b={};if(req.method==="POST"||req.method==="PUT"){const tx=await req.text();if(tx.length>((p==="/sup/send"||p==="/pay/send")?1100000:400000))return out(env,{error:"big"},413);try{b=JSON.parse(tx||"{}")}catch(e){return out(env,{error:"json"},400)}}
 
- if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0,ct:c.content||{}})}
+ if(p==="/cfg"&&req.method==="GET"){const rs=await env.DB.prepare("SELECT k,v FROM cfg").all(),c={};(rs.results||[]).forEach(x=>{try{c[x.k]=JSON.parse(x.v)}catch(e){}});return out(env,{ok:true,flags:c.flags||{},bc:c.bc||null,ver:c.ver||0,ct:c.content||{},gid:String(env.GOOGLE_CLIENT_ID||"")})}
  if(p.indexOf("/admin/")===0){
   if(!env.ADMIN_KEY)return out(env,{error:"no-admin-key"},503);
   const ak=(req.headers.get("Authorization")||"").slice(7);
@@ -264,6 +264,18 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
   const em=String(b.email||"").trim().toLowerCase(),r=await env.DB.prepare("SELECT id,email,username,name FROM users WHERE email=?").bind(em).first();
   if(!r||!await chkCode(env,r.id,"v",b.code))return out(env,{error:"code"},400);
   await env.DB.prepare("UPDATE users SET verified=1 WHERE id=?").bind(r.id).run();return out(env,{ok:true,token:await newSess(env,r.id),user:pub(r)})}
+ if(p==="/login/google"&&req.method==="POST"){
+  if(!await limit(env,"gl:"+ip,20,36e5))return out(env,{error:"rate"},429);
+  const gid=String(env.GOOGLE_CLIENT_ID||""),cred=String(b.cred||"");if(!gid)return out(env,{error:"gid"},400);if(cred.length<100||cred.length>4000)return out(env,{error:"login"},400);
+  let g;try{const r=await fetch("https://oauth2.googleapis.com/tokeninfo?id_token="+encodeURIComponent(cred));if(!r.ok)return out(env,{error:"login"},401);g=await r.json()}catch(e){return out(env,{error:"server"},502)}
+  const em=String(g.email||"").toLowerCase();if(g.aud!==gid||!/^(https:\/\/)?accounts\.google\.com$/.test(String(g.iss||""))||String(g.email_verified)!=="true"||!em||+g.exp*1000<Date.now())return out(env,{error:"login"},401);
+  let r=await env.DB.prepare("SELECT * FROM users WHERE email=?").bind(em).first();
+  if(!r){const nm=String(g.name||em.split("@")[0]).trim().slice(0,60)||"مستخدم";let base=em.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,14);if(base.length<3)base=("user"+base).slice(0,14);let un=base,n=0;while(await env.DB.prepare("SELECT 1 FROM users WHERE username=?").bind(un).first()){n++;un=(base+Math.floor(Math.random()*9000+1000)).slice(0,20);if(n>8)break}
+   const salt=rnd(16);try{await env.DB.prepare("INSERT INTO users(email,username,name,salt,hash,verified,created) VALUES(?,?,?,?,?,1,?)").bind(em,un,nm.length<2?"مستخدم":nm,salt,await pbk(rnd(24),salt),Date.now()).run()}catch(e){return out(env,{error:"server"},500)}
+   r=await env.DB.prepare("SELECT * FROM users WHERE email=?").bind(em).first()}
+  else if(!r.verified)await env.DB.prepare("UPDATE users SET verified=1 WHERE id=?").bind(r.id).run();
+  if(await env.DB.prepare("SELECT 1 FROM blk WHERE uid=?").bind(r.id).first())return out(env,{error:"blocked"},403);
+  return out(env,{ok:true,token:await newSess(env,r.id),user:pub(r)})}
  if(p==="/login"&&req.method==="POST"){
   if(!await limit(env,"lg:"+ip,20,36e5))return out(env,{error:"rate"},429);
   const id=String(b.id||"").trim().toLowerCase(),pw=String(b.password||"");
@@ -321,7 +333,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
 }};
 })();
 
-const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem","/pay/send"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem","/pay/send","/login/google"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){ctx.waitUntil(ACC.tick(env).catch(()=>{}));return PUSH.scheduled(ev,env,ctx)}
