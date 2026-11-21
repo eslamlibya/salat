@@ -73,6 +73,7 @@ async function init(env){if(READY)return;const d=env.DB;
  d.prepare("CREATE TABLE IF NOT EXISTS cfg(k TEXT PRIMARY KEY,v TEXT NOT NULL)"),
  d.prepare("CREATE TABLE IF NOT EXISTS bq(endpoint TEXT PRIMARY KEY)"),
  d.prepare("CREATE TABLE IF NOT EXISTS sched(endpoint TEXT NOT NULL,t INTEGER NOT NULL)"),
+ d.prepare("CREATE TABLE IF NOT EXISTS pcode(code TEXT PRIMARY KEY,plan TEXT NOT NULL,t INTEGER NOT NULL,ub TEXT,ut INTEGER,note TEXT)"),
  d.prepare("CREATE TABLE IF NOT EXISTS subs(uid INTEGER PRIMARY KEY,plan TEXT NOT NULL,exp INTEGER NOT NULL,ut INTEGER NOT NULL,note TEXT)"),
  d.prepare("CREATE TABLE IF NOT EXISTS fin(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,kind TEXT NOT NULL,amt REAL NOT NULL,cur TEXT NOT NULL,cat TEXT,note TEXT,uid INTEGER)"),
  d.prepare("CREATE TABLE IF NOT EXISTS log(id INTEGER PRIMARY KEY AUTOINCREMENT,t INTEGER NOT NULL,a TEXT NOT NULL,d TEXT)"),
@@ -153,6 +154,9 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
    await DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(r.id,b.plan==="y"?"y":"m",exp,now,String(b.note||"").slice(0,100)).run();
    const a=Math.round((+b.amt||0)*100)/100;if(a>0)await DB.prepare("INSERT INTO fin(t,kind,amt,cur,cat,note,uid) VALUES(?,?,?,?,?,?,?)").bind(now,"in",a,String(b.cur||"USD").slice(0,4).toUpperCase(),"اشتراك",String(b.note||"").slice(0,150),r.id).run();
    return out(env,{ok:true,exp})}
+  if(p==="/admin/pcode/new"&&req.method==="POST"){const n=Math.max(1,Math.min(20,+b.n||1)),pl=b.plan==="y"?"y":"m",A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",g=()=>{const a=crypto.getRandomValues(new Uint8Array(5));return Array.from(a,x=>A[x%A.length]).join("")},L=[];for(let i=0;i<n;i++){const c="TZ-"+g()+"-"+g();await DB.prepare("INSERT INTO pcode(code,plan,t,note) VALUES(?,?,?,?)").bind(c,pl,now,String(b.note||"").slice(0,60)).run();L.push(c)}return out(env,{ok:true,codes:L,plan:pl})}
+  if(p==="/admin/pcode"&&req.method==="GET"){const r=await DB.prepare("SELECT code,plan,t,ub,ut,note FROM pcode ORDER BY t DESC LIMIT 100").all();return out(env,{ok:true,rows:r.results||[]})}
+  if(p==="/admin/pcode/del"&&req.method==="POST"){await DB.prepare("DELETE FROM pcode WHERE code=? AND ub IS NULL").bind(String(b.code||"")).run();return out(env,{ok:true})}
   if(p==="/admin/sub/revoke"&&req.method==="POST"){await DB.prepare("DELETE FROM subs WHERE uid=?").bind(+b.uid).run();return out(env,{ok:true})}
   if(p==="/admin/sched"&&req.method==="GET"){const rs=await DB.prepare("SELECT id,at,title,body,rep,done FROM sch WHERE done=0 ORDER BY at LIMIT 100").all();return out(env,{ok:true,now,rows:rs.results||[]})}
   if(p==="/admin/sched/add"&&req.method==="POST"){const at=+b.at,t=String(b.title||"").slice(0,80).trim(),m=String(b.body||"").slice(0,300).trim();if(!(at>now-6e4)||(!t&&!m))return out(env,{error:"bad"},400);await DB.prepare("INSERT INTO sch(at,title,body,rep) VALUES(?,?,?,?)").bind(at,t,m,b.rep==="d"||b.rep==="w"?b.rep:"").run();return out(env,{ok:true})}
@@ -185,6 +189,15 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
 
 
  if(p==="/live"&&req.method==="GET"){const now=Date.now();if(globalThis.__lv&&now-globalThis.__lv.t<20000)return out(env,{ok:true,u:globalThis.__lv.u});try{const r=await fetch("https://aloula.faulio.com/api/v1.1/channels/7/player",{headers:{"Origin":"https://aloula.sba.sa","Referer":"https://aloula.sba.sa/","Accept":"application/json"}});const t=await r.text();const m=t.replace(/\\\//g,"/").match(/https?:\/\/[^"'\s\\<>]+\.m3u8[^"'\s\\<>]*/);if(!m)return out(env,{error:"nolink",st:r.status,len:t.length},502);globalThis.__lv={t:now,u:m[0]};return out(env,{ok:true,u:m[0]})}catch(e){return out(env,{error:"live"},502)}}
+ if(p==="/pro/redeem"&&req.method==="POST"){
+  if(!await limit(env,"rd:"+ip,10,36e5))return out(env,{error:"rate"},429);
+  const code=String(b.code||"").toUpperCase().replace(/\s/g,"").slice(0,30),row=/^TZ-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(code)?await env.DB.prepare("SELECT plan,ub FROM pcode WHERE code=?").bind(code).first():null;
+  if(!row)return out(env,{error:"bad"},404);if(row.ub)return out(env,{error:"used"},409);
+  const me=await auth(env,req),now=Date.now(),days=row.plan==="y"?365:30,u=await env.DB.prepare("UPDATE pcode SET ub=?,ut=? WHERE code=? AND ub IS NULL").bind(me?me.username||String(me.id):"device",now,code).run();
+  if(!u||!u.meta||u.meta.changes!==1)return out(env,{error:"used"},409);
+  let exp=now+days*864e5;
+  if(me){const cur=await env.DB.prepare("SELECT exp FROM subs WHERE uid=?").bind(me.id).first(),base=cur&&cur.exp>now?cur.exp:now;exp=base+days*864e5;await env.DB.prepare("INSERT OR REPLACE INTO subs(uid,plan,exp,ut,note) VALUES(?,?,?,?,?)").bind(me.id,row.plan,exp,now,"code").run()}
+  return out(env,{ok:true,pro:{plan:row.plan,exp},acc:!!me})}
  if(p==="/ping"&&req.method==="POST"){
   if(!await limit(env,"pg:"+ip,120,36e5))return out(env,{ok:true});
   const id=String(b.id||""),kd=String(b.kd||""),v=Math.max(0,Math.min(99999,+b.v||0)),cc=String((req.cf&&req.cf.country)||"").slice(0,2).toUpperCase(),now=Date.now();
@@ -290,7 +303,7 @@ return{rl:async(...a)=>{await init(a[0]);return limit(...a)},async tick(env){awa
 }};
 })();
 
-const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live"];
+const AR=["/cfg","/register","/resend","/verify","/login","/forgot","/reset","/me","/logout","/data","/delete","/dev","/dev/cmd","/sup/send","/sup/get","/sup/att","/ping","/live","/pro/redeem"];
 export default{
  fetch(req,env,ctx){const p=new URL(req.url).pathname;return AR.includes(p)||p.indexOf("/admin/")===0?ACC.fetch(req,env):PUSH.fetch(req,env,ctx)},
  scheduled(ev,env,ctx){ctx.waitUntil(ACC.tick(env).catch(()=>{}));return PUSH.scheduled(ev,env,ctx)}
